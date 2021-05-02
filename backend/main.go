@@ -83,9 +83,11 @@ func InterruptHandler() {
 
 func loggingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// for use behind reverse proxy which sets X-Real-IP to the remote address
-		logging.InfoLogger.Printf("request to %s from %s", r.RequestURI, r.Header.Get("X-Real-IP"))
-		routes.Requests = append(routes.Requests, routes.Request{Time: time.Now(), Request: r})
+		if r.RequestURI != "/metrics" {
+			// for use behind reverse proxy which sets X-Real-IP to the remote address
+			logging.InfoLogger.Printf("request to %s from %s", r.RequestURI, r.Header.Get("X-Real-IP"))
+			routes.Requests = append(routes.Requests, routes.Request{Time: time.Now(), Request: r})
+		}
 
 		// do normal stuff
 		h.ServeHTTP(w, r)

@@ -2,24 +2,52 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/pelletier/go-toml"
+
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/mail"
 	"git.teich.3nt3.de/3nt3/homework/routes"
+	"git.teich.3nt3.de/3nt3/homework/structs"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	logging.InitLoggers()
 
+	// configuration
+	bytes, err := ioutil.ReadFile("config.toml")
+	if err != nil {
+		logging.ErrorLogger.Printf("error reading config.toml: %s\n", err.Error())
+		return
+	}
+
+	config, err := toml.Load(string(bytes))
+	if err != nil {
+		logging.ErrorLogger.Printf("error reading config.toml: %s\n", err.Error())
+		return
+	}
+
+	mail.SMTPHost = config.Get("smtp.host").(string)
+	mail.SMTPUser = config.Get("smtp.user").(string)
+	mail.SMTPPassword = config.Get("smtp.password").(string)
+
+	err = mail.WelcomeMail(structs.User{Email: "gott@3nt3.de"})
+	if err != nil {
+		logging.ErrorLogger.Printf("error sending mail: %s\n", err.Error())
+		return
+	}
+
 	port := 8005
 
-	err := db.InitDatabase(false)
+	err = db.InitDatabase(false)
 
 	if err != nil {
 		logging.ErrorLogger.Printf("error connecting to db: %v\n", err)

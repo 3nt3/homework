@@ -56,7 +56,7 @@ func main() {
 	r.HandleFunc("/moodle/get-school-info", routes.MoodleGetSchoolInfo).Methods("POST")
 	// TODO: /moodle/get-courses
 
-	r.HandlerFunc("/metrics", routes.Metrics).Methods("GET")
+	r.HandleFunc("/metrics", routes.Metrics).Methods("GET")
 
 	r.Use(loggingMiddleware)
 	r.Use(corsMiddleware)

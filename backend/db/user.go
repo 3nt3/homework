@@ -43,6 +43,15 @@ func GetUserByUsername(username string, getCourses bool) (structs.User, error) {
 	return scanUserRow(row, getCourses)
 }
 
+func GetUserByEmail(email string, getCourses bool) (structs.User, error) {
+	row := database.QueryRow("select * from users where email = $1;", email)
+	if row.Err() != nil {
+		return structs.User{}, row.Err()
+	}
+
+	return scanUserRow(row, getCourses)
+}
+
 /*
 func GetUserByEmail(email string ) (structs.User, error) {
 	row := database.QueryRow("select * from users where email = $1;", email)
@@ -188,4 +197,15 @@ func EmailTaken(email string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func UpdatePassword(id string, password string) error {
+	hash, err := hashPassword(password)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = database.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", hash, id)
+	return err
 }

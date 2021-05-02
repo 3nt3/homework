@@ -15,7 +15,6 @@ import (
 	"git.teich.3nt3.de/3nt3/homework/logging"
 	"git.teich.3nt3.de/3nt3/homework/mail"
 	"git.teich.3nt3.de/3nt3/homework/routes"
-	"git.teich.3nt3.de/3nt3/homework/structs"
 	"github.com/gorilla/mux"
 )
 
@@ -39,12 +38,6 @@ func main() {
 	mail.SMTPUser = config.Get("smtp.user").(string)
 	mail.SMTPPassword = config.Get("smtp.password").(string)
 
-	err = mail.WelcomeMail(structs.User{Email: "gott@3nt3.de"})
-	if err != nil {
-		logging.ErrorLogger.Printf("error sending mail: %s\n", err.Error())
-		return
-	}
-
 	port := 8005
 
 	err = db.InitDatabase(false)
@@ -64,6 +57,8 @@ func main() {
 	r.HandleFunc("/user", routes.GetUser).Methods("GET")
 	r.HandleFunc("/user/login", routes.Login).Methods("POST")
 	r.HandleFunc("/user/online-users", routes.OnlineUsers).Methods("GET")
+	r.HandleFunc("/user/password-reset", routes.IssuePasswordReset).Methods("POST")
+	r.HandleFunc("/user/password-reset/{id}", routes.ResetPassword).Methods("POST")
 	r.HandleFunc("/user/{id}", routes.GetUserById).Methods("GET")
 
 	// misc

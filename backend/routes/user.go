@@ -4,11 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/mail"
 	"git.teich.3nt3.de/3nt3/homework/structs"
 	"github.com/gorilla/mux"
 )
@@ -271,4 +273,86 @@ func OnlineUsers(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_ = returnApiResponse(w, apiResponse{Content: filteredUsers}, 200)
 	}
+}
+
+func IssuePasswordReset(w http.ResponseWriter, r *http.Request) {
+	var data map[string]string
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	usernameOrEmail, ok := data["usernameOrEmail"]
+	if !ok || err != nil {
+		_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"invalid request"}}, 400)
+		return
+	}
+
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	isEmail := re.MatchString(usernameOrEmail)
+
+	var user structs.User
+
+	if isEmail {
+		user, err = db.GetUserByEmail(usernameOrEmail, false)
+		if err != nil && err != sql.ErrNoRows {
+			logging.WarningLogger.Printf("error getting user from db: %v\n", err)
+			_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, 500)
+			return
+		}
+	} else {
+		user, err = db.GetUserByUsername(usernameOrEmail, false)
+		if err != nil && err != sql.ErrNoRows {
+			logging.WarningLogger.Printf("error getting user from db: %v\n", err)
+			_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, 500)
+			return
+		}
+	}
+
+	if err := mail.PasswordResetMail(user); err != nil {
+		if err != nil {
+			logging.WarningLogger.Printf("error sending email: %v\n", err)
+			_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, 500)
+			return
+		}
+	}
+
+	_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{}}, 200)
+}
+
+func ResetPassword(w http.ResponseWriter, r *http.Request) {
+	uid, ok := mux.Vars(r)["id"]
+	if !ok {
+		_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"invalid request", "please specify uid"}}, 400)
+		return
+	}
+
+	exists := false
+	var user structs.User
+	for _, pair := range mail.UserUIDPairs {
+		if pair.Type == mail.PasswordResetType {
+			if pair.UID.String() == uid {
+				exists = true
+				user = pair.User
+			}
+		}
+	}
+
+	if !exists {
+		_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"invalid id"}}, 401)
+		return
+	}
+
+	var data map[string]string
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"invalid request"}}, 400)
+		return
+	}
+	newPassword, ok := data["password"]
+
+	if !ok {
+		_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"invalid request", "please specify new password"}}, 400)
+		return
+	}
+
+	db.UpdatePassword(user.ID.String(), newPassword)
+
+	_ = returnApiResponse(w, apiResponse{Content: true, Errors: nil}, 200)
 }

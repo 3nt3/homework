@@ -22,7 +22,7 @@ type userUIDPair struct {
 var userUIDPairs []userUIDPair
 
 func WelcomeMail(user structs.User) error {
-	subject := fmt.Sprintf("ACTION REQUIRED: confirm your hausis.3nt3.de account")
+	subject := "ACTION REQUIRED: confirm your hausis.3nt3.de account"
 
 	uid := ksuid.New()
 

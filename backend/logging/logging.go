@@ -1,10 +1,11 @@
 package logging
 
 import (
-	"github.com/3nt3/homework/color"
 	"io"
 	"log"
 	"os"
+
+	"git.teich.3nt3.de/3nt3/homework/color"
 )
 
 var (

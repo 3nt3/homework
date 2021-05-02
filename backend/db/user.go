@@ -3,10 +3,11 @@ package db
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/3nt3/homework/structs"
+	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/structs"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 func NewUser(username string, email string, password string) (structs.User, error) {
@@ -173,6 +174,7 @@ func UsernameTaken(username string) (bool, error) {
 
 	return exists, nil
 }
+
 // EmailTaken returns true if there is a row with the email provided as an argument and false if there isn't
 func EmailTaken(email string) (bool, error) {
 	row := database.QueryRow("select exists(select 1 from users where email = $1)", email)

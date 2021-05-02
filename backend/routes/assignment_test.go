@@ -3,13 +3,14 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/3nt3/homework/logging"
-	"github.com/3nt3/homework/structs"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/structs"
 )
 
 func TestCreateAssignment(t *testing.T) {
@@ -88,7 +89,7 @@ func TestDeleteAssignment(t *testing.T) {
 		t.Errorf("error: %v\n", err)
 	}
 
-	req, err = http.NewRequest("DELETE", "http://localhost:8000/assignment?id=" + respA.UID.String(), bytes.NewBuffer(body))
+	req, err = http.NewRequest("DELETE", "http://localhost:8000/assignment?id="+respA.UID.String(), bytes.NewBuffer(body))
 	req.AddCookie(&http.Cookie{Name: "hw_cookie_v2", Value: os.Getenv("HW_SESSION_COOKIE")})
 	if err != nil {
 		t.Errorf("error requesting: %v\n", err)

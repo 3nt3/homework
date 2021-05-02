@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/3nt3/homework/logging"
-	"github.com/3nt3/homework/structs"
-	"github.com/segmentio/ksuid"
 	"net/http"
 	"strconv"
 	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/segmentio/ksuid"
 )
 
 type moodleCourse struct {
@@ -180,19 +181,18 @@ func updateCache(baseURL string, token string, userID ksuid.KSUID, moodleUserID 
 
 		var newCachedCourse structs.CachedCourse = structs.CachedCourse{
 			Course: structs.Course{
-				ID:          mCourse.ID,
-				Name:        mCourse.DisplayName,
-				FromMoodle:  true,
-				User:        userID,
+				ID:         mCourse.ID,
+				Name:       mCourse.DisplayName,
+				FromMoodle: true,
+				User:       userID,
 			},
 			MoodleURL: baseURL,
 			UserID:    userID,
-			CachedAt: now,
+			CachedAt:  now,
 		}
 
 		cacheObjs = append(cacheObjs, newCachedCourse)
 	}
-
 
 	for _, cc := range cacheObjs {
 		err = CreateNewCacheObject(cc)

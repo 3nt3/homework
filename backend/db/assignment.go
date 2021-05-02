@@ -2,10 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"github.com/3nt3/homework/structs"
-	"github.com/segmentio/ksuid"
 	"strconv"
 	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/segmentio/ksuid"
 )
 
 func CreateAssignment(assignment structs.Assignment) (structs.Assignment, error) {

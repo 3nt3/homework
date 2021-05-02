@@ -3,9 +3,10 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/3nt3/homework/structs"
-	"github.com/segmentio/ksuid"
 	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/segmentio/ksuid"
 )
 
 func GetUserCachedCourses(user structs.User) ([]structs.CachedCourse, error) {

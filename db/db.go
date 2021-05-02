@@ -3,16 +3,17 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"github.com/3nt3/homework/logging"
-	_ "github.com/lib/pq"
 	"os"
+
+	"git.teich.3nt3.de/3nt3/homework/logging"
+	_ "github.com/lib/pq"
 )
 
 const (
-	host     = "db"
-	port     = 5432
-	user     = "homework"
-	dbname   = "homework"
+	host   = "db"
+	port   = 5432
+	user   = "homework"
+	dbname = "homework"
 )
 
 var database *sql.DB

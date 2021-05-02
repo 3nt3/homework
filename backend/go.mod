@@ -1,4 +1,4 @@
-module github.com/3nt3/homework
+module git.teich.3nt3.de/3nt3/homework
 
 go 1.16
 

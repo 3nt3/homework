@@ -3,12 +3,13 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/3nt3/homework/db"
-	"github.com/3nt3/homework/logging"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"git.teich.3nt3.de/3nt3/homework/db"
+	"git.teich.3nt3.de/3nt3/homework/logging"
 )
 
 func setup() {
@@ -23,7 +24,7 @@ func setup() {
 	// create user
 	body, _ := json.Marshal(map[string]string{
 		"username": "test",
-		"email": "test@example.com",
+		"email":    "test@example.com",
 		"password": "test123",
 	})
 

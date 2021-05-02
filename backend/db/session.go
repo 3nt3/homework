@@ -1,10 +1,11 @@
 package db
 
 import (
-	"github.com/3nt3/homework/logging"
-	"github.com/3nt3/homework/structs"
-	"github.com/segmentio/ksuid"
 	"time"
+
+	"git.teich.3nt3.de/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/segmentio/ksuid"
 )
 
 func deleteOldSessions(maxAgeDays int) {

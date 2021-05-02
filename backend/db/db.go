@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/logging"
 	_ "github.com/lib/pq"
 )
 

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/3nt3/homework/db"
-	"github.com/3nt3/homework/logging"
+	"git.teich.3nt3.de/3nt3/homework/db"
+	"git.teich.3nt3.de/3nt3/homework/logging"
 )
 
 func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {

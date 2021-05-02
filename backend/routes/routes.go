@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/3nt3/homework/db"
+	"github.com/3nt3/homework/logging"
 	"github.com/3nt3/homework/structs"
 )
 
@@ -46,4 +47,54 @@ func getUserBySession(r *http.Request, getCourses bool) (structs.User, bool, err
 	sessionId := cookie.Value
 
 	return db.GetUserBySession(sessionId, getCourses)
+}
+
+func getOnlineUsers() []structs.CleanUser {
+	// filter requests
+	now := time.Now()
+	relevantRequests := getRequestsAfter(now.Add(time.Minute * -5))
+
+	// get users
+	var users []structs.User
+	for _, req := range relevantRequests {
+		rUser, rAuthenticated, err := getUserBySession(req.Request, false)
+		if err != nil {
+			logging.WarningLogger.Printf("error getting user by saved request session: %v\n", err)
+			continue
+		}
+
+		if !rAuthenticated {
+			continue
+		}
+
+		users = append(users, rUser)
+	}
+
+	// filter duplicates
+	keys := make(map[string]bool)
+	var filteredUsers []structs.CleanUser
+
+	for _, rUser := range users {
+		if _, value := keys[rUser.ID.String()]; !value {
+			keys[rUser.ID.String()] = true
+
+			// append cleaned user
+			filteredUsers = append(filteredUsers, rUser.GetClean())
+		}
+	}
+
+	return filteredUsers
+}
+
+func getRequestsAfter(myTime time.Time) []Request {
+	// filter requests
+	var relevantRequests []Request
+
+	for _, req := range Requests {
+		if req.Time.After(myTime) {
+			relevantRequests = append(relevantRequests, req)
+		}
+	}
+
+	return relevantRequests
 }

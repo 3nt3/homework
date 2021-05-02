@@ -144,7 +144,7 @@ navBarElement label url =
 
 viewHomeButton =
     row [ spacing 7 ]
-        [ text "beta.hausis.3nt3.de"
+        [ text "hausis.3nt3.de"
         , el
             [ padding 3
             , Background.color blueColor

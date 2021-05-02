@@ -12,8 +12,8 @@ localApiAddress =
 
 
 apiAddress =
-    let
-        debug =
-            Debug.log "apiAddress" "fix api address back to actual endpoint"
-    in
-    localApiAddress
+    -- let
+    --     debug =
+    --         Debug.log "apiAddress" "fix api address back to actual endpoint"
+    -- in
+    productionApiAddress

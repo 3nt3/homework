@@ -2,14 +2,14 @@ package routes
 
 import (
 	"encoding/json"
-	"github.com/3nt3/homework/db"
-	"github.com/3nt3/homework/logging"
 	"net/http"
 	"net/url"
+
+	"github.com/3nt3/homework/db"
+	"github.com/3nt3/homework/logging"
 )
 
 func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	user, authenticated, err := getUserBySession(r, false)
 	if err != nil {
@@ -78,10 +78,10 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 
 	// get user id
 	idResp, err := http.PostForm(loginData.URL+"/webservice/rest/server.php", url.Values{
-		"wstoken":    {tokenResp.Token},
-		"wsfunction": {"core_user_get_users_by_field"},
-		"field":      {"username"},
-		"values[0]":  {loginData.Username},
+		"wstoken":            {tokenResp.Token},
+		"wsfunction":         {"core_user_get_users_by_field"},
+		"field":              {"username"},
+		"values[0]":          {loginData.Username},
 		"moodlewsrestformat": {"json"},
 	})
 	if err != nil {
@@ -129,7 +129,7 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 }
 
 func MoodleGetSchoolInfo(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
+
 	type requestStruct struct {
 		Url string `json:"url"`
 	}

@@ -3,9 +3,10 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
+
 	"github.com/3nt3/homework/logging"
 	_ "github.com/lib/pq"
-	"os"
 )
 
 const (
@@ -25,7 +26,6 @@ func InitDatabase(testing bool) error {
 	var psqlconn string
 	if !testing {
 		_, err := os.Stat("/.dockerenv")
-		logging.InfoLogger.Printf("err: %v", err)
 		if os.IsNotExist(err) {
 			logging.InfoLogger.Printf("connecting to db %s@%s", user, "localhost")
 			psqlconn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", port, user, password, dbname)

@@ -3,16 +3,17 @@ package routes
 import (
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/3nt3/homework/db"
 	"github.com/3nt3/homework/logging"
 	"github.com/3nt3/homework/structs"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strings"
 )
 
 func NewUser(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	var userData map[string]string
 	err := json.NewDecoder(r.Body).Decode(&userData)
@@ -81,7 +82,6 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserById(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	id, ok := mux.Vars(r)["id"]
 	if !ok {
@@ -105,7 +105,6 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	var userData map[string]string
 
@@ -161,7 +160,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	user, authenticated, err := getUserBySession(r, true)
 	if err != nil && err != sql.ErrNoRows {
@@ -185,12 +183,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func UsernameTaken(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	username, ok := mux.Vars(r)["username"]
 	if !ok {
 		_ = returnApiResponse(w, apiResponse{
-			Errors:  []string{"no username provided"},
+			Errors: []string{"no username provided"},
 		}, 400)
 		return
 	}
@@ -198,7 +195,7 @@ func UsernameTaken(w http.ResponseWriter, r *http.Request) {
 	taken, err := db.UsernameTaken(username)
 	if err != nil {
 		_ = returnApiResponse(w, apiResponse{
-			Errors:  []string{"internal server error"},
+			Errors: []string{"internal server error"},
 		}, 500)
 	}
 
@@ -206,7 +203,6 @@ func UsernameTaken(w http.ResponseWriter, r *http.Request) {
 }
 
 func EmailTaken(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	email, ok := mux.Vars(r)["email"]
 	if !ok {
@@ -224,4 +220,55 @@ func EmailTaken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = returnApiResponse(w, apiResponse{Content: taken, Errors: []string{}}, 200)
+}
+
+// OnlineUsers returns a list of online users.
+// If ?count is provided, it will just return the number of online users.
+// An online user is defined as a user who issued a request less than 5 minutes ago
+//
+// FIXME: authentication? not sure if this should be admin only.
+func OnlineUsers(w http.ResponseWriter, r *http.Request) {
+	// filter requests
+	var relevantRequests []Request
+
+	for _, req := range Requests {
+		if time.Since(req.Time).Minutes() < 5 {
+			relevantRequests = append(relevantRequests, req)
+		}
+	}
+
+	// get users
+	var users []structs.User
+	for _, req := range relevantRequests {
+		rUser, rAuthenticated, err := getUserBySession(req.Request, false)
+		if err != nil {
+			logging.WarningLogger.Printf("error getting user by saved request session: %v\n", err)
+			continue
+		}
+
+		if !rAuthenticated {
+			continue
+		}
+
+		users = append(users, rUser)
+	}
+
+	// filter duplicates
+	keys := make(map[string]bool)
+	var filteredUsers []structs.CleanUser
+
+	for _, rUser := range users {
+		if _, value := keys[rUser.ID.String()]; !value {
+			keys[rUser.ID.String()] = true
+
+			// append cleaned user
+			filteredUsers = append(filteredUsers, rUser.GetClean())
+		}
+	}
+
+	if _, ok := r.URL.Query()["count"]; ok == true {
+		_ = returnApiResponse(w, apiResponse{Content: len(filteredUsers)}, 200)
+	} else {
+		_ = returnApiResponse(w, apiResponse{Content: filteredUsers}, 200)
+	}
 }

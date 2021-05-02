@@ -2,17 +2,17 @@ package routes
 
 import (
 	"database/sql"
+	"net/http"
+	"time"
+
 	"github.com/3nt3/homework/db"
 	"github.com/3nt3/homework/logging"
 	"github.com/3nt3/homework/structs"
 	"github.com/gorilla/mux"
-	"net/http"
-	"time"
 )
 
 // TODO: return all courses with assignments whose due dates lie in the future
 func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	user, authenticated, err := getUserBySession(r, false)
 	if err != nil {
@@ -50,7 +50,7 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 	for _, c := range courses {
 		var filteredAssignments []structs.Assignment
 		for _, a := range c.Assignments {
-			if time.Time(a.DueDate).Truncate(24 * time.Hour).After(time.Now().Truncate(24 * time.Hour)) || time.Time(a.DueDate).Truncate(24 *time.Hour).Equal(time.Now().Truncate(24 * time.Hour)) {
+			if time.Time(a.DueDate).Truncate(24*time.Hour).After(time.Now().Truncate(24*time.Hour)) || time.Time(a.DueDate).Truncate(24*time.Hour).Equal(time.Now().Truncate(24*time.Hour)) {
 				filteredAssignments = append(filteredAssignments, a)
 			}
 		}
@@ -73,7 +73,6 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchCourses(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	user, authenticated, err := getUserBySession(r, false)
 	if !authenticated {
@@ -118,6 +117,5 @@ func SearchCourses(w http.ResponseWriter, r *http.Request) {
 
 // TODO
 func GetAllCourses(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 }

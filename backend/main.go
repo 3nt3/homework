@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/3nt3/homework/db"
-	"github.com/3nt3/homework/logging"
-	"github.com/3nt3/homework/routes"
-	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"github.com/3nt3/homework/db"
+	"github.com/3nt3/homework/logging"
+	"github.com/3nt3/homework/routes"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -27,13 +29,14 @@ func main() {
 	InterruptHandler()
 
 	r := mux.NewRouter()
-	r.Methods("OPTIONS").HandlerFunc(routes.HandleCORSPreflight)
+	r.Methods("OPTIONS").HandlerFunc(handlePreflight)
 
 	// /user routes
 	r.HandleFunc("/user/register", routes.NewUser).Methods("POST")
 	r.HandleFunc("/user", routes.GetUser).Methods("GET")
-	r.HandleFunc("/user/{id}", routes.GetUserById).Methods("GET")
 	r.HandleFunc("/user/login", routes.Login).Methods("POST")
+	r.HandleFunc("/user/online-users", routes.OnlineUsers).Methods("GET")
+	r.HandleFunc("/user/{id}", routes.GetUserById).Methods("GET")
 
 	// misc
 	r.HandleFunc("/username-taken/{username}", routes.UsernameTaken)
@@ -53,6 +56,9 @@ func main() {
 	r.HandleFunc("/moodle/get-school-info", routes.MoodleGetSchoolInfo).Methods("POST")
 	// TODO: /moodle/get-courses
 
+	r.Use(loggingMiddleware)
+	r.Use(corsMiddleware)
+
 	logging.InfoLogger.Printf("started server on port %d", port)
 	logging.ErrorLogger.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), r).Error())
 }
@@ -71,4 +77,35 @@ func InterruptHandler() {
 		logging.InfoLogger.Printf("exiting...")
 		os.Exit(0)
 	}()
+}
+
+func loggingMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// for use behind reverse proxy which sets X-Real-IP to the remote address
+		logging.InfoLogger.Printf("request to %s from %s", r.RequestURI, r.Header.Get("X-Real-IP"))
+		routes.Requests = append(routes.Requests, routes.Request{Time: time.Now(), Request: r})
+
+		// do normal stuff
+		h.ServeHTTP(w, r)
+	})
+}
+
+func corsMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "OPTIONS" {
+			handlePreflight(w, r)
+		}
+
+		// do normal stuff
+		h.ServeHTTP(w, r)
+	})
+}
+
+func handlePreflight(w http.ResponseWriter, r *http.Request) {
+	// set cors headers
+	// very secure lol
+	w.Header().Add("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Add("Access-Control-Allow-Credentials", "true")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, x-requested-with, Origin")
+	w.Header().Add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
 }

@@ -3,15 +3,16 @@ package routes
 import (
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/3nt3/homework/db"
 	"github.com/3nt3/homework/logging"
 	"github.com/3nt3/homework/structs"
-	"net/http"
-	"strconv"
 )
 
 func CreateAssignment(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
+
 	user, authenticated, err := getUserBySession(r, false)
 
 	if err != nil {
@@ -61,7 +62,6 @@ func CreateAssignment(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -132,7 +132,6 @@ func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAssignments(w http.ResponseWriter, r *http.Request) {
-	HandleCORSPreflight(w, r)
 
 	user, authenticated, err := getUserBySession(r, false)
 	if err != nil {

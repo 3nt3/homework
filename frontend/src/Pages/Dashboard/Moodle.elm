@@ -1,6 +1,6 @@
 module Pages.Dashboard.Moodle exposing (Model, Msg, Params, page)
 
-import Api
+import Api exposing (errorToString)
 import Api.Moodle.Moodle exposing (authenticateUser, getSiteName)
 import Components.Sidebar
 import Element exposing (..)
@@ -19,7 +19,6 @@ import Spa.Url exposing (Url)
 import String
 import Styling.Colors exposing (blueColor, darkGreyColor, greenColor, lighterGreyColor, redColor)
 import Utils.Darken exposing (darken)
-import Api exposing (errorToString)
 
 
 type alias Params =
@@ -84,7 +83,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeMoodleUrlInput text ->
-            ( { model | moodleUrlInput = text }, getSiteName text { onResponse = GotSiteData } )
+            ( { model | moodleUrlInput = text }
+            , getSiteName
+                (if String.startsWith "http://" text || String.startsWith "https://" text then
+                    text
+
+                 else
+                    "http://" ++ text
+                )
+                { onResponse = GotSiteData }
+            )
 
         GotSiteData data ->
             ( { model | moodleSiteName = data }, Cmd.none )
@@ -293,7 +301,7 @@ viewCredentialsForm model =
                 _ ->
                     [ Input.text inputStyle
                         { label = Input.labelAbove [] (text "moodle url")
-                        , placeholder = Just (Input.placeholder [] (text "https://gym-haan.lms.schulon.org"))
+                        , placeholder = Just (Input.placeholder [] (text "moodle.examplesite.com"))
                         , text = model.moodleUrlInput
                         , onChange = ChangeMoodleUrlInput
                         }

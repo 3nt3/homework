@@ -1,6 +1,6 @@
 module Pages.Dashboard.Moodle exposing (Model, Msg, Params, page)
 
-import Api exposing (errorToString)
+import Api 
 import Api.Moodle.Moodle exposing (authenticateUser, getSiteName)
 import Components.Sidebar
 import Element exposing (..)
@@ -10,7 +10,6 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
-import Http
 import Models exposing (Course, User)
 import Shared
 import Spa.Document exposing (Document)

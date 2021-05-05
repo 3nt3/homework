@@ -29,7 +29,7 @@ func NewSession(user structs.User) (structs.Session, error) {
 	return structs.Session{
 		UID:     uid,
 		UserID:  user.ID,
-		Created: now,
+		Created: structs.UnixTime(now),
 	}, err
 }
 

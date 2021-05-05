@@ -29,7 +29,7 @@ func NewUser(username string, email string, password string) (structs.User, erro
 		Username:     username,
 		Email:        email,
 		PasswordHash: hash,
-		Created:      now,
+		Created: structs.UnixTime(now),
 		Privilege:    0,
 	}, nil
 }

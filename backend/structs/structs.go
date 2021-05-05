@@ -1,8 +1,10 @@
 package structs
 
 import (
-	"github.com/segmentio/ksuid"
+	"strconv"
 	"time"
+
+	"github.com/segmentio/ksuid"
 )
 
 // max age in days
@@ -13,19 +15,19 @@ type User struct {
 	Username     string      `json:"username"`
 	Email        string      `json:"email"`
 	PasswordHash string
-	Created      time.Time `json:"created"`
-	Privilege    int8      `json:"privilege"`
-	Courses      []Course  `json:"courses"`
-	MoodleURL    string    `json:"moodle_url"`
-	MoodleToken  string    `json:"moodle_token"`
-	MoodleUserID int       `json:"moodle_user_id"`
+	Created      UnixTime `json:"created"`
+	Privilege    int8     `json:"privilege"`
+	Courses      []Course `json:"courses"`
+	MoodleURL    string   `json:"moodle_url"`
+	MoodleToken  string   `json:"moodle_token"`
+	MoodleUserID int      `json:"moodle_user_id"`
 }
 
 type CleanUser struct {
 	ID           ksuid.KSUID `json:"id"`
 	Username     string      `json:"username"`
 	Email        string      `json:"email"`
-	Created      time.Time   `json:"created"`
+	Created      UnixTime    `json:"created"`
 	Privilege    int8        `json:"privilege"`
 	Courses      []Course    `json:"courses"`
 	MoodleURL    string      `json:"moodle_url"`
@@ -60,16 +62,15 @@ func (a Assignment) GetClean() CleanAssignment {
 type Session struct {
 	UID     ksuid.KSUID `json:"uid"`
 	UserID  ksuid.KSUID `json:"user_id"`
-	Created time.Time   `json:"created"`
+	Created UnixTime    `json:"created"`
 }
 
-type JSONDate time.Time
 type Assignment struct {
 	UID        ksuid.KSUID `json:"id"`
 	User       User        `json:"user"`
-	Created    time.Time   `json:"created"`
+	Created    UnixTime    `json:"created"`
 	Title      string      `json:"title"`
-	DueDate    JSONDate    `json:"due_date"`
+	DueDate    UnixTime    `json:"due_date"`
 	Course     int         `json:"course"`
 	FromMoodle bool        `json:"from_moodle"`
 }
@@ -77,9 +78,9 @@ type Assignment struct {
 type CleanAssignment struct {
 	UID        ksuid.KSUID `json:"id"`
 	User       CleanUser   `json:"user"`
-	Created    time.Time   `json:"created"`
+	Created    UnixTime    `json:"created"`
 	Title      string      `json:"title"`
-	DueDate    JSONDate    `json:"due_date"`
+	DueDate    UnixTime    `json:"due_date"`
 	Course     int         `json:"course"`
 	FromMoodle bool        `json:"from_moodle"`
 }
@@ -123,5 +124,38 @@ type CachedCourse struct {
 	Course
 	MoodleURL string      `json:"moodle_url"`
 	UserID    ksuid.KSUID `json:"user_id"`
-	CachedAt  time.Time   `json:"cached_at"`
+	CachedAt  UnixTime    `json:"cached_at"`
+}
+
+type UnixTime time.Time
+
+// MarshalJSON is used to convert the timestamp to JSON
+func (t UnixTime) MarshalJSON() ([]byte, error) {
+	// uhm ... yeah
+	return []byte(strconv.FormatInt(time.Time(t).UnixNano() / int64(time.Millisecond), 10)), nil
+}
+
+// UnmarshalJSON is used to convert the timestamp from JSON
+func (t *UnixTime) UnmarshalJSON(s []byte) (err error) {
+	r := string(s)
+	q, err := strconv.ParseInt(r, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	// kinda sketchy but I hope it works
+	*(*UnixTime)(t) = UnixTime(time.Unix(q/1000, (q%1000)*int64(time.Nanosecond)))
+	return nil
+}
+
+func (t UnixTime) Unix() int64 {
+	return time.Time(t).Unix()
+}
+
+func (t UnixTime) Time() time.Time {
+	return time.Time(t).UTC()
+}
+
+func (t UnixTime) After(possible time.Time) bool {
+	return time.Time(t).After(possible)
 }

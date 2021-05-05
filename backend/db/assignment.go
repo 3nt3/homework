@@ -37,7 +37,7 @@ func GetAssignmentByID(id string) (structs.Assignment, error) {
 
 	creator, err := GetUserById(creatorID, false)
 	a.User = creator
-	a.DueDate = structs.JSONDate(dueDateT)
+	a.DueDate = structs.UnixTime(dueDateT)
 
 	return a, err
 }
@@ -66,7 +66,7 @@ func GetAssignmentsByCourse(courseID int) ([]structs.Assignment, error) {
 			return nil, err
 		}
 
-		a.DueDate = structs.JSONDate(dueDateT)
+		a.DueDate = structs.UnixTime(dueDateT)
 
 		creator, err := GetUserById(creatorID, false)
 		a.User = creator
@@ -108,7 +108,7 @@ func GetAssignments(user structs.User, maxDays int) ([]structs.Assignment, error
 
 		creator, err := GetUserById(creatorID, false)
 		a.User = creator
-		a.DueDate = structs.JSONDate(dueDateT)
+		a.DueDate = structs.UnixTime(dueDateT)
 		if err != nil {
 			return nil, err
 		}

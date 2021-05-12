@@ -69,7 +69,7 @@ view { params } =
                         , padding 5
                         , Border.rounded 5
                         ]
-                        (text "Beta v0.7")
+                        (text "Beta v0.7.5")
                     ]
                 )
 

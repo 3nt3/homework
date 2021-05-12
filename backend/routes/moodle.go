@@ -2,9 +2,9 @@ package routes
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
@@ -46,12 +46,14 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// replace http:// with https://
+	loginData.URL = strings.Replace(loginData.URL, "http://", "https://", 1)
+
 	// make request to moodle
 	values := url.Values{}
 	values.Set("username", loginData.Username)
 	values.Set("password", loginData.Password)
-	values.Set("service", "moodle_mobile_app")
-	resp, err := http.PostForm("https://gym-haan.lms.schulon.org/login/token.php", values)
+	resp, err := http.PostForm(loginData.URL+"/login/token.php?service=moodle_mobile_app", values)
 
 	if err != nil {
 		if resp != nil {
@@ -117,10 +119,6 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 	var responseData []map[string]interface{}
 
 	// debugging
-	if b, err := ioutil.ReadAll(idResp.Body); err == nil {
-		logging.InfoLogger.Printf("moodle server returned this: %v\n", string(b))
-	}
-
 	err = json.NewDecoder(idResp.Body).Decode(&responseData)
 	if err != nil {
 		_ = returnApiResponse(w, apiResponse{

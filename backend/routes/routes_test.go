@@ -13,7 +13,7 @@ import (
 )
 
 func setup() {
-	logging.InitLoggers()
+	logging.InitLoggers(true)
 
 	// initialize database
 	err := db.InitDatabase(true)

@@ -45,7 +45,7 @@ func GetMoodleUserCourses(user structs.User) ([]structs.Course, error) {
 	expired := false
 	for _, cacheObj := range cacheObjs {
 		// if the cached object is older than (7 * 24 hours = 7 days), set as expired
-		if time.Since(cacheObj.CachedAt).Hours() > (7 * 24) {
+		if time.Since(time.Time(cacheObj.CachedAt)).Hours() > (7 * 24) {
 			expired = true
 			break
 		}
@@ -66,7 +66,7 @@ func GetMoodleUserCourses(user structs.User) ([]structs.Course, error) {
 			getFreshData = true
 		} else {
 			for _, cacheObj := range cacheObjs {
-				if time.Since(cacheObj.CachedAt).Seconds() > 120 {
+				if time.Since(time.Time(cacheObj.CachedAt)).Seconds() > 120 {
 					break
 				}
 			}
@@ -188,7 +188,7 @@ func updateCache(baseURL string, token string, userID ksuid.KSUID, moodleUserID 
 			},
 			MoodleURL: baseURL,
 			UserID:    userID,
-			CachedAt:  now,
+			CachedAt: structs.UnixTime(now),
 		}
 
 		cacheObjs = append(cacheObjs, newCachedCourse)

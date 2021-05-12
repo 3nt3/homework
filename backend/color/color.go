@@ -11,7 +11,7 @@ var Red = "\033[31m"
 var Yellow = "\033[33m"
 
 // var Blue   = "\033[34m"
-// var Purple = "\033[35m"
+var Purple = "\033[35m"
 
 // Cyan makes the text following yellow
 var Cyan = "\033[36m"

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
@@ -45,19 +46,39 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// replace http:// with https://
+	loginData.URL = strings.Replace(loginData.URL, "http://", "https://", 1)
+
 	// make request to moodle
-	resp, err := http.PostForm(loginData.URL+"/login/token.php?service=moodle_mobile_app", url.Values{
-		"username": {loginData.Username},
-		"password": {loginData.Password},
-	})
+	values := url.Values{}
+	values.Set("username", loginData.Username)
+	values.Set("password", loginData.Password)
+	resp, err := http.PostForm(loginData.URL+"/login/token.php?service=moodle_mobile_app", values)
 
 	if err != nil {
-		_ = returnApiResponse(w, apiResponse{
-			Content: nil,
-			Errors:  []string{"error accessing moodle"},
-		}, resp.StatusCode)
+		if resp != nil {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"error accessing moodle"},
+			}, resp.StatusCode)
+		} else {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"error accessing moodle"},
+			}, 500)
+		}
 		logging.WarningLogger.Printf("error: %v", err)
 		return
+	}
+
+	if resp != nil {
+		if resp.StatusCode != 200 {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"error accessing moodle"},
+			}, resp.StatusCode)
+			return
+		}
 	}
 
 	// decode response
@@ -75,6 +96,8 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 		logging.WarningLogger.Printf("error: %v", err)
 		return
 	}
+
+	logging.DebugLogger.Printf("token: %v\n", tokenResp.Token)
 
 	// get user id
 	idResp, err := http.PostForm(loginData.URL+"/webservice/rest/server.php", url.Values{
@@ -94,13 +117,15 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var responseData []map[string]interface{}
+
+	// debugging
 	err = json.NewDecoder(idResp.Body).Decode(&responseData)
 	if err != nil {
 		_ = returnApiResponse(w, apiResponse{
 			Content: nil,
 			Errors:  []string{"error accessing moodle"},
 		}, 500)
-		logging.WarningLogger.Printf("error: %v", err)
+		logging.WarningLogger.Printf("error: %v, %s", err)
 		return
 	}
 

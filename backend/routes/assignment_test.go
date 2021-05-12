@@ -16,7 +16,7 @@ import (
 func TestCreateAssignment(t *testing.T) {
 	a := structs.Assignment{
 		Title:      "test assignment",
-		DueDate:    time.Date(2021, 11, 16, 0, 0, 0, 0, time.UTC),
+		DueDate:    (structs.UnixTime)(time.Date(2021, 11, 16, 0, 0, 0, 0, time.UTC)),
 		Course:     123,
 		FromMoodle: false,
 	}
@@ -50,7 +50,7 @@ func TestDeleteAssignment(t *testing.T) {
 	// create assignment
 	a := structs.Assignment{
 		Title:      "test assignment",
-		DueDate:    time.Date(2021, 11, 16, 0, 0, 0, 0, time.UTC),
+		DueDate:    (structs.UnixTime)(time.Date(2021, 11, 16, 0, 0, 0, 0, time.UTC)),
 		Course:     123,
 		FromMoodle: false,
 	}

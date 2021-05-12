@@ -20,15 +20,10 @@ type alias MinimalCourse =
 
 dateDecoder : Json.Decoder Date.Date
 dateDecoder =
-    Json.string
+    Json.int
         |> Json.andThen
-            (\str ->
-                case Date.fromIsoString str of
-                    Ok res ->
-                        Json.succeed res
-
-                    Err e ->
-                        Json.fail e
+            (\int ->
+                Json.succeed (Date.fromPosix Time.utc (Time.millisToPosix int))
             )
 
 
@@ -77,7 +72,7 @@ getActiveCourses options =
         { body = Http.emptyBody
         , url = apiAddress ++ "/courses/active"
         , method = "GET"
-        , expect = Api.expectJson options.onResponse  (Json.list courseDecoder)
+        , expect = Api.expectJson options.onResponse (Json.list courseDecoder)
         , headers = []
         , timeout = Nothing
         , tracker = Nothing
@@ -122,7 +117,7 @@ createCourse subject teacher options =
                 )
         , url = apiAddress ++ "/courses"
         , method = "POST"
-        , expect = Api.expectJson options.onResponse  courseDecoder
+        , expect = Api.expectJson options.onResponse courseDecoder
         , headers = []
         , timeout = Nothing
         , tracker = Nothing

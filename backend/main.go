@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/pelletier/go-toml"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,11 +17,27 @@ import (
 )
 
 func main() {
-	logging.InitLoggers()
 
 	port := 8005
 
-	err := db.InitDatabase(false)
+
+	// configuration
+	bytes, err := ioutil.ReadFile("config.toml")
+	if err != nil {
+		logging.ErrorLogger.Printf("error reading config.toml: %s\n", err.Error())
+		return
+	}
+
+	config, err := toml.Load(string(bytes))
+	if err != nil {
+		logging.ErrorLogger.Printf("error reading config.toml: %s\n", err.Error())
+		return
+	}
+
+	logging.InitLoggers(config.Get("debugging").(bool))
+	logging.DebugLogger.Printf("debugging mode activated (debug = true in config.toml)")
+
+	err = db.InitDatabase(false)
 
 	if err != nil {
 		logging.ErrorLogger.Printf("error connecting to db: %v\n", err)
@@ -27,6 +45,7 @@ func main() {
 	}
 
 	InterruptHandler()
+
 
 	r := mux.NewRouter()
 	r.Methods("OPTIONS").HandlerFunc(handlePreflight)
@@ -85,7 +104,7 @@ func loggingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.RequestURI != "/metrics" {
 			// for use behind reverse proxy which sets X-Real-IP to the remote address
-			logging.InfoLogger.Printf("request to %s from %s", r.RequestURI, r.Header.Get("X-Real-IP"))
+			logging.InfoLogger.Printf("%s request to %s from %s (%s)", r.Method, r.RequestURI, r.Header.Get("X-Real-IP"), r.RemoteAddr)
 			routes.Requests = append(routes.Requests, routes.Request{Time: time.Now(), Request: r})
 		}
 

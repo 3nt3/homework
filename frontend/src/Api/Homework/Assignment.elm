@@ -1,4 +1,4 @@
-module Api.Homework.Assignment exposing (createAssignment, removeAssignment, getAssignments)
+module Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
 
 import Api
 import Api.Api exposing (apiAddress)
@@ -10,9 +10,19 @@ import Json.Encode as Encode
 import Models exposing (Assignment)
 
 
-dateEncoder : Date.Date -> String
+dateEncoder : Date.Date -> Int
 dateEncoder date =
-    Date.format "d-M-y" date
+    dateToPosixTime date
+
+
+epochStartOffset : Int
+epochStartOffset =
+    719162
+
+
+dateToPosixTime : Date.Date -> Int
+dateToPosixTime date =
+    (Date.toRataDie date - epochStartOffset) * (1000 * 60 * 60 * 24) - (1000 * 60 * 60 * 24)
 
 
 assignmentEncoder : { title : String, courseId : Int, dueDate : Date.Date, fromMoodle : Bool } -> Encode.Value
@@ -20,7 +30,7 @@ assignmentEncoder assignment =
     Encode.object
         [ ( "title", Encode.string assignment.title )
         , ( "course", Encode.int assignment.courseId )
-        , ( "due_date", Encode.string (dateEncoder assignment.dueDate) )
+        , ( "due_date", Encode.int (dateEncoder assignment.dueDate) )
         , ( "from_moodle", Encode.bool assignment.fromMoodle )
         ]
 

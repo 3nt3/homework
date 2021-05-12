@@ -19,6 +19,7 @@ import Spa.Url exposing (Url)
 import String
 import Styling.Colors exposing (blueColor, darkGreyColor, greenColor, lighterGreyColor, redColor)
 import Utils.Darken exposing (darken)
+import Utils.OnEnter exposing (onEnter)
 
 
 type alias Params =
@@ -266,13 +267,13 @@ viewCredentialsForm model =
             (case model.moodleSiteName of
                 Api.Success _ ->
                     [ viewStatusIndicatorThingy model.authenticationData
-                    , Input.text inputStyle
+                    , Input.text (inputStyle ++ [ onEnter Authenticate ])
                         { label = Input.labelAbove [] (text "username")
                         , placeholder = Just (Input.placeholder [] (text "username"))
                         , text = model.moodleUsernameInput
                         , onChange = ChangeMoodleUsernameInput
                         }
-                    , Input.currentPassword inputStyle
+                    , Input.currentPassword (inputStyle ++ [ onEnter Authenticate ])
                         { label = Input.labelAbove [] (text "password")
                         , placeholder = Just (Input.placeholder [] (text "password"))
                         , text = model.moodlePasswordInput

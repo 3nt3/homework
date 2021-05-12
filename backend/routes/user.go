@@ -70,10 +70,12 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionCookie := http.Cookie{
-		Name:   "hw_cookie_v2",
-		Value:  session.UID.String(),
-		MaxAge: structs.MaxSessionAge * 24 * 60 * 60,
-		Path:   "/",
+		Name:     "hw_cookie_v2",
+		Value:    session.UID.String(),
+		MaxAge:   structs.MaxSessionAge * 24 * 60 * 60,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 
 	http.SetCookie(w, &sessionCookie)
@@ -149,10 +151,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionCookie := http.Cookie{
-		Name:   "hw_cookie_v2",
-		Value:  session.UID.String(),
-		MaxAge: structs.MaxSessionAge * 24 * 60 * 60,
-		Path:   "/",
+		Name:     "hw_cookie_v2",
+		Value:    session.UID.String(),
+		MaxAge:   structs.MaxSessionAge * 24 * 60 * 60,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 
 	http.SetCookie(w, &sessionCookie)

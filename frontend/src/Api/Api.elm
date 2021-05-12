@@ -11,6 +11,8 @@ localApiAddress =
     "http://localhost:8005"
 
 
+{-| alway add Debug.log or Debug.todo so you can't build production code with the local api address
+-}
 apiAddress =
     -- let
     --     debug =

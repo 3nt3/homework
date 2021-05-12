@@ -16650,6 +16650,45 @@ var $justinmimbs$date$Date$add = F3(
 				return rd + n;
 		}
 	});
+var $mdgriffith$elm_ui$Internal$Flag$fontAlignment = $mdgriffith$elm_ui$Internal$Flag$flag(12);
+var $mdgriffith$elm_ui$Element$Font$center = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.i4);
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var $elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var $mdgriffith$elm_ui$Element$link = F2(
+	function (attrs, _v0) {
+		var url = _v0.eG;
+		var label = _v0.hX;
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asEl,
+			$mdgriffith$elm_ui$Internal$Model$NodeName('a'),
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Internal$Model$Attr(
+					$elm$html$Html$Attributes$href(url)),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Internal$Model$Attr(
+						$elm$html$Html$Attributes$rel('noopener noreferrer')),
+					A2(
+						$elm$core$List$cons,
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+						A2(
+							$elm$core$List$cons,
+							$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+							A2(
+								$elm$core$List$cons,
+								$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.cC + (' ' + ($mdgriffith$elm_ui$Internal$Style$classes.aN + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.fy)))),
+								attrs))))),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[label])));
+	});
 var $author$project$Pages$Dashboard$dueDateAfterDate = F2(
 	function (dueDate, date) {
 		return _Utils_cmp(
@@ -16700,6 +16739,7 @@ var $author$project$Pages$Dashboard$otherOutstandingAssignments = F2(
 				},
 				courses));
 	});
+var $mdgriffith$elm_ui$Element$Border$solid = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.gY);
 var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
 var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
 var $elm$html$Html$Attributes$src = function (url) {
@@ -17110,7 +17150,7 @@ var $author$project$Pages$Dashboard$viewOustandingAssignments = function (model)
 					var _v1 = model.gj;
 					if (!_v1.$) {
 						var user = _v1.a;
-						return _List_fromArray(
+						return (user.h3 !== '') ? _List_fromArray(
 							[
 								A6($author$project$Pages$Dashboard$viewAssignmentsDayColumn, model.P, 'today', $author$project$Styling$Colors$redColor, model.A, model.aQ, user),
 								A6(
@@ -17129,6 +17169,59 @@ var $author$project$Pages$Dashboard$viewOustandingAssignments = function (model)
 								A3($justinmimbs$date$Date$add, 3, 2, model.A),
 								model.aQ,
 								user)
+							]) : _List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$column,
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+										$mdgriffith$elm_ui$Element$spacing(20)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$mdgriffith$elm_ui$Element$paragraph,
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$centerX,
+												$mdgriffith$elm_ui$Element$centerY,
+												$mdgriffith$elm_ui$Element$Font$bold,
+												$mdgriffith$elm_ui$Element$Font$size(30),
+												$mdgriffith$elm_ui$Element$Font$center
+											]),
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$text('you actually need to link your moodle account in order to use this service lol :)')
+											])),
+										A2(
+										$mdgriffith$elm_ui$Element$link,
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$centerX,
+												$mdgriffith$elm_ui$Element$Background$color($author$project$Styling$Colors$greenColor),
+												A2($mdgriffith$elm_ui$Element$paddingXY, 40, 20),
+												$mdgriffith$elm_ui$Element$Border$rounded(10),
+												$mdgriffith$elm_ui$Element$mouseOver(
+												_List_fromArray(
+													[
+														$mdgriffith$elm_ui$Element$Background$color(
+														A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0)),
+														$mdgriffith$elm_ui$Element$Border$color($author$project$Styling$Colors$greenColor)
+													])),
+												$mdgriffith$elm_ui$Element$Border$solid,
+												$mdgriffith$elm_ui$Element$Border$width(3),
+												$mdgriffith$elm_ui$Element$Border$color($author$project$Styling$Colors$greenColor)
+											]),
+										{
+											hX: A2(
+												$mdgriffith$elm_ui$Element$el,
+												_List_fromArray(
+													[$mdgriffith$elm_ui$Element$centerX, $mdgriffith$elm_ui$Element$centerY, $mdgriffith$elm_ui$Element$Font$bold]),
+												$mdgriffith$elm_ui$Element$text('do that')),
+											eG: $author$project$Spa$Generated$Route$toString(6)
+										})
+									]))
 							]);
 					} else {
 						return _List_fromArray(
@@ -17158,43 +17251,6 @@ var $author$project$Pages$Dashboard$viewOustandingAssignments = function (model)
 			]));
 };
 var $author$project$Components$Sidebar$borderRadius = 20;
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
-var $elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
-var $mdgriffith$elm_ui$Element$link = F2(
-	function (attrs, _v0) {
-		var url = _v0.eG;
-		var label = _v0.hX;
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asEl,
-			$mdgriffith$elm_ui$Internal$Model$NodeName('a'),
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Internal$Model$Attr(
-					$elm$html$Html$Attributes$href(url)),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Internal$Model$Attr(
-						$elm$html$Html$Attributes$rel('noopener noreferrer')),
-					A2(
-						$elm$core$List$cons,
-						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-						A2(
-							$elm$core$List$cons,
-							$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-							A2(
-								$elm$core$List$cons,
-								$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.cC + (' ' + ($mdgriffith$elm_ui$Internal$Style$classes.aN + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.fy)))),
-								attrs))))),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
-				_List_fromArray(
-					[label])));
-	});
 var $author$project$Components$Sidebar$viewLink = F2(
 	function (linkData, active) {
 		return A2(
@@ -17255,8 +17311,6 @@ var $author$project$Components$Sidebar$viewLinks = F2(
 				}
 			}());
 	});
-var $mdgriffith$elm_ui$Internal$Flag$fontAlignment = $mdgriffith$elm_ui$Internal$Flag$flag(12);
-var $mdgriffith$elm_ui$Element$Font$center = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.i4);
 var $mdgriffith$elm_ui$Element$Font$semiBold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.je);
 var $author$project$Components$Sidebar$viewUserComponent = function (user) {
 	return A2(
@@ -22253,7 +22307,6 @@ var $author$project$Pages$Register$passwordStrengthIndicator = function (passwor
 			]),
 		$mdgriffith$elm_ui$Element$none);
 };
-var $mdgriffith$elm_ui$Element$Border$solid = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.gY);
 var $author$project$Pages$Register$inputErrorMessage = function (error) {
 	if (!error.$) {
 		var errorMessage = error.a;

@@ -635,28 +635,31 @@ viewAssignmentsDayColumn courseData title color date assignmentHovered user =
         , width (fillPortion 1)
         , spacing 10
         ]
-        [ el [ Font.bold ] (text title)
-        , case courseData of
+        (case courseData of
             Success allCourses ->
                 let
                     courses =
                         filterCoursesByWhetherAssignmentsAreDueOnDate allCourses date
                 in
                 if List.isEmpty courses then
-                    el [ centerX, centerY, Font.size 30, Font.bold ] (text "*nothing 🎉*")
+                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    , el [ centerX, centerY, Font.size 30, Font.bold ] (text "*nothing 🎉*")
+                    ]
 
                 else
-                    Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue color (Just date) assignmentHovered False user) courses)
+                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue color (Just date) assignmentHovered False user) courses)
+                    ]
 
             Failure e ->
-                text (Api.errorToString e)
+                [ text (Api.errorToString e) ]
 
             Loading ->
-                el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...")
+                [ el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...") ]
 
             NotAsked ->
-                el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...")
-        ]
+                [ el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...") ]
+        )
 
 
 viewOtherAssignments : Api.Data (List Course) -> Date.Date -> Maybe String -> User -> Element Msg
@@ -668,25 +671,26 @@ viewOtherAssignments apiData date assignmentHovered user =
         , padding 20
         , Background.color blueColor
         ]
-        [ el [ Font.bold ] (text "other")
-        , case apiData of
+        (case apiData of
             Success data ->
                 let
                     courses =
                         otherOutstandingAssignments date data
                 in
                 if List.isEmpty courses then
-                    none
+                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length courses) ++ "}")) ]
 
                 else
-                    Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing assignmentHovered True user) courses)
+                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing assignmentHovered True user) courses)
+                    ]
 
             Loading ->
-                el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...")
+                [ el [ centerX, centerY, Font.size 30, Font.bold ] (text "Loading...") ]
 
             _ ->
-                none
-        ]
+                [ none ]
+        )
 
 
 courseGroupToKeyValue : Color -> Maybe Date.Date -> Maybe String -> Bool -> User -> Course -> ( String, Element Msg )

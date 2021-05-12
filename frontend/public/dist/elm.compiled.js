@@ -16994,19 +16994,21 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F6(
 					$mdgriffith$elm_ui$Element$fillPortion(1)),
 					$mdgriffith$elm_ui$Element$spacing(10)
 				]),
-			_List_fromArray(
-				[
-					A2(
-					$mdgriffith$elm_ui$Element$el,
-					_List_fromArray(
-						[$mdgriffith$elm_ui$Element$Font$bold]),
-					$mdgriffith$elm_ui$Element$text(title)),
-					function () {
-					switch (courseData.$) {
-						case 3:
-							var allCourses = courseData.a;
-							var courses = A2($author$project$Pages$Dashboard$filterCoursesByWhetherAssignmentsAreDueOnDate, allCourses, date);
-							return $elm$core$List$isEmpty(courses) ? A2(
+			function () {
+				switch (courseData.$) {
+					case 3:
+						var allCourses = courseData.a;
+						var courses = A2($author$project$Pages$Dashboard$filterCoursesByWhetherAssignmentsAreDueOnDate, allCourses, date);
+						return $elm$core$List$isEmpty(courses) ? _List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[$mdgriffith$elm_ui$Element$Font$bold]),
+								$mdgriffith$elm_ui$Element$text(
+									title + ('{' + ($elm$core$String$fromInt(
+										$elm$core$List$length(courses)) + '}')))),
+								A2(
 								$mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
 									[
@@ -17015,7 +17017,17 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F6(
 										$mdgriffith$elm_ui$Element$Font$size(30),
 										$mdgriffith$elm_ui$Element$Font$bold
 									]),
-								$mdgriffith$elm_ui$Element$text('*nothing 🎉*')) : A2(
+								$mdgriffith$elm_ui$Element$text('*nothing 🎉*'))
+							]) : _List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[$mdgriffith$elm_ui$Element$Font$bold]),
+								$mdgriffith$elm_ui$Element$text(
+									title + ('{' + ($elm$core$String$fromInt(
+										$elm$core$List$length(courses)) + '}')))),
+								A2(
 								$mdgriffith$elm_ui$Element$Keyed$column,
 								_List_fromArray(
 									[
@@ -17031,13 +17043,19 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F6(
 										assignmentHovered,
 										false,
 										user),
-									courses));
-						case 2:
-							var e = courseData.a;
-							return $mdgriffith$elm_ui$Element$text(
-								$author$project$Api$errorToString(e));
-						case 1:
-							return A2(
+									courses))
+							]);
+					case 2:
+						var e = courseData.a;
+						return _List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$text(
+								$author$project$Api$errorToString(e))
+							]);
+					case 1:
+						return _List_fromArray(
+							[
+								A2(
 								$mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
 									[
@@ -17046,9 +17064,12 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F6(
 										$mdgriffith$elm_ui$Element$Font$size(30),
 										$mdgriffith$elm_ui$Element$Font$bold
 									]),
-								$mdgriffith$elm_ui$Element$text('Loading...'));
-						default:
-							return A2(
+								$mdgriffith$elm_ui$Element$text('Loading...'))
+							]);
+					default:
+						return _List_fromArray(
+							[
+								A2(
 								$mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
 									[
@@ -17057,10 +17078,10 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F6(
 										$mdgriffith$elm_ui$Element$Font$size(30),
 										$mdgriffith$elm_ui$Element$Font$bold
 									]),
-								$mdgriffith$elm_ui$Element$text('Loading...'));
-					}
-				}()
-				]));
+								$mdgriffith$elm_ui$Element$text('Loading...'))
+							]);
+				}
+			}());
 	});
 var $author$project$Pages$Dashboard$viewOtherAssignments = F4(
 	function (apiData, date, assignmentHovered, user) {
@@ -17074,19 +17095,30 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F4(
 					$mdgriffith$elm_ui$Element$padding(20),
 					$mdgriffith$elm_ui$Element$Background$color($author$project$Styling$Colors$blueColor)
 				]),
-			_List_fromArray(
-				[
-					A2(
-					$mdgriffith$elm_ui$Element$el,
-					_List_fromArray(
-						[$mdgriffith$elm_ui$Element$Font$bold]),
-					$mdgriffith$elm_ui$Element$text('other')),
-					function () {
-					switch (apiData.$) {
-						case 3:
-							var data = apiData.a;
-							var courses = A2($author$project$Pages$Dashboard$otherOutstandingAssignments, date, data);
-							return $elm$core$List$isEmpty(courses) ? $mdgriffith$elm_ui$Element$none : A2(
+			function () {
+				switch (apiData.$) {
+					case 3:
+						var data = apiData.a;
+						var courses = A2($author$project$Pages$Dashboard$otherOutstandingAssignments, date, data);
+						return $elm$core$List$isEmpty(courses) ? _List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[$mdgriffith$elm_ui$Element$Font$bold]),
+								$mdgriffith$elm_ui$Element$text(
+									'other' + ('{' + ($elm$core$String$fromInt(
+										$elm$core$List$length(courses)) + '}'))))
+							]) : _List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[$mdgriffith$elm_ui$Element$Font$bold]),
+								$mdgriffith$elm_ui$Element$text(
+									'other' + ('{' + ($elm$core$String$fromInt(
+										$elm$core$List$length(courses)) + '}')))),
+								A2(
 								$mdgriffith$elm_ui$Element$Keyed$column,
 								_List_fromArray(
 									[
@@ -17096,9 +17128,12 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F4(
 								A2(
 									$elm$core$List$map,
 									A5($author$project$Pages$Dashboard$courseGroupToKeyValue, $author$project$Styling$Colors$blueColor, $elm$core$Maybe$Nothing, assignmentHovered, true, user),
-									courses));
-						case 1:
-							return A2(
+									courses))
+							]);
+					case 1:
+						return _List_fromArray(
+							[
+								A2(
 								$mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
 									[
@@ -17107,12 +17142,13 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F4(
 										$mdgriffith$elm_ui$Element$Font$size(30),
 										$mdgriffith$elm_ui$Element$Font$bold
 									]),
-								$mdgriffith$elm_ui$Element$text('Loading...'));
-						default:
-							return $mdgriffith$elm_ui$Element$none;
-					}
-				}()
-				]));
+								$mdgriffith$elm_ui$Element$text('Loading...'))
+							]);
+					default:
+						return _List_fromArray(
+							[$mdgriffith$elm_ui$Element$none]);
+				}
+			}());
 	});
 var $author$project$Styling$Colors$yellowColor = A3($mdgriffith$elm_ui$Element$rgb255, 241, 196, 15);
 var $author$project$Pages$Dashboard$viewOustandingAssignments = function (model) {

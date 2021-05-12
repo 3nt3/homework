@@ -6375,8 +6375,8 @@ var $author$project$Shared$Tablet = 1;
 var $author$project$Shared$classifyDevice = function (options) {
 	return (options.jv < 900) ? A4($author$project$Shared$Device, 0, 0, options.jv, options.hD) : ((options.jv < 1400) ? A4($author$project$Shared$Device, 1, 0, options.jv, options.hD) : A4($author$project$Shared$Device, 2, 1, options.jv, options.hD));
 };
-var $author$project$Api$Api$localApiAddress = 'http://localhost:8005';
-var $author$project$Api$Api$apiAddress = $author$project$Api$Api$localApiAddress;
+var $author$project$Api$Api$productionApiAddress = 'https://api.hausis.3nt3.de';
+var $author$project$Api$Api$apiAddress = $author$project$Api$Api$productionApiAddress;
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};

@@ -11,7 +11,7 @@ import (
 
 func CreateAssignment(assignment structs.Assignment) (structs.Assignment, error) {
 	id := ksuid.New()
-	_, err := database.Exec("INSERT INTO assignments (id, content, course_id, due_date, creator_id, created_at, from_moodle) VALUES ($1, $2, $3, $4, $5, $6, $7)", id.String(), assignment.Title, assignment.Course, time.Time(assignment.DueDate), assignment.User.ID, assignment.Created, assignment.FromMoodle)
+	_, err := database.Exec("INSERT INTO assignments (id, content, course_id, due_date, creator_id, created_at, from_moodle) VALUES ($1, $2, $3, $4, $5, $6, $7)", id.String(), assignment.Title, assignment.Course, assignment.DueDate.Time(), assignment.User.ID, assignment.Created.Time(), assignment.FromMoodle)
 
 	newAssignment := assignment
 	newAssignment.UID = id

@@ -554,10 +554,31 @@ viewOustandingAssignments model =
             ]
             (case model.user of
                 Just user ->
-                    [ viewAssignmentsDayColumn model.courseData "today" redColor model.today model.maybeAssignmentHovered user
-                    , viewAssignmentsDayColumn model.courseData "tomorrow" yellowColor (Date.add Date.Days 1 model.today) model.maybeAssignmentHovered user
-                    , viewAssignmentsDayColumn model.courseData "the day after tomorrow" greenColor (Date.add Date.Days 2 model.today) model.maybeAssignmentHovered user
-                    ]
+                    if user.moodleUrl /= "" then
+                        [ viewAssignmentsDayColumn model.courseData "today" redColor model.today model.maybeAssignmentHovered user
+                        , viewAssignmentsDayColumn model.courseData "tomorrow" yellowColor (Date.add Date.Days 1 model.today) model.maybeAssignmentHovered user
+                        , viewAssignmentsDayColumn model.courseData "the day after tomorrow" greenColor (Date.add Date.Days 2 model.today) model.maybeAssignmentHovered user
+                        ]
+
+                    else
+                        [ column [ width fill, spacing 20 ]
+                            [ paragraph [ centerX, centerY, Font.bold, Font.size 30, Font.center ] [ text "you actually need to link your moodle account in order to use this service lol :)" ]
+                            , link
+                                [ centerX
+                                , Background.color greenColor
+                                , paddingXY 40 20
+                                , Border.rounded 10
+                                , mouseOver
+                                    [ Background.color (rgba 0 0 0 0)
+                                    , Border.color greenColor
+                                    ]
+                                , Border.solid
+                                , Border.width 3
+                                , Border.color greenColor
+                                ]
+                                { label = el [ centerX, centerY, Font.bold ] (text "do that"), url = Route.toString Route.Dashboard__Moodle }
+                            ]
+                        ]
 
                 Nothing ->
                     [ none ]

@@ -1,6 +1,6 @@
 module Pages.Dashboard.Moodle exposing (Model, Msg, Params, page)
 
-import Api 
+import Api
 import Api.Moodle.Moodle exposing (authenticateUser, getSiteName)
 import Components.Sidebar
 import Element exposing (..)
@@ -10,6 +10,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
+import Html exposing (input)
 import Models exposing (Course, User)
 import Shared
 import Spa.Document exposing (Document)
@@ -78,18 +79,21 @@ init shared url =
     )
 
 
+addHttpSchemeIfMissing : String -> String
+addHttpSchemeIfMissing input =
+    if String.startsWith "http://" input || String.startsWith "https://" input then
+        input
+
+    else
+        "http://" ++ input
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeMoodleUrlInput text ->
             ( { model | moodleUrlInput = text }
-            , getSiteName
-                (if String.startsWith "http://" text || String.startsWith "https://" text then
-                    text
-
-                 else
-                    "http://" ++ text
-                )
+            , getSiteName (addHttpSchemeIfMissing text)
                 { onResponse = GotSiteData }
             )
 
@@ -103,7 +107,7 @@ update msg model =
             ( { model | moodlePasswordInput = text }, Cmd.none )
 
         Authenticate ->
-            ( model, authenticateUser model.moodleUrlInput model.moodleUsernameInput model.moodlePasswordInput { onResponse = GotAuthenticationData } )
+            ( model, authenticateUser (addHttpSchemeIfMissing model.moodleUrlInput) model.moodleUsernameInput model.moodlePasswordInput { onResponse = GotAuthenticationData } )
 
         GotAuthenticationData data ->
             let

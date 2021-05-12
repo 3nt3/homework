@@ -16,4 +16,4 @@ apiAddress =
     --     debug =
     --         Debug.log "apiAddress" "fix api address back to actual endpoint"
     -- in
-    productionApiAddress
+    localApiAddress

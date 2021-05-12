@@ -74,7 +74,7 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 		Value:    session.UID.String(),
 		MaxAge:   structs.MaxSessionAge * 24 * 60 * 60,
 		Path:     "/",
-		SameSite: SameSiteNoneMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	http.SetCookie(w, &sessionCookie)
@@ -154,7 +154,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Value:    session.UID.String(),
 		MaxAge:   structs.MaxSessionAge * 24 * 60 * 60,
 		Path:     "/",
-		SameSite: SameSiteNoneMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	http.SetCookie(w, &sessionCookie)

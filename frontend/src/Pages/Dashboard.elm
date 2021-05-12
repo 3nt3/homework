@@ -32,6 +32,7 @@ import Styling.Colors exposing (..)
 import Task
 import Time
 import Utils.Darken exposing (darken)
+import Utils.OnEnter exposing (onEnter)
 import Utils.Route exposing (navigate)
 import Utils.Vh exposing (vh, vw)
 
@@ -914,7 +915,11 @@ viewCreateAssignmentForm model =
             [ Input.text
                 (List.append
                     inputStyle
-                    [ Border.roundEach { topLeft = 10, topRight = 0, bottomLeft = 10, bottomRight = 0 } ]
+                    [ Border.roundEach { topLeft = 10, topRight = 0, bottomLeft = 10, bottomRight = 0 }
+
+                    -- FIXME: error handling?
+                    , onEnter CreateAssignment
+                    ]
                 )
                 { label =
                     Input.labelAbove [ Font.color (rgb 1 1 1) ]

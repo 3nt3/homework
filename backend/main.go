@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/pelletier/go-toml"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/pelletier/go-toml"
 
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
@@ -19,7 +20,6 @@ import (
 func main() {
 
 	port := 8005
-
 
 	// configuration
 	bytes, err := ioutil.ReadFile("config.toml")
@@ -46,7 +46,6 @@ func main() {
 
 	InterruptHandler()
 
-
 	r := mux.NewRouter()
 	r.Methods("OPTIONS").HandlerFunc(handlePreflight)
 
@@ -64,6 +63,7 @@ func main() {
 	// /assignment routes
 	r.HandleFunc("/assignment", routes.CreateAssignment).Methods("POST")
 	r.HandleFunc("/assignment", routes.DeleteAssignment).Methods("DELETE")
+	r.HandleFunc("/assignment/{id}", routes.DeleteAssignment).Methods("GET")
 	r.HandleFunc("/assignments", routes.GetAssignments).Methods("GET")
 
 	// /courses routes

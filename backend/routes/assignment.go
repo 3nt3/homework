@@ -9,10 +9,10 @@ import (
 	"git.teich.3nt3.de/3nt3/homework/db"
 	"git.teich.3nt3.de/3nt3/homework/logging"
 	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/gorilla/mux"
 )
 
 func CreateAssignment(w http.ResponseWriter, r *http.Request) {
-
 	user, authenticated, err := getUserBySession(r, false)
 
 	if err != nil {
@@ -188,4 +188,63 @@ func GetAssignments(w http.ResponseWriter, r *http.Request) {
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignments,
 	}, 200)
+}
+
+func GetAssignment(w http.ResponseWriter, r *http.Request) {
+	_, authenticated, err := getUserBySession(r, false)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"invalid session"},
+		}, 401)
+		return
+	}
+
+	id, ok := mux.Vars(r)["id"]
+	if id == "" || !ok {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"no id provided"},
+		}, 404)
+		return
+	}
+
+	assignment, err := db.GetAssignmentByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"assignment not found"},
+			}, 404)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	_ = returnApiResponse(w, apiResponse{
+		Content: assignment.GetClean(),
+	}, 200)
+	return
 }

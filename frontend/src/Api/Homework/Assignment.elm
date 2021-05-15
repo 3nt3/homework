@@ -1,4 +1,4 @@
-module Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
+module Api.Homework.Assignment exposing (createAssignment, getAssignmentByID, getAssignments, removeAssignment)
 
 import Api
 import Api.Api exposing (apiAddress)
@@ -69,6 +69,19 @@ getAssignments maxDays options =
         , headers = []
         , body = Http.emptyBody
         , expect = Api.expectJson options.onResponse (Json.list assignmentDecoder)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+getAssignmentByID : String -> (Api.Data Assignment -> msg) -> Cmd msg
+getAssignmentByID id onResponse =
+    Http.riskyRequest
+        { method = "GET"
+        , url = apiAddress ++ "/assignment/" ++ id
+        , headers = []
+        , body = Http.emptyBody
+        , expect = Api.expectJson onResponse assignmentDecoder
         , timeout = Nothing
         , tracker = Nothing
         }

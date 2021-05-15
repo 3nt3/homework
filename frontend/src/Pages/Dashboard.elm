@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
+import Api.Homework.Assignment exposing (createAssignment, getAssignmentByID, getAssignments, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
 import Array
 import Components.LineChart
@@ -16,6 +16,7 @@ import Element.Input as Input
 import Element.Keyed as Keyed
 import Html
 import Html.Attributes
+import Material.Icons exposing (assignment)
 import Material.Icons.Types exposing (Coloring(..))
 import Models exposing (Assignment, Course, User)
 import Shared
@@ -27,7 +28,7 @@ import Styling.Colors exposing (..)
 import Task
 import Time
 import Utils.Darken exposing (darken)
-import Utils.OnEnter exposing (onEnter)
+import Utils.OnEnter exposing (onEnter, onEsc)
 import Utils.Route
 
 
@@ -56,6 +57,7 @@ type alias Model =
     , maybeAssignmentHovered : Maybe String
     , assignmentData : Api.Data (List Assignment)
     , maybeAssignmentModalActivated : Maybe String
+    , assignmentModalData : Api.Data Assignment
     }
 
 
@@ -76,6 +78,7 @@ type Msg
     | GotAssignmentData (Api.Data (List Assignment))
     | ViewAssignmentModal String
     | CloseModal
+    | GotAssignmentModalData (Api.Data Assignment)
 
 
 page : Page Params Model Msg
@@ -117,7 +120,8 @@ init shared url =
       , errors = []
       , maybeAssignmentHovered = Nothing
       , assignmentData = NotAsked
-      , maybeAssignmentModalActivated = Just "1sQnSJsFu81ZJp0OhQq1XImOPL8"
+      , maybeAssignmentModalActivated = Nothing
+      , assignmentModalData = NotAsked
       }
     , Cmd.batch initCommands
     )
@@ -290,6 +294,7 @@ update msg model =
                                 , searchCoursesText = ""
                                 , searchCoursesData = NotAsked
                                 , selectedCourse = Nothing
+                                , selectedDate = Nothing
                                 , errors = []
                               }
                             , createAssignment { courseId = course.id, title = model.titleTfText, dueDate = dueDate, fromMoodle = course.fromMoodle } { onResponse = GotCreateAssignmentData }
@@ -355,6 +360,7 @@ update msg model =
                                             )
                                             courseData
                                         )
+                                , maybeAssignmentModalActivated = Nothing
                               }
                             , Cmd.none
                             )
@@ -369,7 +375,10 @@ update msg model =
             ( { model | assignmentData = data }, Cmd.none )
 
         ViewAssignmentModal id ->
-            ( { model | maybeAssignmentModalActivated = Just id }, Cmd.none )
+            ( { model | maybeAssignmentModalActivated = Just id }, getAssignmentByID id GotAssignmentModalData )
+
+        GotAssignmentModalData data ->
+            ( { model | assignmentModalData = data }, Cmd.none )
 
         CloseModal ->
             ( { model | maybeAssignmentModalActivated = Nothing }, Cmd.none )
@@ -713,9 +722,11 @@ viewAssignment assignment color maybeHovered displayDate =
         , padding 10
         , Border.rounded 10
         , width fill
+        , pointer
+        , Events.onClick (ViewAssignmentModal assignment.id)
         ]
         [ el
-            [ Events.onClick (ViewAssignmentModal assignment.id) ]
+            []
             (paragraph []
                 [ text
                     ((if displayDate then
@@ -725,17 +736,6 @@ viewAssignment assignment color maybeHovered displayDate =
                         ""
                      )
                         ++ assignment.title
-                        ++ (case maybeHovered of
-                                Just hovered ->
-                                    if hovered then
-                                        " (click to remove)"
-
-                                    else
-                                        ""
-
-                                Nothing ->
-                                    ""
-                           )
                     )
                 ]
             )
@@ -1131,13 +1131,13 @@ viewWeekAssignmentVisualization model =
 viewAssignmentModal : Model -> Element Msg
 viewAssignmentModal model =
     case model.maybeAssignmentModalActivated of
-        Just assignmentID ->
+        Just _ ->
             el
                 [ Background.color (rgba 1 1 1 0.1)
                 , width fill
                 , height fill
-                , Events.onClick CloseModal
                 , padding 200
+                , onEsc CloseModal
                 ]
                 (column
                     [ centerX
@@ -1146,18 +1146,44 @@ viewAssignmentModal model =
                     , height shrink
                     , Font.color (rgb 0 0 0)
                     , padding 40
-                    , spacing 10
+                    , spacing 20
                     , Border.rounded 10
+                    , Font.family [ Font.typeface "Hack" ]
                     ]
-                    [ el
-                        [ Font.alignLeft
-                        , Font.bold
-                        , Font.size 30
-                        ]
-                        (text ("Assignment #" ++ assignmentID))
-                    , el [] (text ("Created by: " ++ "some username"))
-                    ]
+                    (case model.assignmentModalData of
+                        Success assignment ->
+                            [ row [ width fill ]
+                                [ row [ width fill ] [ el [ Font.bold, Font.size 24 ] (text assignment.title), el [ Font.size 24, Font.color greyGreyColor ] (text ("#" ++ assignment.id)) ]
+                                , el
+                                    [ Events.onClick CloseModal
+                                    , Font.color redColor
+                                    , Font.center
+                                    , pointer
+                                    , Font.size 24
+                                    ]
+                                    (text "[x]")
+                                ]
+                            , el [] (text ("Course: " ++ String.fromInt assignment.courseId))
+                            , row [ width fill ]
+                                [ viewButton "[delete]" redColor (RemoveAssignment assignment.id) ]
+                            ]
+
+                        Loading ->
+                            [ text "Loading..." ]
+
+                        NotAsked ->
+                            [ none ]
+
+                        Failure err ->
+                            [ text <| Api.errorToString err ]
+                    )
                 )
 
         Nothing ->
             none
+
+
+viewButton : String -> Color -> Msg -> Element Msg
+viewButton text_ color msg =
+    el [ Font.color color, Events.onClick msg, pointer ]
+        (text text_)

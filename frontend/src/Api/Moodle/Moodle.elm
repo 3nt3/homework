@@ -42,8 +42,8 @@ credentialsEncoder url username password =
         ]
 
 
-authenticateUser : String -> String -> String -> { onResponse : Api.Data User -> msg } -> Cmd msg
-authenticateUser url username password options =
+authenticateUser : String -> String -> String -> (Api.Data User -> msg) -> Cmd msg
+authenticateUser url username password onResponse =
     Http.riskyRequest
         { method = "POST"
         , body = jsonBody (credentialsEncoder url username password)
@@ -51,5 +51,5 @@ authenticateUser url username password options =
         , tracker = Nothing
         , url = apiAddress ++ "/moodle/authenticate"
         , timeout = Nothing
-        , expect = Api.expectJson options.onResponse userDecoder
+        , expect = Api.expectJson onResponse userDecoder
         }

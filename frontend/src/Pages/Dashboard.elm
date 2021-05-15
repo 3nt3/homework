@@ -3,7 +3,6 @@ module Pages.Dashboard exposing (Model, Msg, Params, page)
 import Api exposing (Data(..), HttpError(..))
 import Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
-import Api.Homework.User exposing (getUserFromSession)
 import Array
 import Components.LineChart
 import Components.Sidebar
@@ -17,15 +16,11 @@ import Element.Input as Input
 import Element.Keyed as Keyed
 import Html
 import Html.Attributes
-import Html.Events exposing (onFocus)
-import Http exposing (riskyRequest)
-import Json.Decode exposing (errorToString)
-import Material.Icons as Icons
 import Material.Icons.Types exposing (Coloring(..))
 import Models exposing (Assignment, Course, User)
 import Shared
 import Spa.Document exposing (Document)
-import Spa.Generated.Route as Route exposing (Route)
+import Spa.Generated.Route as Route
 import Spa.Page as Page exposing (Page)
 import Spa.Url exposing (Url)
 import Styling.Colors exposing (..)
@@ -33,8 +28,7 @@ import Task
 import Time
 import Utils.Darken exposing (darken)
 import Utils.OnEnter exposing (onEnter)
-import Utils.Route exposing (navigate)
-import Utils.Vh exposing (vh, vw)
+import Utils.Route
 
 
 type alias Params =
@@ -372,7 +366,7 @@ update msg model =
         HoverAssignment id ->
             ( { model | maybeAssignmentHovered = Just id }, Cmd.none )
 
-        DeHoverAssignment id ->
+        DeHoverAssignment _ ->
             ( { model | maybeAssignmentHovered = Nothing }, Cmd.none )
 
         GotAssignmentData data ->
@@ -485,12 +479,12 @@ dueDateAfterDate dueDate date =
     Date.toRataDie dueDate > Date.toRataDie date
 
 
-dateToPosixTime : Date.Date -> Time.Posix
-dateToPosixTime date =
-    Time.millisToPosix (Date.toRataDie date - 719162 * (1000 * 60 * 60 * 24))
 
-
-
+{-
+   dateToPosixTime : Date.Date -> Time.Posix
+   dateToPosixTime date =
+       Time.millisToPosix (Date.toRataDie date - 719162 * (1000 * 60 * 60 * 24))
+-}
 {-
    inNDays : Int -> Date.Date -> Date.Date
    inNDays days today =
@@ -755,15 +749,15 @@ viewAssignment assignment color maybeHovered displayDate =
         [ el
             (case maybeHovered of
                 Just hovered ->
-                    [ Events.onClick (RemoveAssignment assignment.id) ]
-                        ++ (Events.onMouseEnter (HoverAssignment assignment.id)
-                                :: Events.onMouseLeave (DeHoverAssignment assignment.id)
-                                :: (if hovered then
-                                        [ Font.strike ]
+                    [ Events.onClick (RemoveAssignment assignment.id)
+                    , Events.onMouseEnter (HoverAssignment assignment.id)
+                    , Events.onMouseLeave (DeHoverAssignment assignment.id)
+                    ]
+                        ++ (if hovered then
+                                [ Font.strike ]
 
-                                    else
-                                        []
-                                   )
+                            else
+                                []
                            )
 
                 Nothing ->

@@ -108,7 +108,7 @@ update msg model =
             ( { model | moodlePasswordInput = text }, Cmd.none )
 
         Authenticate ->
-            ( model, authenticateUser (addHttpSchemeIfMissing model.moodleUrlInput) model.moodleUsernameInput model.moodlePasswordInput { onResponse = GotAuthenticationData } )
+            ( model, authenticateUser (addHttpSchemeIfMissing model.moodleUrlInput) model.moodleUsernameInput model.moodlePasswordInput GotAuthenticationData )
 
         GotAuthenticationData data ->
             let

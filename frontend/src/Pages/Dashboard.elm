@@ -55,6 +55,7 @@ type alias Model =
     , errors : List String
     , maybeAssignmentHovered : Maybe String
     , assignmentData : Api.Data (List Assignment)
+    , maybeAssignmentModalActivated : Maybe String
     }
 
 
@@ -72,9 +73,9 @@ type Msg
     | Add1Day
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
-    | HoverAssignment String
-    | DeHoverAssignment String
     | GotAssignmentData (Api.Data (List Assignment))
+    | ViewAssignmentModal String
+    | CloseModal
 
 
 page : Page Params Model Msg
@@ -116,6 +117,7 @@ init shared url =
       , errors = []
       , maybeAssignmentHovered = Nothing
       , assignmentData = NotAsked
+      , maybeAssignmentModalActivated = Just "1sQnSJsFu81ZJp0OhQq1XImOPL8"
       }
     , Cmd.batch initCommands
     )
@@ -363,14 +365,14 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        HoverAssignment id ->
-            ( { model | maybeAssignmentHovered = Just id }, Cmd.none )
-
-        DeHoverAssignment _ ->
-            ( { model | maybeAssignmentHovered = Nothing }, Cmd.none )
-
         GotAssignmentData data ->
             ( { model | assignmentData = data }, Cmd.none )
+
+        ViewAssignmentModal id ->
+            ( { model | maybeAssignmentModalActivated = Just id }, Cmd.none )
+
+        CloseModal ->
+            ( { model | maybeAssignmentModalActivated = Nothing }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -407,6 +409,7 @@ view model =
             , Font.color (rgb 1 1 1)
             , padding 30
             , Background.color darkGreyColor
+            , inFront (viewAssignmentModal model)
             ]
             ((case model.device.class of
                 Shared.Desktop ->
@@ -461,15 +464,6 @@ view model =
     }
 
 
-viewAds : Element msg
-viewAds =
-    html
-        (Html.node "script"
-            [ Html.Attributes.src "https://uprimp.com/bnr.php?section=General&pub=884896&format=300x250&ga=g", Html.Attributes.type_ "text/javascript" ]
-            []
-        )
-
-
 
 -- outstanding? assignments
 
@@ -477,31 +471,6 @@ viewAds =
 dueDateAfterDate : Date.Date -> Date.Date -> Bool
 dueDateAfterDate dueDate date =
     Date.toRataDie dueDate > Date.toRataDie date
-
-
-
-{-
-   dateToPosixTime : Date.Date -> Time.Posix
-   dateToPosixTime date =
-       Time.millisToPosix (Date.toRataDie date - 719162 * (1000 * 60 * 60 * 24))
--}
-{-
-   inNDays : Int -> Date.Date -> Date.Date
-   inNDays days today =
-       Date.fromPosix Time.utc
-           (Time.millisToPosix
-               (floor
-                   (toFloat
-                       (Time.posixToMillis
-                           (dateToPosixTime today)
-                           + ((1000 * 60 * 60 * 24)
-                               * days
-                             )
-                       )
-                   )
-               )
-           )
--}
 
 
 otherOutstandingAssignments : Date.Date -> List Course -> List Course
@@ -534,8 +503,7 @@ viewOustandingAssignments model =
         , Border.rounded borderRadius
         , height fill
         ]
-        [ viewAds
-        , (case model.device.class of
+        [ (case model.device.class of
             Shared.Desktop ->
                 row
 
@@ -747,22 +715,7 @@ viewAssignment assignment color maybeHovered displayDate =
         , width fill
         ]
         [ el
-            (case maybeHovered of
-                Just hovered ->
-                    [ Events.onClick (RemoveAssignment assignment.id)
-                    , Events.onMouseEnter (HoverAssignment assignment.id)
-                    , Events.onMouseLeave (DeHoverAssignment assignment.id)
-                    ]
-                        ++ (if hovered then
-                                [ Font.strike ]
-
-                            else
-                                []
-                           )
-
-                Nothing ->
-                    []
-            )
+            [ Events.onClick (ViewAssignmentModal assignment.id) ]
             (paragraph []
                 [ text
                     ((if displayDate then
@@ -1173,3 +1126,38 @@ viewWeekAssignmentVisualization model =
 
         _ ->
             el [] (text "Loading...")
+
+
+viewAssignmentModal : Model -> Element Msg
+viewAssignmentModal model =
+    case model.maybeAssignmentModalActivated of
+        Just assignmentID ->
+            el
+                [ Background.color (rgba 1 1 1 0.1)
+                , width fill
+                , height fill
+                , Events.onClick CloseModal
+                , padding 200
+                ]
+                (column
+                    [ centerX
+                    , width (shrink |> minimum 800)
+                    , Background.color (rgb 1 1 1)
+                    , height shrink
+                    , Font.color (rgb 0 0 0)
+                    , padding 40
+                    , spacing 10
+                    , Border.rounded 10
+                    ]
+                    [ el
+                        [ Font.alignLeft
+                        , Font.bold
+                        , Font.size 30
+                        ]
+                        (text ("Assignment #" ++ assignmentID))
+                    , el [] (text ("Created by: " ++ "some username"))
+                    ]
+                )
+
+        Nothing ->
+            none

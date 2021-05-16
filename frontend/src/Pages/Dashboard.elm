@@ -1161,72 +1161,91 @@ viewAssignmentModal : Model -> Element Msg
 viewAssignmentModal model =
     case model.maybeAssignmentModalActivated of
         Just _ ->
-            el
-                [ Background.color (rgba 1 1 1 0.1)
-                , width fill
-                , height fill
-                , padding 200
-                ]
-                (column
-                    [ centerX
-                    , width (shrink |> minimum 800)
-                    , Background.color (rgb 1 1 1)
-                    , height shrink
-                    , Font.color (rgb 0 0 0)
-                    , padding 40
-                    , spacing 20
-                    , Border.rounded 10
-                    , Font.family [ Font.typeface "Hack" ]
-                    ]
-                    (case model.assignmentModalData of
-                        Success assignment ->
-                            [ row [ width fill ]
-                                [ el
-                                    [ width fill
-                                    , Events.onClick <| FocusAssignmentTitle assignment.title
-                                    , pointer
-                                    ]
-                                    (if model.assignmentTitleFocused then
-                                        Input.text
-                                            [ Font.bold
-                                            , Font.size 24
-                                            , padding 0
-                                            , focusedOnLoad
-                                            , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
-                                            ]
-                                            { onChange = ChangeAssignmentTitleTfText
-                                            , text = model.editAssignmentTitleTfText
-                                            , placeholder = Nothing
-                                            , label = Input.labelHidden "edit assignment title"
-                                            }
-
-                                     else
-                                        el [ Font.bold, Font.size 24 ] (text assignment.title)
-                                    )
-                                , el
-                                    [ Events.onClick CloseModal
-                                    , Font.color redColor
-                                    , Font.center
-                                    , pointer
-                                    , Font.size 24
-                                    ]
-                                    (text "[x]")
+            case model.courseData of
+                Success courses ->
+                    case model.user of
+                        Just user ->
+                            el
+                                [ Background.color (rgba 1 1 1 0.1)
+                                , width fill
+                                , height fill
+                                , padding 200
                                 ]
-                            , el [] (text ("Course: " ++ String.fromInt assignment.courseId))
-                            , row [ width fill ]
-                                [ viewButton "[delete]" redColor (RemoveAssignment assignment.id) ]
-                            ]
+                                (column
+                                    [ centerX
+                                    , width (shrink |> minimum 800)
+                                    , Background.color (rgb 1 1 1)
+                                    , height shrink
+                                    , Font.color (rgb 0 0 0)
+                                    , padding 40
+                                    , spacing 20
+                                    , Border.rounded 10
+                                    , Font.family [ Font.typeface "Hack" ]
+                                    ]
+                                    (case model.assignmentModalData of
+                                        Success assignment ->
+                                            [ row [ width fill ]
+                                                [ el
+                                                    [ width fill
+                                                    , if user.id == assignment.user.id then
+                                                        Events.onClick <| FocusAssignmentTitle assignment.id
 
-                        Loading ->
-                            [ text "Loading..." ]
+                                                      else
+                                                        pointer
+                                                    , pointer
+                                                    ]
+                                                    (if model.assignmentTitleFocused then
+                                                        Input.text
+                                                            [ Font.bold
+                                                            , Font.size 24
+                                                            , padding 0
+                                                            , focusedOnLoad
+                                                            , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
+                                                            ]
+                                                            { onChange = ChangeAssignmentTitleTfText
+                                                            , text = model.editAssignmentTitleTfText
+                                                            , placeholder = Nothing
+                                                            , label = Input.labelHidden "edit assignment title"
+                                                            }
 
-                        NotAsked ->
-                            [ none ]
+                                                     else
+                                                        el [ Font.bold, Font.size 24 ] (text assignment.title)
+                                                    )
+                                                , el
+                                                    [ Events.onClick CloseModal
+                                                    , Font.color redColor
+                                                    , Font.center
+                                                    , pointer
+                                                    , Font.size 24
+                                                    ]
+                                                    (text "[x]")
+                                                ]
+                                            , el [] (text ("Course: " ++ Maybe.withDefault "undefined" (getCourseNameById courses assignment.courseId)))
+                                            , row [ width fill ]
+                                                [ if user.id == assignment.user.id then
+                                                    viewButton "[delete]" redColor (RemoveAssignment assignment.id)
 
-                        Failure err ->
-                            [ text <| Api.errorToString err ]
-                    )
-                )
+                                                  else
+                                                    none
+                                                ]
+                                            ]
+
+                                        Loading ->
+                                            [ text "Loading..." ]
+
+                                        NotAsked ->
+                                            [ none ]
+
+                                        Failure err ->
+                                            [ text <| Api.errorToString err ]
+                                    )
+                                )
+
+                        Nothing ->
+                            none
+
+                _ ->
+                    none
 
         Nothing ->
             none
@@ -1236,3 +1255,10 @@ viewButton : String -> Color -> Msg -> Element Msg
 viewButton text_ color msg =
     el [ Font.color color, Events.onClick msg, pointer ]
         (text text_)
+
+
+getCourseNameById : List Course -> Int -> Maybe String
+getCourseNameById courses id =
+    List.filter (\c -> c.id == id) courses
+        |> List.head
+        |> Maybe.map (\c -> c.name)

@@ -246,5 +246,98 @@ func GetAssignment(w http.ResponseWriter, r *http.Request) {
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignment.GetClean(),
 	}, 200)
-	return
+}
+
+// UpdateAssignment updates the assignment lol
+func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
+	user, authenticated, err := getUserBySession(r, false)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"invalid session"},
+		}, 401)
+		return
+	}
+
+	id, ok := mux.Vars(r)["id"]
+	if id == "" || !ok {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"no id provided"},
+		}, 404)
+		return
+	}
+
+	assignment, err := db.GetAssignmentByID(id)
+	if err != nil {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"no id provided"},
+		}, 404)
+
+		if err != sql.ErrNoRows {
+			logging.WarningLogger.Printf("error getting assignment: %v\n", err)
+		}
+		return
+	}
+
+	if assignment.User.ID != user.ID {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"you are not the creator of this assignment"},
+		}, http.StatusForbidden)
+		return
+	}
+
+	type updateDataStruct struct {
+		Title   *string           `json:"title"`
+		DueDate *structs.UnixTime `json:"due_date"`
+		// TODO: add other fields to be changed
+	}
+
+	var updateData updateDataStruct
+	err = json.NewDecoder(r.Body).Decode(&updateData)
+	if err != nil {
+		_ = returnApiResponse(w, apiResponse{
+			Errors: []string{"bad request"},
+		}, 400)
+		return
+	}
+
+	if updateData.Title != nil {
+		assignment.Title = *updateData.Title
+	}
+
+	if updateData.DueDate != nil {
+		assignment.DueDate = *updateData.DueDate
+	}
+
+	if err := db.UpdateAssignment(id, assignment); err != nil {
+		logging.WarningLogger.Printf("error updating assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	_ = returnApiResponse(w, apiResponse{
+		Content: assignment.GetClean(),
+	}, 200)
 }

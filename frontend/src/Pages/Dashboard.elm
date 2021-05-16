@@ -1157,6 +1157,8 @@ viewWeekAssignmentVisualization model =
             el [] (text "Loading...")
 
 
+{-| I am not really happy with how this turned out (3000 messages 4 model items that are basically only used once etc.)
+-}
 viewAssignmentModal : Model -> Element Msg
 viewAssignmentModal model =
     case model.maybeAssignmentModalActivated of

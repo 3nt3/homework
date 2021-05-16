@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: return all courses with assignments whose due dates lie in the future
 func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 
 	user, authenticated, err := getUserBySession(r, false)
@@ -66,8 +65,28 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 		cleanCourses = append(cleanCourses, c.GetClean())
 	}
 
+	// TODO: find actual reason courses are doubled?
+	// maybe because cache and new courses are merged? idk
+	var idsSeen []interface{}
+	var filteredFilteredCourses []structs.CleanCourse
+	for _, c := range cleanCourses {
+		duplicate := false
+		for _, id := range idsSeen {
+			if c.ID == id {
+				duplicate = true
+				break
+			}
+		}
+
+		if !duplicate {
+			// logging.DebugLogger.Printf("not duplicate: %+v\n", c)
+			filteredFilteredCourses = append(filteredFilteredCourses, c)
+			idsSeen = append(idsSeen, c.ID)
+		}
+	}
+
 	_ = returnApiResponse(w, apiResponse{
-		Content: cleanCourses,
+		Content: filteredFilteredCourses,
 		Errors:  []string{},
 	}, 200)
 }

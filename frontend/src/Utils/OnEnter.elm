@@ -12,6 +12,10 @@ onEnter msg =
             (Decode.field "key" Decode.string
                 |> Decode.andThen
                     (\key ->
+                        let
+                            _ =
+                                Debug.log "key" key
+                        in
                         if key == "Enter" then
                             Decode.succeed msg
 

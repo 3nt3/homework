@@ -12,7 +12,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Element.Input as Input
+import Element.Input as Input exposing (focusedOnLoad)
 import Element.Keyed as Keyed
 import Material.Icons exposing (assignment)
 import Material.Icons.Types exposing (Coloring(..))
@@ -27,7 +27,7 @@ import Styling.Colors exposing (..)
 import Task
 import Time
 import Utils.Darken exposing (darken)
-import Utils.OnEnter exposing (onEnter, onEsc)
+import Utils.OnEnter exposing (onEnter, onEnterEsc)
 import Utils.Route
 
 
@@ -57,6 +57,8 @@ type alias Model =
     , assignmentData : Api.Data (List Assignment)
     , maybeAssignmentModalActivated : Maybe String
     , assignmentModalData : Api.Data Assignment
+    , editAssignmentTitleTfText : String
+    , assignmentTitleFocused : Bool
     }
 
 
@@ -78,6 +80,10 @@ type Msg
     | ViewAssignmentModal String
     | CloseModal
     | GotAssignmentModalData (Api.Data Assignment)
+    | ChangeAssignmentTitle String
+    | ChangeAssignmentTitleTfText String
+    | FocusAssignmentTitle String
+    | UnfocusAssignmentTitle
 
 
 page : Page Params Model Msg
@@ -121,6 +127,8 @@ init shared url =
       , assignmentData = NotAsked
       , maybeAssignmentModalActivated = Nothing
       , assignmentModalData = NotAsked
+      , editAssignmentTitleTfText = ""
+      , assignmentTitleFocused = False
       }
     , Cmd.batch initCommands
     )
@@ -381,6 +389,52 @@ update msg model =
 
         CloseModal ->
             ( { model | maybeAssignmentModalActivated = Nothing }, Cmd.none )
+
+        ChangeAssignmentTitle assignmentId ->
+            case model.courseData of
+                Success courseData ->
+                    ( { model
+                        | courseData =
+                            Success
+                                (List.map
+                                    (\c ->
+                                        { c
+                                            | assignments =
+                                                List.map
+                                                    (\a ->
+                                                        if a.id == assignmentId then
+                                                            { a | title = model.editAssignmentTitleTfText }
+
+                                                        else
+                                                            a
+                                                    )
+                                                    c.assignments
+                                        }
+                                    )
+                                    courseData
+                                )
+                      }
+                    , changeAssignmentTitle id model.editAssignmentTitleTfText
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ChangeAssignmentTitleTfText text ->
+            ( { model | editAssignmentTitleTfText = text }, Cmd.none )
+
+        FocusAssignmentTitle title ->
+            ( { model | assignmentTitleFocused = True, editAssignmentTitleTfText = title }, Cmd.none )
+
+        UnfocusAssignmentTitle ->
+            ( { model
+                | assignmentTitleFocused = False
+              }
+            , Cmd.none
+            )
+
+        GotChangeAssignmentTitle _ ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -1106,7 +1160,6 @@ viewAssignmentModal model =
                 , width fill
                 , height fill
                 , padding 200
-                , onEsc CloseModal
                 ]
                 (column
                     [ centerX
@@ -1122,7 +1175,28 @@ viewAssignmentModal model =
                     (case model.assignmentModalData of
                         Success assignment ->
                             [ row [ width fill ]
-                                [ row [ width fill ] [ el [ Font.bold, Font.size 24 ] (text assignment.title), el [ Font.size 24, Font.color greyGreyColor ] (text ("#" ++ assignment.id)) ]
+                                [ el
+                                    [ width fill
+                                    , Events.onClick <| FocusAssignmentTitle assignment.title
+                                    , pointer
+                                    ]
+                                    (if model.assignmentTitleFocused then
+                                        Input.text
+                                            [ Font.bold
+                                            , Font.size 24
+                                            , padding 0
+                                            , focusedOnLoad
+                                            , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
+                                            ]
+                                            { onChange = ChangeAssignmentTitleTfText
+                                            , text = model.editAssignmentTitleTfText
+                                            , placeholder = Nothing
+                                            , label = Input.labelHidden "edit assignment title"
+                                            }
+
+                                     else
+                                        el [ Font.bold, Font.size 24 ] (text assignment.title)
+                                    )
                                 , el
                                     [ Events.onClick CloseModal
                                     , Font.color redColor

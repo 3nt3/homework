@@ -85,3 +85,15 @@ getAssignmentByID id onResponse =
         , timeout = Nothing
         , tracker = Nothing
         }
+
+
+editAssignmentTitle : String -> String -> (Api.Data Assignment -> msg) -> Cmd msg
+editAssignmentTitle id newTitle onResponse =
+    { method = "GET"
+    , url = apiAddress ++ "/assignment/" ++ id
+    , headers = []
+    , body = Http.emptyBody
+    , expect = Api.expectJson onResponse assignmentDecoder
+    , timeout = Nothing
+    , tracker = Nothing
+    }

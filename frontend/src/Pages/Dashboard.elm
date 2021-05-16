@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (createAssignment, getAssignmentByID, getAssignments, removeAssignment)
+import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
 import Array
 import Components.LineChart
@@ -84,6 +84,7 @@ type Msg
     | ChangeAssignmentTitleTfText String
     | FocusAssignmentTitle String
     | UnfocusAssignmentTitle
+    | GotChangeAssignmentTitle (Api.Data Assignment)
 
 
 page : Page Params Model Msg
@@ -414,7 +415,7 @@ update msg model =
                                     courseData
                                 )
                       }
-                    , changeAssignmentTitle id model.editAssignmentTitleTfText
+                    , changeAssignmentTitle assignmentId model.editAssignmentTitleTfText GotChangeAssignmentTitle
                     )
 
                 _ ->
@@ -433,8 +434,13 @@ update msg model =
             , Cmd.none
             )
 
-        GotChangeAssignmentTitle _ ->
-            ( model, Cmd.none )
+        GotChangeAssignmentTitle assignmentData ->
+            ( { model
+                | assignmentTitleFocused = False
+                , assignmentModalData = assignmentData
+              }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg

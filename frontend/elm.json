@@ -16,6 +16,7 @@
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
             "elm-community/list-extra": "8.2.4",
+            "elm-community/maybe-extra": "5.2.0",
             "elm-community/typed-svg": "6.0.0",
             "folkertdev/one-true-path-experiment": "4.0.3",
             "gampleman/elm-visualization": "2.1.1",

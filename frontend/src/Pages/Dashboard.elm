@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
+import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
 import Array
 import Components.LineChart
@@ -12,11 +12,11 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Element.Input as Input
+import Element.Input as Input exposing (focusedOnLoad)
 import Element.Keyed as Keyed
-import Html
-import Html.Attributes
+import Material.Icons exposing (assignment)
 import Material.Icons.Types exposing (Coloring(..))
+import Maybe.Extra
 import Models exposing (Assignment, Course, User)
 import Shared
 import Spa.Document exposing (Document)
@@ -27,7 +27,7 @@ import Styling.Colors exposing (..)
 import Task
 import Time
 import Utils.Darken exposing (darken)
-import Utils.OnEnter exposing (onEnter)
+import Utils.OnEnter exposing (onEnter, onEnterEsc)
 import Utils.Route
 
 
@@ -55,6 +55,10 @@ type alias Model =
     , errors : List String
     , maybeAssignmentHovered : Maybe String
     , assignmentData : Api.Data (List Assignment)
+    , maybeAssignmentModalActivated : Maybe String
+    , assignmentModalData : Api.Data Assignment
+    , editAssignmentTitleTfText : String
+    , assignmentTitleFocused : Bool
     }
 
 
@@ -72,9 +76,15 @@ type Msg
     | Add1Day
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
-    | HoverAssignment String
-    | DeHoverAssignment String
     | GotAssignmentData (Api.Data (List Assignment))
+    | ViewAssignmentModal String
+    | CloseModal
+    | GotAssignmentModalData (Api.Data Assignment)
+    | ChangeAssignmentTitle String
+    | ChangeAssignmentTitleTfText String
+    | FocusAssignmentTitle String
+    | UnfocusAssignmentTitle
+    | GotChangeAssignmentTitle (Api.Data Assignment)
 
 
 page : Page Params Model Msg
@@ -116,6 +126,10 @@ init shared url =
       , errors = []
       , maybeAssignmentHovered = Nothing
       , assignmentData = NotAsked
+      , maybeAssignmentModalActivated = Nothing
+      , assignmentModalData = NotAsked
+      , editAssignmentTitleTfText = ""
+      , assignmentTitleFocused = False
       }
     , Cmd.batch initCommands
     )
@@ -288,6 +302,7 @@ update msg model =
                                 , searchCoursesText = ""
                                 , searchCoursesData = NotAsked
                                 , selectedCourse = Nothing
+                                , selectedDate = Nothing
                                 , errors = []
                               }
                             , createAssignment { courseId = course.id, title = model.titleTfText, dueDate = dueDate, fromMoodle = course.fromMoodle } { onResponse = GotCreateAssignmentData }
@@ -353,6 +368,7 @@ update msg model =
                                             )
                                             courseData
                                         )
+                                , maybeAssignmentModalActivated = Nothing
                               }
                             , Cmd.none
                             )
@@ -363,14 +379,68 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        HoverAssignment id ->
-            ( { model | maybeAssignmentHovered = Just id }, Cmd.none )
-
-        DeHoverAssignment _ ->
-            ( { model | maybeAssignmentHovered = Nothing }, Cmd.none )
-
         GotAssignmentData data ->
             ( { model | assignmentData = data }, Cmd.none )
+
+        ViewAssignmentModal id ->
+            ( { model | maybeAssignmentModalActivated = Just id }, getAssignmentByID id GotAssignmentModalData )
+
+        GotAssignmentModalData data ->
+            ( { model | assignmentModalData = data }, Cmd.none )
+
+        CloseModal ->
+            ( { model | maybeAssignmentModalActivated = Nothing }, Cmd.none )
+
+        ChangeAssignmentTitle assignmentId ->
+            case model.courseData of
+                Success courseData ->
+                    ( { model
+                        | courseData =
+                            Success
+                                (List.map
+                                    (\c ->
+                                        { c
+                                            | assignments =
+                                                List.map
+                                                    (\a ->
+                                                        if a.id == assignmentId then
+                                                            { a | title = model.editAssignmentTitleTfText }
+
+                                                        else
+                                                            a
+                                                    )
+                                                    c.assignments
+                                        }
+                                    )
+                                    courseData
+                                )
+                      }
+                    , changeAssignmentTitle assignmentId model.editAssignmentTitleTfText GotChangeAssignmentTitle
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ChangeAssignmentTitleTfText text ->
+            ( { model | editAssignmentTitleTfText = text }, Cmd.none )
+
+        FocusAssignmentTitle title ->
+            ( { model | assignmentTitleFocused = True, editAssignmentTitleTfText = title }, Cmd.none )
+
+        UnfocusAssignmentTitle ->
+            ( { model
+                | assignmentTitleFocused = False
+              }
+            , Cmd.none
+            )
+
+        GotChangeAssignmentTitle assignmentData ->
+            ( { model
+                | assignmentTitleFocused = False
+                , assignmentModalData = assignmentData
+              }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg
@@ -407,6 +477,7 @@ view model =
             , Font.color (rgb 1 1 1)
             , padding 30
             , Background.color darkGreyColor
+            , inFront (viewAssignmentModal model)
             ]
             ((case model.device.class of
                 Shared.Desktop ->
@@ -461,15 +532,6 @@ view model =
     }
 
 
-viewAds : Element msg
-viewAds =
-    html
-        (Html.node "script"
-            [ Html.Attributes.src "https://uprimp.com/bnr.php?section=General&pub=884896&format=300x250&ga=g", Html.Attributes.type_ "text/javascript" ]
-            []
-        )
-
-
 
 -- outstanding? assignments
 
@@ -477,31 +539,6 @@ viewAds =
 dueDateAfterDate : Date.Date -> Date.Date -> Bool
 dueDateAfterDate dueDate date =
     Date.toRataDie dueDate > Date.toRataDie date
-
-
-
-{-
-   dateToPosixTime : Date.Date -> Time.Posix
-   dateToPosixTime date =
-       Time.millisToPosix (Date.toRataDie date - 719162 * (1000 * 60 * 60 * 24))
--}
-{-
-   inNDays : Int -> Date.Date -> Date.Date
-   inNDays days today =
-       Date.fromPosix Time.utc
-           (Time.millisToPosix
-               (floor
-                   (toFloat
-                       (Time.posixToMillis
-                           (dateToPosixTime today)
-                           + ((1000 * 60 * 60 * 24)
-                               * days
-                             )
-                       )
-                   )
-               )
-           )
--}
 
 
 otherOutstandingAssignments : Date.Date -> List Course -> List Course
@@ -534,8 +571,7 @@ viewOustandingAssignments model =
         , Border.rounded borderRadius
         , height fill
         ]
-        [ viewAds
-        , (case model.device.class of
+        [ (case model.device.class of
             Shared.Desktop ->
                 row
 
@@ -549,9 +585,9 @@ viewOustandingAssignments model =
             (case model.user of
                 Just user ->
                     if user.moodleUrl /= "" then
-                        [ viewAssignmentsDayColumn model.courseData "today" redColor model.today model.maybeAssignmentHovered user
-                        , viewAssignmentsDayColumn model.courseData "tomorrow" yellowColor (Date.add Date.Days 1 model.today) model.maybeAssignmentHovered user
-                        , viewAssignmentsDayColumn model.courseData "the day after tomorrow" greenColor (Date.add Date.Days 2 model.today) model.maybeAssignmentHovered user
+                        [ viewAssignmentsDayColumn model.courseData "today" redColor model.today
+                        , viewAssignmentsDayColumn model.courseData "tomorrow" yellowColor (Date.add Date.Days 1 model.today)
+                        , viewAssignmentsDayColumn model.courseData "the day after tomorrow" greenColor (Date.add Date.Days 2 model.today)
                         ]
 
                     else
@@ -580,12 +616,7 @@ viewOustandingAssignments model =
         , case model.courseData of
             Success courses ->
                 if List.length (otherOutstandingAssignments model.today courses) > 0 then
-                    case model.user of
-                        Just user ->
-                            viewOtherAssignments model.courseData model.today model.maybeAssignmentHovered user
-
-                        Nothing ->
-                            none
+                    viewOtherAssignments model.courseData model.today
 
                 else
                     none
@@ -619,8 +650,8 @@ filterCoursesByWhetherAssignmentsAreDueOnDate courses date =
     List.filter (\course -> List.member course.id validCourses) courses
 
 
-viewAssignmentsDayColumn : Api.Data (List Course) -> String -> Color -> Date.Date -> Maybe String -> User -> Element Msg
-viewAssignmentsDayColumn courseData title color date assignmentHovered user =
+viewAssignmentsDayColumn : Api.Data (List Course) -> String -> Color -> Date.Date -> Element Msg
+viewAssignmentsDayColumn courseData title color date =
     column
         [ Background.color color
         , height (fill |> minimum 200)
@@ -642,7 +673,7 @@ viewAssignmentsDayColumn courseData title color date assignmentHovered user =
 
                 else
                     [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
-                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue color (Just date) assignmentHovered False user) courses)
+                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue color (Just date) False) courses)
                     ]
 
             Failure e ->
@@ -656,8 +687,8 @@ viewAssignmentsDayColumn courseData title color date assignmentHovered user =
         )
 
 
-viewOtherAssignments : Api.Data (List Course) -> Date.Date -> Maybe String -> User -> Element Msg
-viewOtherAssignments apiData date assignmentHovered user =
+viewOtherAssignments : Api.Data (List Course) -> Date.Date -> Element Msg
+viewOtherAssignments apiData date =
     column
         [ width fill
         , Border.rounded borderRadius
@@ -676,7 +707,7 @@ viewOtherAssignments apiData date assignmentHovered user =
 
                 else
                     [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
-                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing assignmentHovered True user) courses)
+                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing True) courses)
                     ]
 
             Loading ->
@@ -687,13 +718,13 @@ viewOtherAssignments apiData date assignmentHovered user =
         )
 
 
-courseGroupToKeyValue : Color -> Maybe Date.Date -> Maybe String -> Bool -> User -> Course -> ( String, Element Msg )
-courseGroupToKeyValue color date assignmentHovered displayDate user course =
-    ( String.fromInt course.id, viewAssignmentCourseGroup course color date assignmentHovered displayDate user )
+courseGroupToKeyValue : Color -> Maybe Date.Date -> Bool -> Course -> ( String, Element Msg )
+courseGroupToKeyValue color date displayDate course =
+    ( String.fromInt course.id, viewAssignmentCourseGroup course color date displayDate )
 
 
-viewAssignmentCourseGroup : Course -> Color -> Maybe Date.Date -> Maybe String -> Bool -> User -> Element Msg
-viewAssignmentCourseGroup course color maybeDate assignmentHovered displayDate user =
+viewAssignmentCourseGroup : Course -> Color -> Maybe Date.Date -> Bool -> Element Msg
+viewAssignmentCourseGroup course color maybeDate displayDate =
     let
         assignments =
             case maybeDate of
@@ -717,52 +748,30 @@ viewAssignmentCourseGroup course color maybeDate assignmentHovered displayDate u
                         course.name
                     ]
                 )
-            , Keyed.column [ spacing 5, width fill ] (List.map (\a -> assignmentToKeyValue color assignmentHovered (user.id == a.user.id) displayDate a) assignments)
+            , Keyed.column [ spacing 5, width fill ] (List.map (\a -> assignmentToKeyValue color displayDate a) assignments)
             ]
 
     else
         none
 
 
-assignmentToKeyValue : Color -> Maybe String -> Bool -> Bool -> Assignment -> ( String, Element Msg )
-assignmentToKeyValue color maybeHoveredId removable displayDate assignment =
-    case maybeHoveredId of
-        Just hoveredId ->
-            if removable then
-                ( assignment.id, viewAssignment assignment color (Just (hoveredId == assignment.id)) displayDate )
-
-            else
-                ( assignment.id, viewAssignment assignment color Nothing displayDate )
-
-        Nothing ->
-            ( assignment.id, viewAssignment assignment color (Just False) displayDate )
+assignmentToKeyValue : Color -> Bool -> Assignment -> ( String, Element Msg )
+assignmentToKeyValue color displayDate assignment =
+    ( assignment.id, viewAssignment assignment color displayDate )
 
 
-viewAssignment : Assignment -> Color -> Maybe Bool -> Bool -> Element Msg
-viewAssignment assignment color maybeHovered displayDate =
+viewAssignment : Assignment -> Color -> Bool -> Element Msg
+viewAssignment assignment color displayDate =
     column
         [ Background.color (darken color 0.1)
         , padding 10
         , Border.rounded 10
         , width fill
+        , pointer
+        , Events.onClick (ViewAssignmentModal assignment.id)
         ]
         [ el
-            (case maybeHovered of
-                Just hovered ->
-                    [ Events.onClick (RemoveAssignment assignment.id)
-                    , Events.onMouseEnter (HoverAssignment assignment.id)
-                    , Events.onMouseLeave (DeHoverAssignment assignment.id)
-                    ]
-                        ++ (if hovered then
-                                [ Font.strike ]
-
-                            else
-                                []
-                           )
-
-                Nothing ->
-                    []
-            )
+            []
             (paragraph []
                 [ text
                     ((if displayDate then
@@ -772,17 +781,6 @@ viewAssignment assignment color maybeHovered displayDate =
                         ""
                      )
                         ++ assignment.title
-                        ++ (case maybeHovered of
-                                Just hovered ->
-                                    if hovered then
-                                        " (click to remove)"
-
-                                    else
-                                        ""
-
-                                Nothing ->
-                                    ""
-                           )
                     )
                 ]
             )
@@ -1077,77 +1075,61 @@ viewSearchDropdownElement course isLast =
 dateStringToDate : String -> Maybe Date.Date
 dateStringToDate input =
     let
-        data =
+        splitArray =
             Array.fromList (String.split "." input)
+
+        maybeDay =
+            Array.get 0 splitArray |> Maybe.map String.toInt |> Maybe.Extra.join
+
+        maybeMonth =
+            Array.get 1 splitArray |> Maybe.map String.toInt |> Maybe.Extra.join |> Maybe.map intToMonth |> Maybe.Extra.join
+
+        maybeYear =
+            Array.get 2 splitArray |> Maybe.map String.toInt |> Maybe.Extra.join
     in
-    case Array.get 0 data of
-        Just dayStr ->
-            case String.toInt dayStr of
-                Just day ->
-                    case Array.get 1 data of
-                        Just monthStr ->
-                            case String.toInt monthStr of
-                                Just monthInt ->
-                                    case Array.get 2 data of
-                                        Just yearStr ->
-                                            case String.toInt yearStr of
-                                                Just year ->
-                                                    case monthInt of
-                                                        1 ->
-                                                            dayMonthYearToDate day Time.Jan year
+    Maybe.map3 dayMonthYearToDate maybeDay maybeMonth maybeYear |> Maybe.Extra.join
 
-                                                        2 ->
-                                                            dayMonthYearToDate day Time.Feb year
 
-                                                        3 ->
-                                                            dayMonthYearToDate day Time.Mar year
+intToMonth : Int -> Maybe Time.Month
+intToMonth month =
+    case month of
+        1 ->
+            Just Time.Jan
 
-                                                        4 ->
-                                                            dayMonthYearToDate day Time.Apr year
+        2 ->
+            Just Time.Feb
 
-                                                        5 ->
-                                                            dayMonthYearToDate day Time.May year
+        3 ->
+            Just Time.Mar
 
-                                                        6 ->
-                                                            dayMonthYearToDate day Time.Jun year
+        4 ->
+            Just Time.Apr
 
-                                                        7 ->
-                                                            dayMonthYearToDate day Time.Jul year
+        5 ->
+            Just Time.May
 
-                                                        8 ->
-                                                            dayMonthYearToDate day Time.Aug year
+        6 ->
+            Just Time.Jun
 
-                                                        9 ->
-                                                            dayMonthYearToDate day Time.Sep year
+        7 ->
+            Just Time.Jul
 
-                                                        10 ->
-                                                            dayMonthYearToDate day Time.Oct year
+        8 ->
+            Just Time.Aug
 
-                                                        11 ->
-                                                            dayMonthYearToDate day Time.Nov year
+        9 ->
+            Just Time.Sep
 
-                                                        12 ->
-                                                            dayMonthYearToDate day Time.Dec year
+        10 ->
+            Just Time.Oct
 
-                                                        _ ->
-                                                            Nothing
+        11 ->
+            Just Time.Nov
 
-                                                Nothing ->
-                                                    Nothing
+        12 ->
+            Just Time.Dec
 
-                                        Nothing ->
-                                            Nothing
-
-                                Nothing ->
-                                    Nothing
-
-                        Nothing ->
-                            Nothing
-
-                Nothing ->
-                    Nothing
-
-        Nothing ->
+        _ ->
             Nothing
 
 
@@ -1173,3 +1155,110 @@ viewWeekAssignmentVisualization model =
 
         _ ->
             el [] (text "Loading...")
+
+
+viewAssignmentModal : Model -> Element Msg
+viewAssignmentModal model =
+    case model.maybeAssignmentModalActivated of
+        Just _ ->
+            case model.courseData of
+                Success courses ->
+                    case model.user of
+                        Just user ->
+                            el
+                                [ Background.color (rgba 1 1 1 0.1)
+                                , width fill
+                                , height fill
+                                , padding 200
+                                ]
+                                (column
+                                    [ centerX
+                                    , width (shrink |> minimum 800)
+                                    , Background.color (rgb 1 1 1)
+                                    , height shrink
+                                    , Font.color (rgb 0 0 0)
+                                    , padding 40
+                                    , spacing 20
+                                    , Border.rounded 10
+                                    , Font.family [ Font.typeface "Hack" ]
+                                    ]
+                                    (case model.assignmentModalData of
+                                        Success assignment ->
+                                            [ row [ width fill ]
+                                                [ el
+                                                    [ width fill
+                                                    , if user.id == assignment.user.id then
+                                                        Events.onClick <| FocusAssignmentTitle assignment.id
+
+                                                      else
+                                                        pointer
+                                                    , pointer
+                                                    ]
+                                                    (if model.assignmentTitleFocused then
+                                                        Input.text
+                                                            [ Font.bold
+                                                            , Font.size 24
+                                                            , padding 0
+                                                            , focusedOnLoad
+                                                            , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
+                                                            ]
+                                                            { onChange = ChangeAssignmentTitleTfText
+                                                            , text = model.editAssignmentTitleTfText
+                                                            , placeholder = Nothing
+                                                            , label = Input.labelHidden "edit assignment title"
+                                                            }
+
+                                                     else
+                                                        el [ Font.bold, Font.size 24 ] (text assignment.title)
+                                                    )
+                                                , el
+                                                    [ Events.onClick CloseModal
+                                                    , Font.color redColor
+                                                    , Font.center
+                                                    , pointer
+                                                    , Font.size 24
+                                                    ]
+                                                    (text "[x]")
+                                                ]
+                                            , el [] (text ("Course: " ++ Maybe.withDefault "undefined" (getCourseNameById courses assignment.courseId)))
+                                            , row [ width fill ]
+                                                [ if user.id == assignment.user.id then
+                                                    viewButton "[delete]" redColor (RemoveAssignment assignment.id)
+
+                                                  else
+                                                    none
+                                                ]
+                                            ]
+
+                                        Loading ->
+                                            [ text "Loading..." ]
+
+                                        NotAsked ->
+                                            [ none ]
+
+                                        Failure err ->
+                                            [ text <| Api.errorToString err ]
+                                    )
+                                )
+
+                        Nothing ->
+                            none
+
+                _ ->
+                    none
+
+        Nothing ->
+            none
+
+
+viewButton : String -> Color -> Msg -> Element Msg
+viewButton text_ color msg =
+    el [ Font.color color, Events.onClick msg, pointer ]
+        (text text_)
+
+
+getCourseNameById : List Course -> Int -> Maybe String
+getCourseNameById courses id =
+    List.filter (\c -> c.id == id) courses
+        |> List.head
+        |> Maybe.map (\c -> c.name)

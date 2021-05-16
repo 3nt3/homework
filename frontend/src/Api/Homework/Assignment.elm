@@ -1,4 +1,4 @@
-module Api.Homework.Assignment exposing (createAssignment, getAssignments, removeAssignment)
+module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment)
 
 import Api
 import Api.Api exposing (apiAddress)
@@ -8,6 +8,13 @@ import Http
 import Json.Decode as Json
 import Json.Encode as Encode
 import Models exposing (Assignment)
+
+
+updateTitleEncoder : String -> Encode.Value
+updateTitleEncoder title =
+    Encode.object
+        [ ( "title", Encode.string title )
+        ]
 
 
 dateEncoder : Date.Date -> Int
@@ -69,6 +76,32 @@ getAssignments maxDays options =
         , headers = []
         , body = Http.emptyBody
         , expect = Api.expectJson options.onResponse (Json.list assignmentDecoder)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+getAssignmentByID : String -> (Api.Data Assignment -> msg) -> Cmd msg
+getAssignmentByID id onResponse =
+    Http.riskyRequest
+        { method = "GET"
+        , url = apiAddress ++ "/assignment/" ++ id
+        , headers = []
+        , body = Http.emptyBody
+        , expect = Api.expectJson onResponse assignmentDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+changeAssignmentTitle : String -> String -> (Api.Data Assignment -> msg) -> Cmd msg
+changeAssignmentTitle id newTitle onResponse =
+    Http.riskyRequest
+        { method = "PUT"
+        , url = apiAddress ++ "/assignment/" ++ id
+        , headers = []
+        , body = Http.jsonBody (updateTitleEncoder newTitle)
+        , expect = Api.expectJson onResponse assignmentDecoder
         , timeout = Nothing
         , tracker = Nothing
         }

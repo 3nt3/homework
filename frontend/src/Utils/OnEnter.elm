@@ -1,7 +1,6 @@
-module Utils.OnEnter exposing (onEnter)
+module Utils.OnEnter exposing (onEnter, onEnterEsc)
 
 import Element
-import Html
 import Html.Events
 import Json.Decode as Decode
 

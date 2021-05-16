@@ -119,3 +119,11 @@ func GetAssignments(user structs.User, maxDays int) ([]structs.Assignment, error
 
 	return assignments, nil
 }
+
+// UpdateAssignment replaces the assignment with the specified id with the specified one
+func UpdateAssignment(id string, assignment structs.Assignment) error {
+	// TODO: update more stuff
+	_, err := database.Exec("UPDATE assignments SET content = $1 WHERE id = $2;", assignment.Title, id)
+
+	return err
+}

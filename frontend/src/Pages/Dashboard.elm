@@ -665,14 +665,17 @@ viewAssignmentsDayColumn courseData title color date =
                 let
                     courses =
                         filterCoursesByWhetherAssignmentsAreDueOnDate allCourses date
+
+                    assignments =
+                        List.map (\c -> c.assignments) courses |> List.foldl (++) [] |> List.filter (\a -> a.dueDate == date)
                 in
                 if List.isEmpty courses then
-                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length assignments) ++ "}"))
                     , el [ centerX, centerY, Font.size 30, Font.bold ] (text "*nothing 🎉*")
                     ]
 
                 else
-                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    [ el [ Font.bold ] (text (title ++ "{" ++ String.fromInt (List.length assignments) ++ "}"))
                     , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue color (Just date) False) courses)
                     ]
 
@@ -701,12 +704,15 @@ viewOtherAssignments apiData date =
                 let
                     courses =
                         otherOutstandingAssignments date data
+
+                    assignments =
+                        List.map (\c -> c.assignments) courses |> List.foldr (++) []
                 in
                 if List.isEmpty courses then
-                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length courses) ++ "}")) ]
+                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length assignments) ++ "}")) ]
 
                 else
-                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length courses) ++ "}"))
+                    [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length assignments) ++ "}"))
                     , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing True) courses)
                     ]
 

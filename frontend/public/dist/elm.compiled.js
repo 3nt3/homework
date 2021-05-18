@@ -17246,6 +17246,21 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F4(
 					case 3:
 						var allCourses = courseData.a;
 						var courses = A2($author$project$Pages$Dashboard$filterCoursesByWhetherAssignmentsAreDueOnDate, allCourses, date);
+						var assignments = A2(
+							$elm$core$List$filter,
+							function (a) {
+								return _Utils_eq(a.hq, date);
+							},
+							A3(
+								$elm$core$List$foldl,
+								$elm$core$Basics$append,
+								_List_Nil,
+								A2(
+									$elm$core$List$map,
+									function (c) {
+										return c.gR;
+									},
+									courses)));
 						return $elm$core$List$isEmpty(courses) ? _List_fromArray(
 							[
 								A2(
@@ -17254,7 +17269,7 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F4(
 									[$mdgriffith$elm_ui$Element$Font$bold]),
 								$mdgriffith$elm_ui$Element$text(
 									title + ('{' + ($elm$core$String$fromInt(
-										$elm$core$List$length(courses)) + '}')))),
+										$elm$core$List$length(assignments)) + '}')))),
 								A2(
 								$mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
@@ -17273,7 +17288,7 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F4(
 									[$mdgriffith$elm_ui$Element$Font$bold]),
 								$mdgriffith$elm_ui$Element$text(
 									title + ('{' + ($elm$core$String$fromInt(
-										$elm$core$List$length(courses)) + '}')))),
+										$elm$core$List$length(assignments)) + '}')))),
 								A2(
 								$mdgriffith$elm_ui$Element$Keyed$column,
 								_List_fromArray(
@@ -17345,6 +17360,16 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F2(
 					case 3:
 						var data = apiData.a;
 						var courses = A2($author$project$Pages$Dashboard$otherOutstandingAssignments, date, data);
+						var assignments = A3(
+							$elm$core$List$foldr,
+							$elm$core$Basics$append,
+							_List_Nil,
+							A2(
+								$elm$core$List$map,
+								function (c) {
+									return c.gR;
+								},
+								courses));
 						return $elm$core$List$isEmpty(courses) ? _List_fromArray(
 							[
 								A2(
@@ -17353,7 +17378,7 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F2(
 									[$mdgriffith$elm_ui$Element$Font$bold]),
 								$mdgriffith$elm_ui$Element$text(
 									'other' + ('{' + ($elm$core$String$fromInt(
-										$elm$core$List$length(courses)) + '}'))))
+										$elm$core$List$length(assignments)) + '}'))))
 							]) : _List_fromArray(
 							[
 								A2(
@@ -17362,7 +17387,7 @@ var $author$project$Pages$Dashboard$viewOtherAssignments = F2(
 									[$mdgriffith$elm_ui$Element$Font$bold]),
 								$mdgriffith$elm_ui$Element$text(
 									'other' + ('{' + ($elm$core$String$fromInt(
-										$elm$core$List$length(courses)) + '}')))),
+										$elm$core$List$length(assignments)) + '}')))),
 								A2(
 								$mdgriffith$elm_ui$Element$Keyed$column,
 								_List_fromArray(

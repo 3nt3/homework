@@ -113,7 +113,7 @@ viewLink linkData active =
     link
         [ Font.bold
         , mouseOver
-            [ Background.color (darken lighterGreyColor -0.1)
+            [ Background.color (darken darkGreyColor -0.1)
             ]
         , width fill
         , height (px 50)

@@ -697,7 +697,7 @@ viewOtherAssignments apiData date =
         , Border.rounded borderRadius
         , spacing 10
         , padding 20
-        , Background.color blueColor
+        , Background.color greyBlueColor
         ]
         (case apiData of
             Success data ->
@@ -713,7 +713,7 @@ viewOtherAssignments apiData date =
 
                 else
                     [ el [ Font.bold ] (text ("other" ++ "{" ++ String.fromInt (List.length assignments) ++ "}"))
-                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue blueColor Nothing True) courses)
+                    , Keyed.column [ width fill, spacing 5 ] (List.map (courseGroupToKeyValue greyBlueColor Nothing True) courses)
                     ]
 
             Loading ->

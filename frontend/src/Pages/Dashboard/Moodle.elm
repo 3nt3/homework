@@ -17,7 +17,7 @@ import Spa.Document exposing (Document)
 import Spa.Page as Page exposing (Page)
 import Spa.Url exposing (Url)
 import String
-import Styling.Colors exposing (blueColor, darkGreyColor, greenColor, lighterGreyColor, redColor)
+import Styling.Colors exposing (blueColor, darkGreyColor, greenColor, redColor)
 import Utils.Darken exposing (darken)
 import Utils.OnEnter exposing (onEnter)
 
@@ -159,7 +159,7 @@ borderRadius =
 
 inputColor : Color
 inputColor =
-    darken lighterGreyColor -0.05
+    darken darkGreyColor -0.05
 
 
 inputTextColor : Color
@@ -236,7 +236,7 @@ viewCredentialsForm : Model -> Element Msg
 viewCredentialsForm model =
     column
         [ Border.rounded borderRadius
-        , Background.color lighterGreyColor
+        , Background.color darkGreyColor
         , width (fillPortion 1)
         , height (fillPortion 1)
         , padding 20
@@ -327,7 +327,7 @@ viewStatusIndicatorThingy userData =
                     greenColor
 
                 _ ->
-                    lighterGreyColor
+                    darkGreyColor
 
         message =
             case userData of

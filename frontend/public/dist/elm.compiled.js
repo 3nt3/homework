@@ -17291,8 +17291,8 @@ var $gampleman$elm_visualization$Shape$Pie$arc = function (arcData) {
 	return path;
 };
 var $gampleman$elm_visualization$Shape$arc = $gampleman$elm_visualization$Shape$Pie$arc;
-var $author$project$Styling$Colors$blueColor = A3($mdgriffith$elm_ui$Element$rgb255, 0, 168, 255);
-var $author$project$Styling$Colors$blueColor2 = A3($mdgriffith$elm_ui$Element$rgb255, 0, 151, 230);
+var $author$project$Styling$Colors$darkBlueColor = A3($mdgriffith$elm_ui$Element$rgb255, 39, 60, 117);
+var $author$project$Styling$Colors$darkBlueColor2 = A3($mdgriffith$elm_ui$Element$rgb255, 25, 42, 86);
 var $author$project$Styling$Colors$flieder2Color = A3($mdgriffith$elm_ui$Element$rgb255, 140, 122, 230);
 var $author$project$Styling$Colors$fliederColor = A3($mdgriffith$elm_ui$Element$rgb255, 156, 136, 255);
 var $avh4$elm_color$Color$RgbaSpace = F4(
@@ -17302,6 +17302,10 @@ var $avh4$elm_color$Color$RgbaSpace = F4(
 var $avh4$elm_color$Color$fromRgba = function (components) {
 	return A4($avh4$elm_color$Color$RgbaSpace, components.iC, components.hF, components.gX, components.bl);
 };
+var $author$project$Styling$Colors$greenColor = A3($mdgriffith$elm_ui$Element$rgb255, 76, 209, 55);
+var $author$project$Styling$Colors$greenColor2 = A3($mdgriffith$elm_ui$Element$rgb255, 68, 189, 50);
+var $author$project$Styling$Colors$greyBlueColor = A3($mdgriffith$elm_ui$Element$rgb255, 72, 126, 176);
+var $author$project$Styling$Colors$greyBlueColor2 = A3($mdgriffith$elm_ui$Element$rgb255, 64, 115, 158);
 var $elm$core$Elm$JsArray$map = _JsArray_map;
 var $elm$core$Array$map = F2(
 	function (func, _v0) {
@@ -17327,6 +17331,7 @@ var $elm$core$Array$map = F2(
 			A2($elm$core$Elm$JsArray$map, helper, tree),
 			A2($elm$core$Elm$JsArray$map, func, tail));
 	});
+var $author$project$Styling$Colors$redColor2 = A3($mdgriffith$elm_ui$Element$rgb255, 194, 54, 22);
 var $mdgriffith$elm_ui$Element$toRgb = function (_v0) {
 	var r = _v0.a;
 	var g = _v0.b;
@@ -17344,7 +17349,7 @@ var $author$project$Components$PieChart$colors = A2(
 	},
 	$elm$core$Array$fromList(
 		_List_fromArray(
-			[$author$project$Styling$Colors$blueColor, $author$project$Styling$Colors$blueColor2, $author$project$Styling$Colors$fliederColor, $author$project$Styling$Colors$flieder2Color, $author$project$Styling$Colors$yellowColor, $author$project$Styling$Colors$yellowColor2])));
+			[$author$project$Styling$Colors$greyBlueColor, $author$project$Styling$Colors$greyBlueColor2, $author$project$Styling$Colors$fliederColor, $author$project$Styling$Colors$flieder2Color, $author$project$Styling$Colors$yellowColor, $author$project$Styling$Colors$yellowColor2, $author$project$Styling$Colors$greenColor, $author$project$Styling$Colors$greenColor2, $author$project$Styling$Colors$redColor, $author$project$Styling$Colors$redColor2, $author$project$Styling$Colors$darkBlueColor, $author$project$Styling$Colors$darkBlueColor2, $author$project$Styling$Colors$greyBlueColor2, $author$project$Styling$Colors$fliederColor, $author$project$Styling$Colors$flieder2Color, $author$project$Styling$Colors$yellowColor, $author$project$Styling$Colors$yellowColor2, $author$project$Styling$Colors$greenColor, $author$project$Styling$Colors$greenColor2, $author$project$Styling$Colors$redColor, $author$project$Styling$Colors$redColor2, $author$project$Styling$Colors$darkBlueColor, $author$project$Styling$Colors$darkBlueColor2, $author$project$Styling$Colors$greyBlueColor2, $author$project$Styling$Colors$fliederColor, $author$project$Styling$Colors$flieder2Color, $author$project$Styling$Colors$yellowColor, $author$project$Styling$Colors$yellowColor2, $author$project$Styling$Colors$greenColor, $author$project$Styling$Colors$greenColor2, $author$project$Styling$Colors$redColor, $author$project$Styling$Colors$redColor2, $author$project$Styling$Colors$darkBlueColor, $author$project$Styling$Colors$darkBlueColor2, $author$project$Styling$Colors$greyBlueColor2, $author$project$Styling$Colors$fliederColor, $author$project$Styling$Colors$flieder2Color, $author$project$Styling$Colors$yellowColor, $author$project$Styling$Colors$yellowColor2, $author$project$Styling$Colors$greenColor, $author$project$Styling$Colors$greenColor2, $author$project$Styling$Colors$redColor, $author$project$Styling$Colors$redColor2, $author$project$Styling$Colors$darkBlueColor, $author$project$Styling$Colors$darkBlueColor2])));
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
@@ -18065,6 +18070,7 @@ var $mdgriffith$elm_ui$Internal$Model$Bottom = 2;
 var $mdgriffith$elm_ui$Element$alignBottom = $mdgriffith$elm_ui$Internal$Model$AlignY(2);
 var $mdgriffith$elm_ui$Internal$Model$Top = 0;
 var $mdgriffith$elm_ui$Element$alignTop = $mdgriffith$elm_ui$Internal$Model$AlignY(0);
+var $author$project$Styling$Colors$blueColor = A3($mdgriffith$elm_ui$Element$rgb255, 0, 168, 255);
 var $mdgriffith$elm_ui$Internal$Model$Button = {$: 8};
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $mdgriffith$elm_ui$Element$Input$focusDefault = function (attrs) {
@@ -18392,7 +18398,6 @@ var $author$project$Pages$Dashboard$viewCreateAssignmentFormErrors = function (e
 				A2($elm$core$List$map, $author$project$Pages$Dashboard$viewCreateAssignmentFormError, errors))
 			]));
 };
-var $author$project$Styling$Colors$greenColor = A3($mdgriffith$elm_ui$Element$rgb255, 76, 209, 55);
 var $author$project$Pages$Dashboard$viewCreateAssignmentFormStatus = function (data) {
 	switch (data.$) {
 		case 3:
@@ -19437,7 +19442,6 @@ var $author$project$Pages$Dashboard$viewAssignmentsDayColumn = F4(
 				}
 			}());
 	});
-var $author$project$Styling$Colors$greyBlueColor = A3($mdgriffith$elm_ui$Element$rgb255, 72, 126, 176);
 var $author$project$Pages$Dashboard$viewOtherAssignments = F2(
 	function (apiData, date) {
 		return A2(

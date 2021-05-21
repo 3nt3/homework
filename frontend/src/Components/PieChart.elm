@@ -1,7 +1,7 @@
 module Components.PieChart exposing (mainn)
 
 import Array exposing (Array)
-import Color exposing (Color)
+import Color exposing (Color, darkBlue)
 import Element
 import Path
 import Shape exposing (defaultPieConfig)
@@ -30,12 +30,51 @@ radius =
 colors : Array Color
 colors =
     Array.fromList
-        [ blueColor
-        , blueColor2
+        [ greyBlueColor
+        , greyBlueColor2
         , fliederColor
         , flieder2Color
         , yellowColor
         , yellowColor2
+        , greenColor
+        , greenColor2
+        , redColor
+        , redColor2
+        , darkBlueColor
+        , darkBlueColor2
+        , greyBlueColor2
+        , fliederColor
+        , flieder2Color
+        , yellowColor
+        , yellowColor2
+        , greenColor
+        , greenColor2
+        , redColor
+        , redColor2
+        , darkBlueColor
+        , darkBlueColor2
+        , greyBlueColor2
+        , fliederColor
+        , flieder2Color
+        , yellowColor
+        , yellowColor2
+        , greenColor
+        , greenColor2
+        , redColor
+        , redColor2
+        , darkBlueColor
+        , darkBlueColor2
+        , greyBlueColor2
+        , fliederColor
+        , flieder2Color
+        , yellowColor
+        , yellowColor2
+        , greenColor
+        , greenColor2
+        , redColor
+        , redColor2
+        , darkBlueColor
+        , darkBlueColor2
         ]
         |> Array.map (\c -> Element.toRgb c |> Color.fromRgba)
 

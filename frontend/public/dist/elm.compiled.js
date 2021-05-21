@@ -24032,7 +24032,6 @@ var $author$project$Pages$Register$view = function (model) {
 var $author$project$Pages$Register$page = $author$project$Spa$Page$application(
 	{hS: $author$project$Pages$Register$init, h2: $author$project$Pages$Register$load, iK: $author$project$Pages$Register$save, i4: $author$project$Pages$Register$subscriptions, jx: $author$project$Pages$Register$update, jy: $author$project$Pages$Register$view});
 var $author$project$Pages$Top$view = function (_v0) {
-	var params = _v0.ix;
 	return {
 		bo: _List_fromArray(
 			[
@@ -24095,7 +24094,7 @@ var $author$project$Pages$Top$view = function (_v0) {
 											$mdgriffith$elm_ui$Element$padding(5),
 											$mdgriffith$elm_ui$Element$Border$rounded(5)
 										]),
-									$mdgriffith$elm_ui$Element$text('Beta v0.8'))
+									$mdgriffith$elm_ui$Element$text('Beta v0.8.5'))
 								]))),
 						A2(
 						$mdgriffith$elm_ui$Element$el,
@@ -25228,7 +25227,7 @@ var $author$project$Shared$viewHomeButton = A2(
 					A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1)),
 					$mdgriffith$elm_ui$Element$Border$rounded(5)
 				]),
-			$mdgriffith$elm_ui$Element$text('v0.8'))
+			$mdgriffith$elm_ui$Element$text('v0.8.5'))
 		]));
 var $author$project$Shared$navBarView = F3(
 	function (device, maybeUser, options) {

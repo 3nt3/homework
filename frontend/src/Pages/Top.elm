@@ -7,7 +7,7 @@ import Element.Font as Font
 import Spa.Document exposing (Document)
 import Spa.Page as Page exposing (Page)
 import Spa.Url exposing (Url)
-import Styling.Colors exposing (blueColor, darkGreyColor, redColor)
+import Styling.Colors exposing (blueColor, darkGreyColor)
 
 
 type alias Params =
@@ -33,18 +33,8 @@ page =
 -- VIEW
 
 
-primaryColor : Color
-primaryColor =
-    rgb255 52 172 224
-
-
-darkGrey : Color
-darkGrey =
-    rgb255 61 61 61
-
-
 view : Url Params -> Document Msg
-view { params } =
+view _ =
     { title = "dwb?"
     , body =
         [ column [ width fill, height fill ]
@@ -69,7 +59,7 @@ view { params } =
                         , padding 5
                         , Border.rounded 5
                         ]
-                        (text "Beta v0.8")
+                        (text "Beta v0.8.5")
                     ]
                 )
 

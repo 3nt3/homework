@@ -3,25 +3,22 @@ module Components.LineChart exposing (mainn)
 import Axis
 import Color
 import Date
-import Dict
-import List.Extra
 import Models
 import Path exposing (Path)
 import Scale exposing (ContinuousScale)
 import Shape
-import String exposing (toInt)
 import Svg
 import Time exposing (millisToPosix)
-import TypedSvg exposing (circle, g, path, style, svg)
-import TypedSvg.Attributes exposing (class, d, fill, stroke, transform, viewBox)
+import TypedSvg exposing (circle, g, style, svg)
+import TypedSvg.Attributes exposing (class, fill, stroke, transform, viewBox)
 import TypedSvg.Attributes.InPx exposing (cx, cy, r, strokeWidth, x1, x2, y1, y2)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), Transform(..))
 
 
-blueColor : Float -> Color.Color
-blueColor alpha =
-    Color.rgba (45 / 255) (156 / 255) (252 / 255) alpha
+fliederColor : Float -> Color.Color
+fliederColor alpha =
+    Color.rgba (156 / 255) (136 / 255) (255 / 255) alpha
 
 
 w : Float
@@ -106,7 +103,7 @@ marker data =
                 [ r 3
                 , cx (Tuple.first x)
                 , cy (Tuple.second x)
-                , fill <| Paint <| blueColor 1.0
+                , fill <| Paint <| fliederColor 1.0
                 ]
                 []
 
@@ -168,8 +165,8 @@ view model today =
                     Nothing ->
                         [ Svg.text "" ]
                 )
-            , Path.element (area model) [ strokeWidth 2, fill <| Paint <| blueColor 0.3 ]
-            , Path.element (line model) [ stroke <| Paint <| blueColor 1.0, strokeWidth 2, fill PaintNone ]
+            , Path.element (area model) [ strokeWidth 2, fill <| Paint <| fliederColor 0.3 ]
+            , Path.element (line model) [ stroke <| Paint <| fliederColor 1.0, strokeWidth 2, fill PaintNone ]
             , g []
                 (markers model)
             ]

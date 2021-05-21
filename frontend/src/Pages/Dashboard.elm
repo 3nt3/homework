@@ -5,6 +5,7 @@ import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
 import Array
 import Components.LineChart
+import Components.PieChart
 import Components.Sidebar
 import Date
 import Element exposing (..)
@@ -524,6 +525,22 @@ view model =
                             , Border.rounded borderRadius
                             ]
                             (viewWeekAssignmentVisualization model)
+                        ]
+                    , (case model.device.class of
+                        Shared.Desktop ->
+                            row
+
+                        _ ->
+                            column
+                      )
+                        [ width fill, height shrink ]
+                        [ el
+                            [ width <| fillPortion 1
+                            , Background.color lighterGreyColor
+                            , Border.rounded borderRadius
+                            ]
+                            (viewContributorChart model)
+                        , el [ width <| fillPortion 1 ] none
                         ]
                     ]
                 ]
@@ -1270,3 +1287,9 @@ getCourseNameById courses id =
     List.filter (\c -> c.id == id) courses
         |> List.head
         |> Maybe.map (\c -> c.name)
+
+
+viewContributorChart : Model -> Element Msg
+viewContributorChart model =
+    el [ width fill, height <| px 400, padding borderRadius ]
+        (html (Components.PieChart.mainn [ ( "fdas", 32 ), ("yo", 3), ("youysdf", 2)]))

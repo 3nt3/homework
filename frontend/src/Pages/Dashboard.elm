@@ -115,7 +115,7 @@ init : Shared.Model -> Url Params -> ( Model, Cmd Msg )
 init shared url =
     ( { url = url
       , user = shared.user
-      , courseData = NotAsked
+      , courseData = Loading
       , searchCoursesData = NotAsked
       , device = shared.device
       , createAssignmentData = NotAsked
@@ -129,7 +129,7 @@ init shared url =
       , addDaysDifference = 0
       , errors = []
       , maybeAssignmentHovered = Nothing
-      , assignmentData = NotAsked
+      , assignmentData = Loading
       , maybeAssignmentModalActivated = Nothing
       , assignmentModalData = NotAsked
       , editAssignmentTitleTfText = ""
@@ -1298,13 +1298,14 @@ getCourseNameById courses id =
 
 viewContributorChart : Model -> Element Msg
 viewContributorChart model =
-    case model.contributorData of
-        Success contributors ->
-            el [ width fill, height <| px 400, padding borderRadius ]
-                (html (Components.PieChart.mainn contributors))
+    el [ width fill, height <| px 400, padding borderRadius ]
+        (case model.contributorData of
+            Success contributors ->
+                html (Components.PieChart.mainn contributors)
 
-        Failure error ->
-            el [] (text (Api.errorToString error))
+            Failure error ->
+                text (Api.errorToString error)
 
-        _ ->
-            el [] (text "Loading...")
+            _ ->
+                text "Loading..."
+        )

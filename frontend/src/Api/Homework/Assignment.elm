@@ -1,11 +1,12 @@
-module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment)
+module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment, getContributors)
 
 import Api
 import Api.Api exposing (apiAddress)
 import Api.Homework.Course exposing (assignmentDecoder)
 import Date
+import Dict exposing (Dict)
 import Http
-import Json.Decode as Json
+import Json.Decode as Json exposing (dict)
 import Json.Encode as Encode
 import Models exposing (Assignment)
 
@@ -105,3 +106,21 @@ changeAssignmentTitle id newTitle onResponse =
         , timeout = Nothing
         , tracker = Nothing
         }
+
+
+getContributors : (Api.Data (List ( String, Int )) -> msg) -> Cmd msg
+getContributors onResponse =
+    Http.riskyRequest
+        { method = "GET"
+        , url = apiAddress ++ "/assignments/contributors"
+        , headers = []
+        , body = Http.emptyBody
+        , expect = Api.expectJson onResponse contributorsDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+contributorsDecoder : Json.Decoder (List ( String, Int ))
+contributorsDecoder =
+    Json.keyValuePairs Json.int

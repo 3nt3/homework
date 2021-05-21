@@ -68,7 +68,7 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 	// TODO: find actual reason courses are doubled?
 	// maybe because cache and new courses are merged? idk
 	var idsSeen []interface{}
-	var filteredFilteredCourses []structs.CleanCourse
+	var filteredFilteredCourses []structs.CleanCourse = make([]structs.CleanCourse, 0)
 	for _, c := range cleanCourses {
 		duplicate := false
 		for _, id := range idsSeen {

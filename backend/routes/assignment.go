@@ -180,13 +180,13 @@ func GetAssignments(w http.ResponseWriter, r *http.Request) {
 		assignments = make([]structs.Assignment, 0)
 	}
 
-	var cleanAssignments []structs.CleanAssignment
+	var cleanAssignments []structs.CleanAssignment = make([]structs.CleanAssignment, 0)
 	for _, a := range assignments {
 		cleanAssignments = append(cleanAssignments, a.GetClean())
 	}
 
 	_ = returnApiResponse(w, apiResponse{
-		Content: assignments,
+		Content: cleanAssignments,
 	}, 200)
 }
 
@@ -339,5 +339,68 @@ func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
 
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignment.GetClean(),
+	}, 200)
+}
+
+func GetContributors(w http.ResponseWriter, r *http.Request) {
+	user, authenticated, err := getUserBySession(r, true)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"invalid session"},
+		}, 401)
+		return
+	}
+
+	// TODO: find actual reason courses are doubled?
+	// maybe because cache and new courses are merged? idk
+	var idsSeen []interface{}
+	var filteredCourses []structs.Course
+	for _, c := range user.Courses {
+		duplicate := false
+		for _, id := range idsSeen {
+			if c.ID == id {
+				duplicate = true
+				break
+			}
+		}
+
+		if !duplicate {
+			// logging.DebugLogger.Printf("not duplicate: %+v\n", c)
+			filteredCourses = append(filteredCourses, c)
+			idsSeen = append(idsSeen, c.ID)
+		}
+	}
+
+	var contributorThings map[string]int = make(map[string]int)
+
+	for _, c := range filteredCourses {
+		for _, a := range c.Assignments {
+			if _, ok := contributorThings[a.User.Username]; !ok {
+				contributorThings[a.User.Username] = 1
+			} else {
+				contributorThings[a.User.Username]++
+			}
+		}
+	}
+
+	returnApiResponse(w, apiResponse{
+		Content: contributorThings,
 	}, 200)
 }

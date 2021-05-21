@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment)
+import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
 import Array
 import Components.LineChart
@@ -60,6 +60,7 @@ type alias Model =
     , assignmentModalData : Api.Data Assignment
     , editAssignmentTitleTfText : String
     , assignmentTitleFocused : Bool
+    , contributorData : Api.Data (List ( String, Int ))
     }
 
 
@@ -86,6 +87,7 @@ type Msg
     | FocusAssignmentTitle String
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
+    | GotContributorData (Api.Data (List ( String, Int )))
 
 
 page : Page Params Model Msg
@@ -105,6 +107,7 @@ initCommands =
     [ getActiveCourses { onResponse = GotCourseData }
     , Time.now |> Task.perform ReceiveTime
     , getAssignments 7 { onResponse = GotAssignmentData }
+    , getContributors GotContributorData
     ]
 
 
@@ -131,6 +134,7 @@ init shared url =
       , assignmentModalData = NotAsked
       , editAssignmentTitleTfText = ""
       , assignmentTitleFocused = False
+      , contributorData = Loading
       }
     , Cmd.batch initCommands
     )
@@ -442,6 +446,9 @@ update msg model =
               }
             , Cmd.none
             )
+
+        GotContributorData data ->
+            ( { model | contributorData = data }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -1291,5 +1298,13 @@ getCourseNameById courses id =
 
 viewContributorChart : Model -> Element Msg
 viewContributorChart model =
-    el [ width fill, height <| px 400, padding borderRadius ]
-        (html (Components.PieChart.mainn [ ( "fdas", 32 ), ("yo", 3), ("youysdf", 2)]))
+    case model.contributorData of
+        Success contributors ->
+            el [ width fill, height <| px 400, padding borderRadius ]
+                (html (Components.PieChart.mainn contributors))
+
+        Failure error ->
+            el [] (text (Api.errorToString error))
+
+        _ ->
+            el [] (text "Loading...")

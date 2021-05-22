@@ -49,6 +49,13 @@ view _ =
                 ]
                 (column [ centerX, centerY, spacing 10 ]
                     [ el [ centerX, Font.size 80 ] (text "Homework Organizer")
+                    , paragraph [ centerX, width fill, Font.center, paddingXY 10 0 ]
+                        [ el [] (text "not to be confused with: ")
+                        , link []
+                            { url = "https://schule.3nt3.de"
+                            , label = el [ Font.underline ] <| text "schule.3nt3.de"
+                            }
+                        ]
                     , el
                         [ centerX
                         , Font.size 30

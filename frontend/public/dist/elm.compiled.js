@@ -24035,6 +24035,7 @@ var $author$project$Pages$Register$view = function (model) {
 };
 var $author$project$Pages$Register$page = $author$project$Spa$Page$application(
 	{hS: $author$project$Pages$Register$init, h2: $author$project$Pages$Register$load, iK: $author$project$Pages$Register$save, i4: $author$project$Pages$Register$subscriptions, jx: $author$project$Pages$Register$update, jy: $author$project$Pages$Register$view});
+var $mdgriffith$elm_ui$Element$Font$underline = $mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.jw);
 var $author$project$Pages$Top$view = function (_v0) {
 	return {
 		bo: _List_fromArray(
@@ -24080,6 +24081,33 @@ var $author$project$Pages$Top$view = function (_v0) {
 											$mdgriffith$elm_ui$Element$Font$size(80)
 										]),
 									$mdgriffith$elm_ui$Element$text('Homework Organizer')),
+									A2(
+									$mdgriffith$elm_ui$Element$paragraph,
+									_List_fromArray(
+										[
+											$mdgriffith$elm_ui$Element$centerX,
+											$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+											$mdgriffith$elm_ui$Element$Font$center,
+											A2($mdgriffith$elm_ui$Element$paddingXY, 10, 0)
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$mdgriffith$elm_ui$Element$el,
+											_List_Nil,
+											$mdgriffith$elm_ui$Element$text('not to be confused with: ')),
+											A2(
+											$mdgriffith$elm_ui$Element$link,
+											_List_Nil,
+											{
+												h0: A2(
+													$mdgriffith$elm_ui$Element$el,
+													_List_fromArray(
+														[$mdgriffith$elm_ui$Element$Font$underline]),
+													$mdgriffith$elm_ui$Element$text('schule.3nt3.de')),
+												bT: 'https://schule.3nt3.de'
+											})
+										])),
 									A2(
 									$mdgriffith$elm_ui$Element$el,
 									_List_fromArray(
@@ -25211,7 +25239,6 @@ var $author$project$Shared$navBarElement = F2(
 				_List_Nil,
 				{h0: label, bT: url}));
 	});
-var $mdgriffith$elm_ui$Element$Font$underline = $mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.jw);
 var $author$project$Shared$viewHomeButton = A2(
 	$mdgriffith$elm_ui$Element$row,
 	_List_fromArray(

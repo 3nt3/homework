@@ -25275,7 +25275,7 @@ var $author$project$Shared$viewHomeButton = A2(
 					A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1)),
 					$mdgriffith$elm_ui$Element$Border$rounded(5)
 				]),
-			$mdgriffith$elm_ui$Element$text('v0.8.5'))
+			$mdgriffith$elm_ui$Element$text('v0.8.6'))
 		]));
 var $author$project$Shared$navBarView = F3(
 	function (device, maybeUser, options) {

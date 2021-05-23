@@ -14803,6 +14803,14 @@ var $mdgriffith$elm_ui$Element$Input$HiddenLabel = function (a) {
 	return {$: 1, a: a};
 };
 var $mdgriffith$elm_ui$Element$Input$labelHidden = $mdgriffith$elm_ui$Element$Input$HiddenLabel;
+var $mdgriffith$elm_ui$Internal$Model$Max = F2(
+	function (a, b) {
+		return {$: 4, a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Element$maximum = F2(
+	function (i, l) {
+		return A2($mdgriffith$elm_ui$Internal$Model$Max, i, l);
+	});
 var $mdgriffith$elm_ui$Internal$Model$Min = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
@@ -14849,6 +14857,28 @@ var $author$project$Utils$OnEnter$onEnterEsc = F2(
 					},
 					A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string))));
 	});
+var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
+	return {$: 2, a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$Paragraph = {$: 9};
+var $mdgriffith$elm_ui$Element$paragraph = F2(
+	function (attrs, children) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asParagraph,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Internal$Model$Describe($mdgriffith$elm_ui$Internal$Model$Paragraph),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+					A2(
+						$elm$core$List$cons,
+						$mdgriffith$elm_ui$Element$spacing(5),
+						attrs))),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
 var $mdgriffith$elm_ui$Internal$Flag$cursor = $mdgriffith$elm_ui$Internal$Flag$flag(21);
 var $mdgriffith$elm_ui$Element$pointer = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$cursor, $mdgriffith$elm_ui$Internal$Style$classes.hh);
 var $author$project$Styling$Colors$redColor = A3($mdgriffith$elm_ui$Element$rgb255, 232, 65, 24);
@@ -14873,9 +14903,6 @@ var $mdgriffith$elm_ui$Element$Input$TextInputNode = function (a) {
 	return {$: 0, a: a};
 };
 var $mdgriffith$elm_ui$Element$Input$TextArea = {$: 1};
-var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
-	return {$: 2, a: a};
-};
 var $mdgriffith$elm_ui$Internal$Model$LivePolite = {$: 6};
 var $mdgriffith$elm_ui$Element$Region$announce = $mdgriffith$elm_ui$Internal$Model$Describe($mdgriffith$elm_ui$Internal$Model$LivePolite);
 var $mdgriffith$elm_ui$Element$Input$applyLabel = F3(
@@ -15820,7 +15847,10 @@ var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
 							[
 								$mdgriffith$elm_ui$Element$centerX,
 								$mdgriffith$elm_ui$Element$width(
-								A2($mdgriffith$elm_ui$Element$minimum, 800, $mdgriffith$elm_ui$Element$shrink)),
+								A2(
+									$mdgriffith$elm_ui$Element$maximum,
+									1000,
+									A2($mdgriffith$elm_ui$Element$minimum, 800, $mdgriffith$elm_ui$Element$shrink))),
 								$mdgriffith$elm_ui$Element$Background$color(
 								A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1)),
 								$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
@@ -15851,40 +15881,46 @@ var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
 											_List_fromArray(
 												[
 													A2(
-													$mdgriffith$elm_ui$Element$el,
+													$mdgriffith$elm_ui$Element$paragraph,
+													_List_Nil,
 													_List_fromArray(
 														[
-															$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-															_Utils_eq(user.hM, assignment.gn.hM) ? $mdgriffith$elm_ui$Element$Events$onClick(
-															$author$project$Pages$Dashboard$FocusAssignmentTitle(assignment.hM)) : $mdgriffith$elm_ui$Element$pointer,
-															$mdgriffith$elm_ui$Element$pointer
-														]),
-													model.bm ? A2(
-														$mdgriffith$elm_ui$Element$Input$text,
-														_List_fromArray(
-															[
-																$mdgriffith$elm_ui$Element$Font$bold,
-																$mdgriffith$elm_ui$Element$Font$size(24),
-																$mdgriffith$elm_ui$Element$padding(0),
-																$mdgriffith$elm_ui$Element$Input$focusedOnLoad,
-																A2(
-																$author$project$Utils$OnEnter$onEnterEsc,
-																$author$project$Pages$Dashboard$ChangeAssignmentTitle(assignment.hM),
-																$author$project$Pages$Dashboard$UnfocusAssignmentTitle)
-															]),
-														{
-															h0: $mdgriffith$elm_ui$Element$Input$labelHidden('edit assignment title'),
-															c8: $author$project$Pages$Dashboard$ChangeAssignmentTitleTfText,
-															dd: $elm$core$Maybe$Nothing,
-															di: model.a9
-														}) : A2(
-														$mdgriffith$elm_ui$Element$el,
-														_List_fromArray(
-															[
-																$mdgriffith$elm_ui$Element$Font$bold,
-																$mdgriffith$elm_ui$Element$Font$size(24)
-															]),
-														$mdgriffith$elm_ui$Element$text(assignment.jn))),
+															A2(
+															$mdgriffith$elm_ui$Element$el,
+															_List_fromArray(
+																[
+																	$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+																	_Utils_eq(user.hM, assignment.gn.hM) ? $mdgriffith$elm_ui$Element$Events$onClick(
+																	$author$project$Pages$Dashboard$FocusAssignmentTitle(assignment.jn)) : $mdgriffith$elm_ui$Element$pointer,
+																	$mdgriffith$elm_ui$Element$pointer
+																]),
+															model.bm ? A2(
+																$mdgriffith$elm_ui$Element$Input$text,
+																_List_fromArray(
+																	[
+																		$mdgriffith$elm_ui$Element$Font$bold,
+																		$mdgriffith$elm_ui$Element$Font$size(24),
+																		$mdgriffith$elm_ui$Element$padding(0),
+																		$mdgriffith$elm_ui$Element$Input$focusedOnLoad,
+																		A2(
+																		$author$project$Utils$OnEnter$onEnterEsc,
+																		$author$project$Pages$Dashboard$ChangeAssignmentTitle(assignment.hM),
+																		$author$project$Pages$Dashboard$UnfocusAssignmentTitle)
+																	]),
+																{
+																	h0: $mdgriffith$elm_ui$Element$Input$labelHidden('edit assignment title'),
+																	c8: $author$project$Pages$Dashboard$ChangeAssignmentTitleTfText,
+																	dd: $elm$core$Maybe$Nothing,
+																	di: model.a9
+																}) : A2(
+																$mdgriffith$elm_ui$Element$el,
+																_List_fromArray(
+																	[
+																		$mdgriffith$elm_ui$Element$Font$bold,
+																		$mdgriffith$elm_ui$Element$Font$size(24)
+																	]),
+																$mdgriffith$elm_ui$Element$text(assignment.jn)))
+														])),
 													A2(
 													$mdgriffith$elm_ui$Element$el,
 													_List_fromArray(
@@ -18473,25 +18509,6 @@ var $mdgriffith$elm_ui$Element$Keyed$column = F2(
 var $author$project$Pages$Dashboard$CAFSelectCourse = function (a) {
 	return {$: 3, a: a};
 };
-var $mdgriffith$elm_ui$Internal$Model$Paragraph = {$: 9};
-var $mdgriffith$elm_ui$Element$paragraph = F2(
-	function (attrs, children) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asParagraph,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Internal$Model$Describe($mdgriffith$elm_ui$Internal$Model$Paragraph),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-					A2(
-						$elm$core$List$cons,
-						$mdgriffith$elm_ui$Element$spacing(5),
-						attrs))),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
 var $author$project$Pages$Dashboard$viewSearchDropdownElement = F2(
 	function (course, isLast) {
 		return A2(

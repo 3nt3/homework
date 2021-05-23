@@ -1205,7 +1205,7 @@ viewAssignmentModal model =
                                 ]
                                 (column
                                     [ centerX
-                                    , width (shrink |> minimum 800)
+                                    , width (shrink |> minimum 800 |> maximum 1000)
                                     , Background.color (rgb 1 1 1)
                                     , height shrink
                                     , Font.color (rgb 0 0 0)
@@ -1217,32 +1217,34 @@ viewAssignmentModal model =
                                     (case model.assignmentModalData of
                                         Success assignment ->
                                             [ row [ width fill ]
-                                                [ el
-                                                    [ width fill
-                                                    , if user.id == assignment.user.id then
-                                                        Events.onClick <| FocusAssignmentTitle assignment.id
+                                                [ paragraph []
+                                                    [ el
+                                                        [ width fill
+                                                        , if user.id == assignment.user.id then
+                                                            Events.onClick <| FocusAssignmentTitle assignment.title
 
-                                                      else
-                                                        pointer
-                                                    , pointer
+                                                          else
+                                                            pointer
+                                                        , pointer
+                                                        ]
+                                                        (if model.assignmentTitleFocused then
+                                                            Input.text
+                                                                [ Font.bold
+                                                                , Font.size 24
+                                                                , padding 0
+                                                                , focusedOnLoad
+                                                                , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
+                                                                ]
+                                                                { onChange = ChangeAssignmentTitleTfText
+                                                                , text = model.editAssignmentTitleTfText
+                                                                , placeholder = Nothing
+                                                                , label = Input.labelHidden "edit assignment title"
+                                                                }
+
+                                                         else
+                                                            el [ Font.bold, Font.size 24 ] (text assignment.title)
+                                                        )
                                                     ]
-                                                    (if model.assignmentTitleFocused then
-                                                        Input.text
-                                                            [ Font.bold
-                                                            , Font.size 24
-                                                            , padding 0
-                                                            , focusedOnLoad
-                                                            , onEnterEsc (ChangeAssignmentTitle assignment.id) UnfocusAssignmentTitle
-                                                            ]
-                                                            { onChange = ChangeAssignmentTitleTfText
-                                                            , text = model.editAssignmentTitleTfText
-                                                            , placeholder = Nothing
-                                                            , label = Input.labelHidden "edit assignment title"
-                                                            }
-
-                                                     else
-                                                        el [ Font.bold, Font.size 24 ] (text assignment.title)
-                                                    )
                                                 , el
                                                     [ Events.onClick CloseModal
                                                     , Font.color redColor

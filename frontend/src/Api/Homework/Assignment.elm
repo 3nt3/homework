@@ -124,7 +124,7 @@ getContributors onResponse =
 getContributorsAdmin : (Api.Data (List ( String, Int )) -> msg) -> Cmd msg
 getContributorsAdmin onResponse =
     Http.riskyRequest
-        { url = apiAddress ++ "/assignments/contributors"
+        { url = apiAddress ++ "/assignments/contributors/all"
         , body = Http.emptyBody
         , headers = []
         , method = "GET"

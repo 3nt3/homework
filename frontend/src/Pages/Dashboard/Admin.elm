@@ -12,7 +12,8 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
 import Html exposing (h1)
-import Models exposing (User)
+import Maybe.Extra exposing (isNothing)
+import Models exposing (Privilege(..), User)
 import Shared
 import Spa.Document exposing (Document)
 import Spa.Page as Page exposing (Page)
@@ -124,27 +125,37 @@ view model =
                     , Background.color darkGreyColor
                     , spacing 30
                     ]
-                    [ column []
-                        [ el [ Font.size 40, Font.bold, alignTop ] (text "admin dashboard")
-                        , el [] (text "you are obviously very cool because in your row the permission field is 1, not 0")
-                        ]
-                    , (case model.device.class of
-                        Shared.Phone ->
-                            column
+                    (case model.user of
+                        Just user ->
+                            if user.privilege == Admin then
+                                [ column []
+                                    [ el [ Font.size 40, Font.bold, alignTop ] (text "admin dashboard")
+                                    , el [] (text "you are obviously very cool because in your row the permission field is 1, not 0")
+                                    ]
+                                , (case model.device.class of
+                                    Shared.Phone ->
+                                        column
+
+                                    _ ->
+                                        row
+                                  )
+                                    [ width fill ]
+                                    [ viewContributorChart model
+                                    , case model.device.class of
+                                        Shared.Desktop ->
+                                            el [ width <| fillPortion 1 ] none
+
+                                        _ ->
+                                            none
+                                    ]
+                                ]
+
+                            else
+                                [ el [] <| text "permission denied" ]
 
                         _ ->
-                            row
-                      )
-                        [ width fill ]
-                        [ viewContributorChart model
-                        , case model.device.class of
-                            Shared.Desktop ->
-                                el [ width <| fillPortion 1 ] none
-
-                            _ ->
-                                none
-                        ]
-                    ]
+                            [ el [] <| text "permission denied" ]
+                    )
                 ]
             )
         ]

@@ -164,6 +164,15 @@ view model =
 
 viewContributorChart : Model -> Element Msg
 viewContributorChart model =
+    let
+        foo =
+            case model.contributorInfo of
+                Success contributorInfo ->
+                    " -- " ++ (String.fromInt <| List.foldl (\a b -> Tuple.second a + b) 0 contributorInfo) ++ " total contributions"
+
+                _ ->
+                    ""
+    in
     column
         [ width <| fillPortion 1
         , Background.color lighterGreyColor
@@ -171,7 +180,7 @@ viewContributorChart model =
         , padding 20
         , height (shrink |> Element.minimum 400)
         ]
-        [ el [ Font.size 30, Font.bold ] <| text "Contributors (total)"
+        [ el [ Font.size 30, Font.bold ] <| text ("Contributors (total)" ++ foo)
         , case model.contributorInfo of
             Success contributorInfo ->
                 -- not sure if this will look good on lower dpi screens

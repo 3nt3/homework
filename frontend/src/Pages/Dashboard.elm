@@ -1300,14 +1300,25 @@ getCourseNameById courses id =
 
 viewContributorChart : Model -> Element Msg
 viewContributorChart model =
-    el [ width fill, height <| px 400, padding borderRadius ]
-        (case model.contributorData of
-            Success contributors ->
-                html (Components.PieChart.mainn contributors)
+    let
+        foo =
+            case model.contributorData of
+                Success contributorInfo ->
+                    " -- " ++ (String.fromInt <| List.foldl (\a b -> Tuple.second a + b) 0 contributorInfo) ++ " total contributions"
 
-            Failure error ->
-                text (Api.errorToString error)
+                _ ->
+                    ""
+    in
+    column [ width fill, height (shrink |> minimum 400), padding borderRadius ]
+        (el [ Font.bold, Font.size 30 ] (text ("contributors" ++ foo))
+            :: (case model.contributorData of
+                    Success contributors ->
+                        [ el [ width fill ] <| html (Components.PieChart.mainn contributors) ]
 
-            _ ->
-                text "Loading..."
+                    Failure error ->
+                        [ el [] (text (Api.errorToString error)) ]
+
+                    _ ->
+                        [ text "Loading..." ]
+               )
         )

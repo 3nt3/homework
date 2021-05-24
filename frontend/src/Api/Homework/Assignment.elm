@@ -1,4 +1,4 @@
-module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, removeAssignment, getContributors)
+module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, getContributorsAdmin, removeAssignment)
 
 import Api
 import Api.Api exposing (apiAddress)
@@ -115,6 +115,19 @@ getContributors onResponse =
         , url = apiAddress ++ "/assignments/contributors"
         , headers = []
         , body = Http.emptyBody
+        , expect = Api.expectJson onResponse contributorsDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+getContributorsAdmin : (Api.Data (List ( String, Int )) -> msg) -> Cmd msg
+getContributorsAdmin onResponse =
+    Http.riskyRequest
+        { url = apiAddress ++ "/assignments/contributors/all"
+        , body = Http.emptyBody
+        , headers = []
+        , method = "GET"
         , expect = Api.expectJson onResponse contributorsDecoder
         , timeout = Nothing
         , tracker = Nothing

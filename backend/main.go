@@ -67,6 +67,7 @@ func main() {
 	r.HandleFunc("/assignment/{id}", routes.UpdateAssignment).Methods("PUT")
 	r.HandleFunc("/assignments", routes.GetAssignments).Methods("GET")
 	r.HandleFunc("/assignments/contributors", routes.GetContributors).Methods("GET")
+	r.HandleFunc("/assignments/contributors/all", routes.GetContributorsAdmin).Methods("GET")
 
 	// /courses routes
 	r.HandleFunc("/courses/active", routes.GetActiveCourses)

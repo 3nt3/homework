@@ -404,3 +404,64 @@ func GetContributors(w http.ResponseWriter, r *http.Request) {
 		Content: contributorThings,
 	}, 200)
 }
+
+func GetContributorsAdmin(w http.ResponseWriter, r *http.Request) {
+	user, authenticated, err := getUserBySession(r, true)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"invalid session"},
+		}, 401)
+		return
+	}
+
+	if user.Privilege < 1 {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"permission denied"},
+		}, 403)
+		return
+	}
+
+	var contributorThings map[string]int = make(map[string]int)
+
+	allAssignments, err := db.GetAllAssignments()
+	if err != nil {
+		// ignore sql.ErrNoRows
+		if err != sql.ErrNoRows {
+			logging.WarningLogger.Printf("error getting all assignments from db: %v\n", err)
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"internal server error"},
+			}, 500)
+		}
+	}
+
+	for _, a := range allAssignments {
+		if _, ok := contributorThings[a.User.Username]; !ok {
+			contributorThings[a.User.Username] = 1
+		} else {
+			contributorThings[a.User.Username]++
+		}
+	}
+
+	returnApiResponse(w, apiResponse{
+		Content: contributorThings,
+	}, 200)
+}

@@ -4,6 +4,7 @@ port module Shared exposing
     , Flags
     , Model
     , Msg
+    , Orientation(..)
     , init
     , subscriptions
     , update

@@ -82,12 +82,13 @@ type alias Model =
     , key : Key
     , user : Maybe User
     , device : Device
+    , overrideLoggedInRedirect : Bool
     }
 
 
 init : Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( Model url key Nothing (classifyDevice { width = flags.width, height = flags.height })
+    ( Model url key Nothing (classifyDevice { width = flags.width, height = flags.height }) False
     , getUserFromSession { onResponse = GotUser }
     )
 
@@ -101,6 +102,7 @@ type Msg
     | Logout
     | Resize Int Int
     | GotLogoutData (Result Http.Error ())
+    | OverrideRedirect
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,7 +111,7 @@ update msg model =
         GotUser userData ->
             case userData of
                 Api.Success user ->
-                    ( { model | user = Just user }, Cmd.none )
+                    ( { model | user = Just user, overrideLoggedInRedirect = False }, Cmd.none )
 
                 _ ->
                     ( { model | user = Nothing }, Cmd.none )
@@ -122,6 +124,9 @@ update msg model =
 
         GotLogoutData _ ->
             ( model, deleteCookie () )
+
+        OverrideRedirect ->
+            ( { model | overrideLoggedInRedirect = True }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -138,9 +143,9 @@ lighterGreyColor =
     rgb255 29 32 37
 
 
-navBarElement : Element msg -> String -> Element msg
-navBarElement label url =
-    el [] (link [] { label = label, url = url })
+navBarElement : Element msg -> (Msg -> msg) -> String -> Element msg
+navBarElement label toMsg url =
+    el [] (link [ Events.onClick (toMsg OverrideRedirect) ] { label = label, url = url })
 
 
 viewHomeButton =
@@ -197,6 +202,7 @@ navBarView device maybeUser options =
                     )
                     (navBarElement
                         viewHomeButton
+                        options.toMsg
                         "/"
                     )
                 , el
@@ -207,7 +213,7 @@ navBarView device maybeUser options =
                         _ ->
                             alignRight
                     ]
-                    (navBarElement (text "dashboard") "/dashboard")
+                    (navBarElement (text "dashboard") options.toMsg "/dashboard")
                 , el
                     [ case device.class of
                         Phone ->
@@ -217,7 +223,7 @@ navBarView device maybeUser options =
                             alignRight
                     , Events.onClick (options.toMsg Logout)
                     ]
-                    (navBarElement (text "logout") "/")
+                    (navBarElement (text "logout") options.toMsg "/")
                 ]
 
             Nothing ->
@@ -232,6 +238,7 @@ navBarView device maybeUser options =
                     ]
                     (navBarElement
                         viewHomeButton
+                        options.toMsg
                         "/"
                     )
                 , el
@@ -242,7 +249,7 @@ navBarView device maybeUser options =
                         _ ->
                             alignRight
                     ]
-                    (navBarElement (text "login") "/login")
+                    (navBarElement (text "login") options.toMsg "/login")
                 , el
                     [ case device.class of
                         Desktop ->
@@ -252,7 +259,7 @@ navBarView device maybeUser options =
                             alignBottom
                     , Font.underline
                     ]
-                    (navBarElement (text "register") "/register")
+                    (navBarElement (text "register") options.toMsg "/register")
                 ]
         )
 

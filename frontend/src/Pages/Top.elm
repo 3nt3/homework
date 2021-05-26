@@ -4,10 +4,14 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
+import Models exposing (User)
+import Shared
 import Spa.Document exposing (Document)
+import Spa.Generated.Route exposing (Route)
 import Spa.Page as Page exposing (Page)
 import Spa.Url exposing (Url)
 import Styling.Colors exposing (blueColor, darkGreyColor)
+import Utils.Route exposing (navigate)
 
 
 type alias Params =
@@ -15,7 +19,9 @@ type alias Params =
 
 
 type alias Model =
-    Url Params
+    { url : Url Params
+    , user : Maybe User
+    }
 
 
 type alias Msg =
@@ -24,16 +30,70 @@ type alias Msg =
 
 page : Page Params Model Msg
 page =
-    Page.static
+    Page.application
         { view = view
+        , update = update
+        , init = init
+        , subscriptions = subscriptions
+        , load = load
+        , save = save
         }
+
+
+init : Shared.Model -> Url Params -> ( Model, Cmd Msg )
+init shared url =
+    ( { user = shared.user
+      , url = url
+      }
+    , if not shared.overrideLoggedInRedirect then
+        case shared.user of
+            Just _ ->
+                navigate url.key Spa.Generated.Route.Dashboard
+
+            Nothing ->
+                Cmd.none
+
+      else
+        Cmd.none
+    )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( model, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.none
+
+
+load : Shared.Model -> Model -> ( Model, Cmd Msg )
+load shared model =
+    ( model
+    , if not shared.overrideLoggedInRedirect then
+        case shared.user of
+            Just _ ->
+                navigate model.url.key Spa.Generated.Route.Dashboard
+
+            Nothing ->
+                Cmd.none
+
+      else
+        Cmd.none
+    )
+
+
+save : Model -> Shared.Model -> Shared.Model
+save model shared =
+    shared
 
 
 
 -- VIEW
 
 
-view : Url Params -> Document Msg
+view : Model -> Document Msg
 view _ =
     { title = "dwb?"
     , body =

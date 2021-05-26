@@ -72,6 +72,7 @@ func main() {
 	// /courses routes
 	r.HandleFunc("/courses/active", routes.GetActiveCourses)
 	r.HandleFunc("/courses/search/{searchterm}", routes.SearchCourses)
+	r.HandleFunc("/courses/stats", routes.GetCourseStats).Methods("GET")
 
 	// /moodle routes
 	r.HandleFunc("/moodle/authenticate", routes.MoodleAuthenticate).Methods("POST")

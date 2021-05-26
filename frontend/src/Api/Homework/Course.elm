@@ -135,3 +135,16 @@ enrollInCourse id options =
         , timeout = Nothing
         , tracker = Nothing
         }
+
+
+getCourseStats : (Api.Data (List ( String, Int )) -> msg) -> Cmd msg
+getCourseStats onResponse =
+    Http.riskyRequest
+        { body = Http.emptyBody
+        , url = apiAddress ++ "/courses/stats"
+        , expect = Api.expectJson onResponse (Json.keyValuePairs Json.int)
+        , method = "GET"
+        , headers = []
+        , timeout = Nothing
+        , tracker = Nothing
+        }

@@ -2,7 +2,7 @@ module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
 import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, removeAssignment)
-import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, searchCourses)
+import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, getCourseStats, searchCourses)
 import Array
 import Components.LineChart
 import Components.PieChart
@@ -61,6 +61,7 @@ type alias Model =
     , editAssignmentTitleTfText : String
     , assignmentTitleFocused : Bool
     , contributorData : Api.Data (List ( String, Int ))
+    , courseStatsData : Api.Data (List ( String, Int ))
     }
 
 
@@ -88,6 +89,7 @@ type Msg
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
     | GotContributorData (Api.Data (List ( String, Int )))
+    | GotCourseStatsData (Api.Data (List ( String, Int )))
 
 
 page : Page Params Model Msg
@@ -108,6 +110,7 @@ initCommands =
     , Time.now |> Task.perform ReceiveTime
     , getAssignments 7 { onResponse = GotAssignmentData }
     , getContributors GotContributorData
+    , getCourseStats GotCourseStatsData
     ]
 
 
@@ -135,6 +138,7 @@ init shared url =
       , editAssignmentTitleTfText = ""
       , assignmentTitleFocused = False
       , contributorData = Loading
+      , courseStatsData = Loading
       }
     , Cmd.batch initCommands
     )
@@ -450,6 +454,9 @@ update msg model =
         GotContributorData data ->
             ( { model | contributorData = data }, Cmd.none )
 
+        GotCourseStatsData data ->
+            ( { model | courseStatsData = data }, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -530,6 +537,9 @@ view model =
                             , Background.color lighterGreyColor
                             , height fill
                             , Border.rounded borderRadius
+
+                            -- for some reason you have to add this to align to the grid
+                            , padding 20
                             ]
                             (viewWeekAssignmentVisualization model)
                         ]
@@ -540,14 +550,28 @@ view model =
                         _ ->
                             column
                       )
-                        [ width fill, height shrink ]
+                        [ width fill, height shrink, spacing 30 ]
                         [ el
                             [ width <| fillPortion 1
                             , Background.color lighterGreyColor
                             , Border.rounded borderRadius
+                            , height
+                                (case model.device.class of
+                                    Shared.Desktop ->
+                                        shrink |> minimum 400
+
+                                    _ ->
+                                        fill
+                                )
                             ]
                             (viewContributorChart model)
-                        , el [ width <| fillPortion 1 ] none
+                        , el
+                            [ width <| fillPortion 1
+                            , Background.color lighterGreyColor
+                            , Border.rounded borderRadius
+                            , height fill
+                            ]
+                            (viewCourseChart model)
                         ]
                     ]
                 ]
@@ -1321,4 +1345,22 @@ viewContributorChart model =
                     _ ->
                         [ text "Loading..." ]
                )
+        )
+
+
+viewCourseChart : Model -> Element Msg
+viewCourseChart model =
+    el [ width fill, height fill, padding borderRadius ]
+        (case model.courseStatsData of
+            Success courseStats ->
+                html (Components.PieChart.mainn courseStats)
+
+            Failure e ->
+                el [ centerX, centerY, Font.bold, Font.color redColor, Font.size 30 ] <| text <| "Error: " ++ Api.errorToString e
+
+            Loading ->
+                el [ centerX, centerY, Font.bold, Font.italic, Font.size 30 ] <| text "Loading..."
+
+            _ ->
+                none
         )

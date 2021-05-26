@@ -120,4 +120,4 @@ view model =
 
 mainn : List ( String, Int ) -> Svg msg
 mainn users =
-    view users
+    view <| List.filter (\x -> Tuple.second x > 0) users

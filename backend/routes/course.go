@@ -138,3 +138,42 @@ func SearchCourses(w http.ResponseWriter, r *http.Request) {
 func GetAllCourses(w http.ResponseWriter, r *http.Request) {
 
 }
+
+func GetCourseStats(w http.ResponseWriter, r *http.Request) {
+	user, authenticated, err := getUserBySession(r, false)
+	if !authenticated {
+		if err != nil {
+			logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		}
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"not authenticated"},
+		}, 401)
+		return
+	}
+
+	courses, err := db.GetMoodleUserCourses(user)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			logging.ErrorLogger.Printf("error getting courses: %v\n", err)
+			_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, 500)
+			return
+		}
+	}
+
+	// FIXME: use ids rather than names to avoid confusion
+	var courseAssignments map[string]int = make(map[string]int)
+	for _, c := range courses {
+		assignments, err := db.GetAssignmentsByCourse(int(c.ID.(float64)))
+		if err != nil {
+			if err != sql.ErrNoRows {
+				logging.WarningLogger.Printf("error getting assignments: %v\n", err)
+				continue
+			}
+		}
+
+		courseAssignments[c.Name] = len(assignments)
+	}
+
+	_ = returnApiResponse(w, apiResponse{Content: courseAssignments}, 200)
+}

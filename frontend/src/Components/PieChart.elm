@@ -123,4 +123,4 @@ view model =
 
 mainn : List ( String, Int ) -> Svg msg
 mainn users =
-    view <| List.filter (\x -> Tuple.second x > 0) users
+    view <| List.sortWith (\x y -> compare (Tuple.second x) (Tuple.second y)) <| List.filter (\x -> Tuple.second x > 0) users

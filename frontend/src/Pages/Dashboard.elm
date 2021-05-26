@@ -558,7 +558,7 @@ view model =
                             , height
                                 (case model.device.class of
                                     Shared.Desktop ->
-                                        shrink |> minimum 400
+                                        shrink |> minimum 500
 
                                     _ ->
                                         fill

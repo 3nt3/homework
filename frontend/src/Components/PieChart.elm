@@ -1,7 +1,7 @@
 module Components.PieChart exposing (mainn)
 
 import Array exposing (Array)
-import Color exposing (Color, darkBlue)
+import Color exposing (Color)
 import Element
 import Path
 import Shape exposing (defaultPieConfig)
@@ -19,7 +19,7 @@ w =
 
 h : Float
 h =
-    200
+    300
 
 
 radius : Float
@@ -87,8 +87,11 @@ pieSlice index datum =
 pieLabel : Shape.Arc -> ( String, Float ) -> Svg msg
 pieLabel slice ( label, value ) =
     let
+        dings =
+            10
+
         ( x, y ) =
-            Shape.centroid { slice | innerRadius = radius - 40, outerRadius = radius - 40 }
+            Shape.centroid { slice | innerRadius = radius - dings, outerRadius = radius - dings }
     in
     text_
         [ transform [ Translate x y ]

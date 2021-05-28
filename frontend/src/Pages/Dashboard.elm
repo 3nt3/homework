@@ -51,6 +51,7 @@ type alias Model =
     , dateTfText : String
     , selectedDate : Maybe Date.Date
     , today : Date.Date
+    , zone : Time.Zone
     , selectedDateTime : Time.Posix
     , addDaysDifference : Int
     , errors : List String
@@ -76,6 +77,7 @@ type Msg
     | CreateAssignment
     | GotCreateAssignmentData (Api.Data Assignment)
     | ReceiveTime Time.Posix
+    | AdjustTimeZone Time.Zone
     | Add1Day
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
@@ -111,6 +113,7 @@ initCommands =
     , getAssignments 7 { onResponse = GotAssignmentData }
     , getContributors GotContributorData
     , getCourseStats GotCourseStatsData
+    , Task.perform AdjustTimeZone Time.here
     ]
 
 
@@ -128,6 +131,7 @@ init shared url =
       , dateTfText = ""
       , selectedDate = Nothing
       , today = Date.fromCalendarDate 2019 Time.Jan 1
+      , zone = Time.utc
       , selectedDateTime = Time.millisToPosix 0
       , addDaysDifference = 0
       , errors = []
@@ -299,7 +303,10 @@ update msg model =
                         )
 
         ReceiveTime time ->
-            ( { model | today = Date.fromPosix Time.utc time, selectedDateTime = time }, Cmd.none )
+            ( { model | today = Date.fromPosix model.zone time, selectedDateTime = time }, Cmd.none )
+
+        AdjustTimeZone zone ->
+            ( { model | zone = zone }, Cmd.none )
 
         CreateAssignment ->
             case model.selectedCourse of
@@ -334,7 +341,7 @@ update msg model =
         Add1Day ->
             let
                 date =
-                    Date.fromPosix Time.utc
+                    Date.fromPosix model.zone
                         (Time.millisToPosix
                             (floor
                                 (toFloat
@@ -352,7 +359,7 @@ update msg model =
             in
             ( { model
                 | selectedDate = Just date
-                , selectedDateTime = Time.millisToPosix (floor (toFloat (Date.toRataDie (Date.fromPosix Time.utc model.selectedDateTime)) - epochStartOffset) * (1000 * 60 * 60 * 24))
+                , selectedDateTime = Time.millisToPosix (floor (toFloat (Date.toRataDie (Date.fromPosix model.zone model.selectedDateTime)) - epochStartOffset) * (1000 * 60 * 60 * 24))
                 , dateTfText = toGermanDateString date
                 , addDaysDifference = Date.toRataDie date - epochStartOffset - (Date.toRataDie model.today - epochStartOffset)
                 , errors = List.filter (\error -> error /= "invalid date") model.errors

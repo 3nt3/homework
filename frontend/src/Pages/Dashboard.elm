@@ -1101,36 +1101,39 @@ courseToKeyValue last course =
 
 viewSearchDropdownElement : MinimalCourse -> Bool -> Element Msg
 viewSearchDropdownElement course isLast =
-    row
-        [ Background.color inputColor
-        , width fill
-        , height (shrink |> minimum 50)
-        , padding 15
-        , if isLast then
-            Border.roundEach { topLeft = 0, bottomLeft = 10, bottomRight = 10, topRight = 0 }
+    Input.button [ width fill ]
+        { onPress = Just (CAFSelectCourse course)
+        , label =
+            row
+                [ Background.color inputColor
+                , width fill
+                , height (shrink |> minimum 50)
+                , padding 15
+                , if isLast then
+                    Border.roundEach { topLeft = 0, bottomLeft = 10, bottomRight = 10, topRight = 0 }
 
-          else
-            Border.rounded 0
-        , mouseOver
-            [ Background.color (darken inputColor -0.05)
-            ]
-        , Events.onClick (CAFSelectCourse course)
-        , spacing 10
-        ]
-        [ if course.fromMoodle then
-            el [ Background.color (rgb255 249 128 18), Font.bold, Font.color (rgb 1 1 1), Border.rounded 5, padding 5 ]
-                (text "moodle")
-
-          else
-            none
-        , el
-            [ Font.bold, Font.color inputTextColor, width fill ]
-            (paragraph [ width fill ]
-                [ text
-                    course.name
+                  else
+                    Border.rounded 0
+                , mouseOver
+                    [ Background.color (darken inputColor -0.05)
+                    ]
+                , spacing 10
                 ]
-            )
-        ]
+                [ if course.fromMoodle then
+                    el [ Background.color (rgb255 249 128 18), Font.bold, Font.color (rgb 1 1 1), Border.rounded 5, padding 5 ]
+                        (text "moodle")
+
+                  else
+                    none
+                , el
+                    [ Font.bold, Font.color inputTextColor, width fill ]
+                    (paragraph [ width fill ]
+                        [ text
+                            course.name
+                        ]
+                    )
+                ]
+        }
 
 
 dateStringToDate : String -> Maybe Date.Date

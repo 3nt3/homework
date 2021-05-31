@@ -14846,6 +14846,7 @@ var $author$project$Pages$Dashboard$getCourseNameById = F2(
 					},
 					courses)));
 	});
+var $mdgriffith$elm_ui$Element$htmlAttribute = $mdgriffith$elm_ui$Internal$Model$Attr;
 var $mdgriffith$elm_ui$Element$Input$HiddenLabel = function (a) {
 	return {$: 1, a: a};
 };
@@ -14884,7 +14885,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $mdgriffith$elm_ui$Element$Events$onClick = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Attr, $elm$html$Html$Events$onClick);
 var $elm$json$Json$Decode$fail = _Json_fail;
-var $mdgriffith$elm_ui$Element$htmlAttribute = $mdgriffith$elm_ui$Internal$Model$Attr;
 var $author$project$Utils$OnEnter$onEnterEsc = F2(
 	function (a, b) {
 		return $mdgriffith$elm_ui$Element$htmlAttribute(
@@ -15859,7 +15859,9 @@ var $author$project$Pages$Dashboard$viewButton = F3(
 				[
 					$mdgriffith$elm_ui$Element$Font$color(color),
 					$mdgriffith$elm_ui$Element$Events$onClick(msg),
-					$mdgriffith$elm_ui$Element$pointer
+					$mdgriffith$elm_ui$Element$pointer,
+					$mdgriffith$elm_ui$Element$htmlAttribute(
+					$elm$html$Html$Attributes$class('button'))
 				]),
 			$mdgriffith$elm_ui$Element$text(text_));
 	});
@@ -15958,7 +15960,9 @@ var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
 																_List_fromArray(
 																	[
 																		$mdgriffith$elm_ui$Element$Font$bold,
-																		$mdgriffith$elm_ui$Element$Font$size(24)
+																		$mdgriffith$elm_ui$Element$Font$size(24),
+																		$mdgriffith$elm_ui$Element$htmlAttribute(
+																		$elm$html$Html$Attributes$class('button'))
 																	]),
 																$mdgriffith$elm_ui$Element$text(assignment.jr)))
 														])),
@@ -15970,7 +15974,9 @@ var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
 															$mdgriffith$elm_ui$Element$Font$color($author$project$Styling$Colors$redColor),
 															$mdgriffith$elm_ui$Element$Font$center,
 															$mdgriffith$elm_ui$Element$pointer,
-															$mdgriffith$elm_ui$Element$Font$size(24)
+															$mdgriffith$elm_ui$Element$Font$size(24),
+															$mdgriffith$elm_ui$Element$htmlAttribute(
+															$elm$html$Html$Attributes$class('button'))
 														]),
 													$mdgriffith$elm_ui$Element$text('[x]'))
 												])),
@@ -19189,7 +19195,9 @@ var $author$project$Pages$Dashboard$viewCreateAssignmentForm = function (model) 
 									$mdgriffith$elm_ui$Element$centerX,
 									$mdgriffith$elm_ui$Element$centerY,
 									$mdgriffith$elm_ui$Element$Font$size(30),
-									$mdgriffith$elm_ui$Element$Font$bold
+									$mdgriffith$elm_ui$Element$Font$bold,
+									$mdgriffith$elm_ui$Element$htmlAttribute(
+									$elm$html$Html$Attributes$class('button'))
 								]),
 							$mdgriffith$elm_ui$Element$text('+1')))
 					])),
@@ -19369,7 +19377,9 @@ var $author$project$Pages$Dashboard$viewAssignment = F3(
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$pointer,
 					$mdgriffith$elm_ui$Element$Events$onClick(
-					$author$project$Pages$Dashboard$ViewAssignmentModal(assignment.hQ))
+					$author$project$Pages$Dashboard$ViewAssignmentModal(assignment.hQ)),
+					$mdgriffith$elm_ui$Element$htmlAttribute(
+					$elm$html$Html$Attributes$class('button'))
 				]),
 			_List_fromArray(
 				[

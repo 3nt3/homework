@@ -15,6 +15,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input exposing (focusedOnLoad)
 import Element.Keyed as Keyed
+import Html.Attributes
 import Material.Icons exposing (assignment)
 import Material.Icons.Types exposing (Coloring(..))
 import Maybe.Extra
@@ -830,6 +831,7 @@ viewAssignment assignment color displayDate =
         , width fill
         , pointer
         , Events.onClick (ViewAssignmentModal assignment.id)
+        , htmlAttribute <| Html.Attributes.class "button"
         ]
         [ el
             []
@@ -1030,7 +1032,7 @@ viewCreateAssignmentForm model =
                     , pointer
                     ]
                 )
-                (el [ centerX, centerY, Font.size 30, Font.bold ] (text "+1"))
+                (el [ centerX, centerY, Font.size 30, Font.bold, htmlAttribute <| Html.Attributes.class "button" ] (text "+1"))
             ]
         , if not (List.isEmpty model.errors) || (String.isEmpty model.titleTfText || String.isEmpty model.searchCoursesText || String.isEmpty model.dateTfText) then
             Input.button
@@ -1276,7 +1278,7 @@ viewAssignmentModal model =
                                                                 }
 
                                                          else
-                                                            el [ Font.bold, Font.size 24 ] (text assignment.title)
+                                                            el [ Font.bold, Font.size 24, htmlAttribute <| Html.Attributes.class "button" ] (text assignment.title)
                                                         )
                                                     ]
                                                 , el
@@ -1285,6 +1287,7 @@ viewAssignmentModal model =
                                                     , Font.center
                                                     , pointer
                                                     , Font.size 24
+                                                    , htmlAttribute <| Html.Attributes.class "button"
                                                     ]
                                                     (text "[x]")
                                                 ]
@@ -1321,7 +1324,7 @@ viewAssignmentModal model =
 
 viewButton : String -> Color -> Msg -> Element Msg
 viewButton text_ color msg =
-    el [ Font.color color, Events.onClick msg, pointer ]
+    el [ Font.color color, Events.onClick msg, pointer, htmlAttribute <| Html.Attributes.class "button" ]
         (text text_)
 
 

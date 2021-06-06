@@ -13800,8 +13800,15 @@ var $author$project$Pages$Dashboard$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{assignmentData: $author$project$Api$Loading}),
+						{assignmentData: $author$project$Api$Loading, timeRange: days}),
 					A2($author$project$Api$Homework$Assignment$getAssignments, days, $author$project$Pages$Dashboard$GotAssignmentData));
+			case 'ChangeTimeRangeDirection':
+				var direction = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{timeRangeDirection: direction}),
+					$elm$core$Platform$Cmd$none);
 			case 'ViewAssignmentModal':
 				var id = msg.a;
 				return _Utils_Tuple2(
@@ -24416,6 +24423,13 @@ var $author$project$Components$Sidebar$viewSidebar = function (model) {
 				A2($author$project$Components$Sidebar$viewLinks, links, model.active))
 			]));
 };
+var $author$project$Pages$Dashboard$ChangeTimeRange = function (a) {
+	return {$: 'ChangeTimeRange', a: a};
+};
+var $author$project$Pages$Dashboard$ChangeTimeRangeDirection = function (a) {
+	return {$: 'ChangeTimeRangeDirection', a: a};
+};
+var $author$project$Components$LineChart$Past = {$: 'Past'};
 var $author$project$Components$LineChart$epochStartOffset = 719162;
 var $author$project$Components$LineChart$dateToPosixTime = function (date) {
 	return $elm$time$Time$millisToPosix(
@@ -26577,25 +26591,178 @@ var $author$project$Components$LineChart$mainn = F4(
 			timeRangeDirection);
 	});
 var $author$project$Pages$Dashboard$viewWeekAssignmentVisualization = function (model) {
-	var _v0 = model.assignmentData;
-	switch (_v0.$) {
-		case 'Success':
-			var assignments = _v0.a;
-			return $mdgriffith$elm_ui$Element$html(
-				A4($author$project$Components$LineChart$mainn, assignments, model.today, model.timeRange, model.timeRangeDirection));
-		case 'Failure':
-			var error = _v0.a;
-			return A2(
-				$mdgriffith$elm_ui$Element$el,
-				_List_Nil,
-				$mdgriffith$elm_ui$Element$text(
-					$author$project$Api$errorToString(error)));
-		default:
-			return A2(
-				$mdgriffith$elm_ui$Element$el,
-				_List_Nil,
-				$mdgriffith$elm_ui$Element$text('Loading...'));
-	}
+	return A2(
+		$mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+				$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$mdgriffith$elm_ui$Element$row,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Font$size(25),
+						$mdgriffith$elm_ui$Element$alignRight,
+						$mdgriffith$elm_ui$Element$spacing(30)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$mdgriffith$elm_ui$Element$row,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$Input$button,
+								_List_fromArray(
+									[
+										A2($mdgriffith$elm_ui$Element$paddingXY, 13, 6),
+										$mdgriffith$elm_ui$Element$Font$center,
+										$mdgriffith$elm_ui$Element$centerY,
+										$mdgriffith$elm_ui$Element$Background$color($author$project$Pages$Dashboard$inputColor),
+										$mdgriffith$elm_ui$Element$Border$roundEach(
+										{bottomLeft: 10, bottomRight: 0, topLeft: 10, topRight: 0}),
+										$mdgriffith$elm_ui$Element$mouseOver(
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$Background$color(
+												A2($author$project$Utils$Darken$darken, $author$project$Pages$Dashboard$inputColor, -0.05))
+											])),
+										$mdgriffith$elm_ui$Element$pointer
+									]),
+								{
+									label: A2(
+										$mdgriffith$elm_ui$Element$el,
+										_List_Nil,
+										$mdgriffith$elm_ui$Element$text('7 days')),
+									onPress: $elm$core$Maybe$Just(
+										$author$project$Pages$Dashboard$ChangeTimeRange(7))
+								}),
+								A2(
+								$mdgriffith$elm_ui$Element$Input$button,
+								_List_fromArray(
+									[
+										A2($mdgriffith$elm_ui$Element$paddingXY, 13, 6),
+										$mdgriffith$elm_ui$Element$Background$color($author$project$Pages$Dashboard$inputColor),
+										$mdgriffith$elm_ui$Element$Border$roundEach(
+										{bottomLeft: 0, bottomRight: 10, topLeft: 0, topRight: 10}),
+										$mdgriffith$elm_ui$Element$Border$solid,
+										$mdgriffith$elm_ui$Element$Border$color($author$project$Styling$Colors$lighterGreyColor),
+										$mdgriffith$elm_ui$Element$Border$widthEach(
+										{bottom: 0, left: 2, right: 0, top: 0}),
+										$mdgriffith$elm_ui$Element$Font$center,
+										$mdgriffith$elm_ui$Element$centerY,
+										$mdgriffith$elm_ui$Element$mouseOver(
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$Background$color(
+												A2($author$project$Utils$Darken$darken, $author$project$Pages$Dashboard$inputColor, -0.05))
+											])),
+										$mdgriffith$elm_ui$Element$pointer
+									]),
+								{
+									label: A2(
+										$mdgriffith$elm_ui$Element$el,
+										_List_Nil,
+										$mdgriffith$elm_ui$Element$text('31 days')),
+									onPress: $elm$core$Maybe$Just(
+										$author$project$Pages$Dashboard$ChangeTimeRange(31))
+								})
+							])),
+						A2(
+						$mdgriffith$elm_ui$Element$row,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$row,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										$mdgriffith$elm_ui$Element$Input$button,
+										_List_fromArray(
+											[
+												A2($mdgriffith$elm_ui$Element$paddingXY, 13, 6),
+												$mdgriffith$elm_ui$Element$Font$center,
+												$mdgriffith$elm_ui$Element$centerY,
+												$mdgriffith$elm_ui$Element$Background$color($author$project$Pages$Dashboard$inputColor),
+												$mdgriffith$elm_ui$Element$Border$roundEach(
+												{bottomLeft: 10, bottomRight: 0, topLeft: 10, topRight: 0}),
+												$mdgriffith$elm_ui$Element$mouseOver(
+												_List_fromArray(
+													[
+														$mdgriffith$elm_ui$Element$Background$color(
+														A2($author$project$Utils$Darken$darken, $author$project$Pages$Dashboard$inputColor, -0.05))
+													])),
+												$mdgriffith$elm_ui$Element$pointer
+											]),
+										{
+											label: A2(
+												$mdgriffith$elm_ui$Element$el,
+												_List_Nil,
+												$mdgriffith$elm_ui$Element$text('past')),
+											onPress: $elm$core$Maybe$Just(
+												$author$project$Pages$Dashboard$ChangeTimeRangeDirection($author$project$Components$LineChart$Past))
+										}),
+										A2(
+										$mdgriffith$elm_ui$Element$Input$button,
+										_List_fromArray(
+											[
+												A2($mdgriffith$elm_ui$Element$paddingXY, 13, 6),
+												$mdgriffith$elm_ui$Element$Background$color($author$project$Pages$Dashboard$inputColor),
+												$mdgriffith$elm_ui$Element$Border$roundEach(
+												{bottomLeft: 0, bottomRight: 10, topLeft: 0, topRight: 10}),
+												$mdgriffith$elm_ui$Element$Border$solid,
+												$mdgriffith$elm_ui$Element$Border$color($author$project$Styling$Colors$lighterGreyColor),
+												$mdgriffith$elm_ui$Element$Border$widthEach(
+												{bottom: 0, left: 2, right: 0, top: 0}),
+												$mdgriffith$elm_ui$Element$Font$center,
+												$mdgriffith$elm_ui$Element$centerY,
+												$mdgriffith$elm_ui$Element$mouseOver(
+												_List_fromArray(
+													[
+														$mdgriffith$elm_ui$Element$Background$color(
+														A2($author$project$Utils$Darken$darken, $author$project$Pages$Dashboard$inputColor, -0.05))
+													])),
+												$mdgriffith$elm_ui$Element$pointer
+											]),
+										{
+											label: A2(
+												$mdgriffith$elm_ui$Element$el,
+												_List_Nil,
+												$mdgriffith$elm_ui$Element$text('future')),
+											onPress: $elm$core$Maybe$Just(
+												$author$project$Pages$Dashboard$ChangeTimeRangeDirection($author$project$Components$LineChart$Future))
+										})
+									]))
+							]))
+					])),
+				function () {
+				var _v0 = model.assignmentData;
+				switch (_v0.$) {
+					case 'Success':
+						var assignments = _v0.a;
+						return $mdgriffith$elm_ui$Element$html(
+							A4($author$project$Components$LineChart$mainn, assignments, model.today, model.timeRange, model.timeRangeDirection));
+					case 'Failure':
+						var error = _v0.a;
+						return A2(
+							$mdgriffith$elm_ui$Element$el,
+							_List_Nil,
+							$mdgriffith$elm_ui$Element$text(
+								$author$project$Api$errorToString(error)));
+					default:
+						return A2(
+							$mdgriffith$elm_ui$Element$el,
+							_List_Nil,
+							$mdgriffith$elm_ui$Element$text('Loading...'));
+				}
+			}()
+			]));
 };
 var $mdgriffith$elm_ui$Internal$Model$Padding = F5(
 	function (a, b, c, d, e) {
@@ -30253,4 +30420,4 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 				},
 				A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$int));
 		},
-		A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$int)))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Pages.NotFound.Msg":{"args":[],"type":"Basics.Never"},"Pages.Top.Msg":{"args":[],"type":"Basics.Never"},"Models.User":{"args":[],"type":"{ id : String.String, username : String.String, email : String.String, privilege : Models.Privilege, moodleUrl : String.String }"},"Models.Assignment":{"args":[],"type":"{ id : String.String, courseId : Basics.Int, user : Models.User, title : String.String, dueDate : Date.Date, fromMoodle : Basics.Bool }"},"Models.Course":{"args":[],"type":"{ id : Basics.Int, name : String.String, assignments : List.List Models.Assignment, fromMoodle : Basics.Bool, user : String.String }"},"Api.Homework.Course.MinimalCourse":{"args":[],"type":"{ id : Basics.Int, name : String.String, fromMoodle : Basics.Bool }"},"Time.Era":{"args":[],"type":"{ start : Basics.Int, offset : Basics.Int }"},"Date.RataDie":{"args":[],"type":"Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"LinkClicked":["Browser.UrlRequest"],"UrlChanged":["Url.Url"],"Shared":["Shared.Msg"],"Pages":["Spa.Generated.Pages.Msg"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Shared.Msg":{"args":[],"tags":{"GotUser":["Api.Data Models.User"],"Logout":[],"Resize":["Basics.Int","Basics.Int"],"GotLogoutData":["Result.Result Http.Error ()"],"OverrideRedirect":[]}},"Spa.Generated.Pages.Msg":{"args":[],"tags":{"Top__Msg":["Pages.Top.Msg"],"Dashboard__Msg":["Pages.Dashboard.Msg"],"Login__Msg":["Pages.Login.Msg"],"NotFound__Msg":["Pages.NotFound.Msg"],"Register__Msg":["Pages.Register.Msg"],"Dashboard__Admin__Msg":["Pages.Dashboard.Admin.Msg"],"Dashboard__Moodle__Msg":["Pages.Dashboard.Moodle.Msg"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Api.Data":{"args":["value"],"tags":{"NotAsked":[],"Loading":[],"Failure":["Api.HttpError"],"Success":["value"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Pages.Dashboard.Msg":{"args":[],"tags":{"GotCourseData":["Api.Data (List.List Models.Course)"],"SearchCourses":["String.String"],"GotSearchCoursesData":["Api.Data (List.List Api.Homework.Course.MinimalCourse)"],"CAFSelectCourse":["Api.Homework.Course.MinimalCourse"],"CAFChangeTitle":["String.String"],"CAFChangeDate":["String.String"],"CreateAssignment":[],"GotCreateAssignmentData":["Api.Data Models.Assignment"],"ReceiveTime":["Time.Posix"],"AdjustTimeZone":["Time.Zone"],"Add1Day":[],"RemoveAssignment":["String.String"],"GotRemoveAssignmentData":["Api.Data Models.Assignment"],"GotAssignmentData":["Api.Data (List.List Models.Assignment)"],"ChangeTimeRange":["Basics.Int"],"ViewAssignmentModal":["String.String"],"CloseModal":[],"GotAssignmentModalData":["Api.Data Models.Assignment"],"ChangeAssignmentTitle":["String.String"],"ChangeAssignmentTitleTfText":["String.String"],"FocusAssignmentTitle":["String.String"],"UnfocusAssignmentTitle":[],"GotChangeAssignmentTitle":["Api.Data Models.Assignment"],"GotContributorData":["Api.Data (List.List ( String.String, Basics.Int ))"],"GotCourseStatsData":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Admin.Msg":{"args":[],"tags":{"GotContributorInfo":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Moodle.Msg":{"args":[],"tags":{"ChangeMoodleUrlInput":["String.String"],"GotSiteData":["Api.Data String.String"],"ChangeMoodleUsernameInput":["String.String"],"ChangeMoodlePasswordInput":["String.String"],"Authenticate":[],"GotAuthenticationData":["Api.Data Models.User"]}},"Pages.Login.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"GotLoginData":["Api.Data Models.User"],"Login":[]}},"Pages.Register.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"ValidatePasswordInput":["String.String"],"EmailInput":["String.String"],"GotUsernameTaken":["Api.Data Basics.Bool"],"GotRegistrationData":["Api.Data Models.User"],"Register":[]}},"Basics.Never":{"args":[],"tags":{"JustOneMore":["Basics.Never"]}},"Models.Privilege":{"args":[],"tags":{"Normal":[],"Admin":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Date.Date":{"args":[],"tags":{"RD":["Date.RataDie"]}},"Api.HttpError":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int","List.List String.String"],"BadBody":["String.String"]}},"List.List":{"args":["a"],"tags":{}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"Time.Zone":{"args":[],"tags":{"Zone":["Basics.Int","List.List Time.Era"]}}}}})}});}(this));
+		A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$int)))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Pages.NotFound.Msg":{"args":[],"type":"Basics.Never"},"Pages.Top.Msg":{"args":[],"type":"Basics.Never"},"Models.User":{"args":[],"type":"{ id : String.String, username : String.String, email : String.String, privilege : Models.Privilege, moodleUrl : String.String }"},"Models.Assignment":{"args":[],"type":"{ id : String.String, courseId : Basics.Int, user : Models.User, title : String.String, dueDate : Date.Date, fromMoodle : Basics.Bool }"},"Models.Course":{"args":[],"type":"{ id : Basics.Int, name : String.String, assignments : List.List Models.Assignment, fromMoodle : Basics.Bool, user : String.String }"},"Api.Homework.Course.MinimalCourse":{"args":[],"type":"{ id : Basics.Int, name : String.String, fromMoodle : Basics.Bool }"},"Time.Era":{"args":[],"type":"{ start : Basics.Int, offset : Basics.Int }"},"Date.RataDie":{"args":[],"type":"Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"LinkClicked":["Browser.UrlRequest"],"UrlChanged":["Url.Url"],"Shared":["Shared.Msg"],"Pages":["Spa.Generated.Pages.Msg"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Shared.Msg":{"args":[],"tags":{"GotUser":["Api.Data Models.User"],"Logout":[],"Resize":["Basics.Int","Basics.Int"],"GotLogoutData":["Result.Result Http.Error ()"],"OverrideRedirect":[]}},"Spa.Generated.Pages.Msg":{"args":[],"tags":{"Top__Msg":["Pages.Top.Msg"],"Dashboard__Msg":["Pages.Dashboard.Msg"],"Login__Msg":["Pages.Login.Msg"],"NotFound__Msg":["Pages.NotFound.Msg"],"Register__Msg":["Pages.Register.Msg"],"Dashboard__Admin__Msg":["Pages.Dashboard.Admin.Msg"],"Dashboard__Moodle__Msg":["Pages.Dashboard.Moodle.Msg"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Api.Data":{"args":["value"],"tags":{"NotAsked":[],"Loading":[],"Failure":["Api.HttpError"],"Success":["value"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Pages.Dashboard.Msg":{"args":[],"tags":{"GotCourseData":["Api.Data (List.List Models.Course)"],"SearchCourses":["String.String"],"GotSearchCoursesData":["Api.Data (List.List Api.Homework.Course.MinimalCourse)"],"CAFSelectCourse":["Api.Homework.Course.MinimalCourse"],"CAFChangeTitle":["String.String"],"CAFChangeDate":["String.String"],"CreateAssignment":[],"GotCreateAssignmentData":["Api.Data Models.Assignment"],"ReceiveTime":["Time.Posix"],"AdjustTimeZone":["Time.Zone"],"Add1Day":[],"RemoveAssignment":["String.String"],"GotRemoveAssignmentData":["Api.Data Models.Assignment"],"GotAssignmentData":["Api.Data (List.List Models.Assignment)"],"ChangeTimeRange":["Basics.Int"],"ChangeTimeRangeDirection":["Components.LineChart.TimeRangeDirection"],"ViewAssignmentModal":["String.String"],"CloseModal":[],"GotAssignmentModalData":["Api.Data Models.Assignment"],"ChangeAssignmentTitle":["String.String"],"ChangeAssignmentTitleTfText":["String.String"],"FocusAssignmentTitle":["String.String"],"UnfocusAssignmentTitle":[],"GotChangeAssignmentTitle":["Api.Data Models.Assignment"],"GotContributorData":["Api.Data (List.List ( String.String, Basics.Int ))"],"GotCourseStatsData":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Admin.Msg":{"args":[],"tags":{"GotContributorInfo":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Moodle.Msg":{"args":[],"tags":{"ChangeMoodleUrlInput":["String.String"],"GotSiteData":["Api.Data String.String"],"ChangeMoodleUsernameInput":["String.String"],"ChangeMoodlePasswordInput":["String.String"],"Authenticate":[],"GotAuthenticationData":["Api.Data Models.User"]}},"Pages.Login.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"GotLoginData":["Api.Data Models.User"],"Login":[]}},"Pages.Register.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"ValidatePasswordInput":["String.String"],"EmailInput":["String.String"],"GotUsernameTaken":["Api.Data Basics.Bool"],"GotRegistrationData":["Api.Data Models.User"],"Register":[]}},"Basics.Never":{"args":[],"tags":{"JustOneMore":["Basics.Never"]}},"Models.Privilege":{"args":[],"tags":{"Normal":[],"Admin":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Date.Date":{"args":[],"tags":{"RD":["Date.RataDie"]}},"Api.HttpError":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int","List.List String.String"],"BadBody":["String.String"]}},"List.List":{"args":["a"],"tags":{}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"Components.LineChart.TimeRangeDirection":{"args":[],"tags":{"Future":[],"Past":[]}},"Time.Zone":{"args":[],"tags":{"Zone":["Basics.Int","List.List Time.Era"]}}}}})}});}(this));

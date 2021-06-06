@@ -95,6 +95,7 @@ type Msg
     | GotRemoveAssignmentData (Api.Data Assignment)
     | GotAssignmentData (Api.Data (List Assignment))
     | ChangeTimeRange Int
+    | ChangeTimeRangeDirection TimeRangeDirection
     | ViewAssignmentModal String
     | CloseModal
     | GotAssignmentModalData (Api.Data Assignment)
@@ -413,7 +414,10 @@ update msg model =
             ( { model | assignmentData = data }, Cmd.none )
 
         ChangeTimeRange days ->
-            ( { model | assignmentData = Api.Loading }, getAssignments days GotAssignmentData )
+            ( { model | assignmentData = Api.Loading, timeRange = days }, getAssignments days GotAssignmentData )
+
+        ChangeTimeRangeDirection direction ->
+            ( { model | timeRangeDirection = direction }, Cmd.none )
 
         ViewAssignmentModal id ->
             ( { model | maybeAssignmentModalActivated = Just id }, getAssignmentByID id GotAssignmentModalData )
@@ -1225,18 +1229,102 @@ toGermanDateString date =
     Date.format "d.M.y" date
 
 
-viewWeekAssignmentVisualization : Model -> Element msg
+viewWeekAssignmentVisualization : Model -> Element Msg
 viewWeekAssignmentVisualization model =
-    case model.assignmentData of
-        Success assignments ->
-            html
-                <| Components.LineChart.mainn assignments model.today model.timeRange model.timeRangeDirection
+    column [ width fill, height fill ]
+        [ row
+            [ Font.size 25
+            , alignRight
+            , spacing 30
 
-        Failure error ->
-            el [] (text (Api.errorToString error))
+            --, explain Debug.todo
+            ]
+            [ row
+                []
+                [ Input.button
+                    [ paddingXY 13 6
+                    , Font.center
+                    , centerY
+                    , Background.color inputColor
+                    , Border.roundEach
+                        { topLeft = 10
+                        , bottomLeft = 10
+                        , topRight = 0
+                        , bottomRight = 0
+                        }
+                    , mouseOver [ Background.color <| darken inputColor -0.05 ]
+                    , pointer
+                    ]
+                    { label = el [] <| text "7 days", onPress = Just (ChangeTimeRange 7) }
+                , Input.button
+                    [ paddingXY 13 6
+                    , Background.color inputColor
+                    , Border.roundEach
+                        { topLeft = 0
+                        , bottomLeft = 0
+                        , topRight = 10
+                        , bottomRight = 10
+                        }
+                    , Border.solid
+                    , Border.color <| lighterGreyColor
+                    , Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
+                    , Font.center
+                    , centerY
+                    , mouseOver [ Background.color <| darken inputColor -0.05 ]
+                    , pointer
+                    ]
+                    { label = el [] <| text "31 days", onPress = Just (ChangeTimeRange 31) }
+                ]
+            , row []
+                [ row
+                    []
+                    [ Input.button
+                        [ paddingXY 13 6
+                        , Font.center
+                        , centerY
+                        , Background.color inputColor
+                        , Border.roundEach
+                            { topLeft = 10
+                            , bottomLeft = 10
+                            , topRight = 0
+                            , bottomRight = 0
+                            }
+                        , mouseOver [ Background.color <| darken inputColor -0.05 ]
+                        , pointer
+                        ]
+                        { label = el [] <| text "past", onPress = Just (ChangeTimeRangeDirection Past) }
+                    , Input.button
+                        [ paddingXY 13 6
+                        , Background.color inputColor
+                        , Border.roundEach
+                            { topLeft = 0
+                            , bottomLeft = 0
+                            , topRight = 10
+                            , bottomRight = 10
+                            }
+                        , Border.solid
+                        , Border.color <| lighterGreyColor
+                        , Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
+                        , Font.center
+                        , centerY
+                        , mouseOver [ Background.color <| darken inputColor -0.05 ]
+                        , pointer
+                        ]
+                        { label = el [] <| text "future", onPress = Just (ChangeTimeRangeDirection Future) }
+                    ]
+                ]
+            ]
+        , case model.assignmentData of
+            Success assignments ->
+                html <|
+                    Components.LineChart.mainn assignments model.today model.timeRange model.timeRangeDirection
 
-        _ ->
-            el [] (text "Loading...")
+            Failure error ->
+                el [] (text (Api.errorToString error))
+
+            _ ->
+                el [] (text "Loading...")
+        ]
 
 
 {-| I am not really happy with how this turned out (3000 messages 4 model items that are basically only used once etc.)

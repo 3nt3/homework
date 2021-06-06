@@ -69,14 +69,14 @@ removeAssignment id options =
         }
 
 
-getAssignments : Int -> { onResponse : Api.Data (List Assignment) -> msg } -> Cmd msg
-getAssignments maxDays options =
+getAssignments : Int -> (Api.Data (List Assignment) -> msg) -> Cmd msg
+getAssignments maxDays onResponse =
     Http.riskyRequest
         { method = "GET"
         , url = apiAddress ++ "/assignments?days=" ++ String.fromInt maxDays
         , headers = []
         , body = Http.emptyBody
-        , expect = Api.expectJson options.onResponse (Json.list assignmentDecoder)
+        , expect = Api.expectJson onResponse (Json.list assignmentDecoder)
         , timeout = Nothing
         , tracker = Nothing
         }

@@ -4,7 +4,7 @@ import Api exposing (Data(..), HttpError(..))
 import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, getCourseStats, searchCourses)
 import Array
-import Components.LineChart
+import Components.LineChart exposing (TimeRangeDirection(..))
 import Components.PieChart
 import Components.Sidebar
 import Date
@@ -43,6 +43,10 @@ type alias Model =
     , courseData : Api.Data (List Course)
     , device : Shared.Device
 
+    -- things with dates
+    , today : Date.Date
+    , zone : Time.Zone
+
     -- create assignment form
     , createAssignmentData : Api.Data Assignment
     , searchCoursesText : String
@@ -51,18 +55,25 @@ type alias Model =
     , titleTfText : String
     , dateTfText : String
     , selectedDate : Maybe Date.Date
-    , today : Date.Date
-    , zone : Time.Zone
-    , selectedDateTime : Time.Posix
     , addDaysDifference : Int
+    , selectedDateTime : Time.Posix
     , errors : List String
-    , maybeAssignmentHovered : Maybe String
+
+    -- assignment graph data
     , assignmentData : Api.Data (List Assignment)
+    , timeRange : Int
+    , timeRangeDirection : TimeRangeDirection
+
+    -- asignment modal
     , maybeAssignmentModalActivated : Maybe String
     , assignmentModalData : Api.Data Assignment
     , editAssignmentTitleTfText : String
     , assignmentTitleFocused : Bool
+
+    -- contributor chart
     , contributorData : Api.Data (List ( String, Int ))
+
+    -- course chart
     , courseStatsData : Api.Data (List ( String, Int ))
     }
 
@@ -83,6 +94,7 @@ type Msg
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
     | GotAssignmentData (Api.Data (List Assignment))
+    | ChangeTimeRange Int
     | ViewAssignmentModal String
     | CloseModal
     | GotAssignmentModalData (Api.Data Assignment)
@@ -111,7 +123,7 @@ initCommands : List (Cmd Msg)
 initCommands =
     [ getActiveCourses { onResponse = GotCourseData }
     , Time.now |> Task.perform ReceiveTime
-    , getAssignments 7 { onResponse = GotAssignmentData }
+    , getAssignments 31 GotAssignmentData
     , getContributors GotContributorData
     , getCourseStats GotCourseStatsData
     , Task.perform AdjustTimeZone Time.here
@@ -136,8 +148,9 @@ init shared url =
       , selectedDateTime = Time.millisToPosix 0
       , addDaysDifference = 0
       , errors = []
-      , maybeAssignmentHovered = Nothing
       , assignmentData = Loading
+      , timeRange = 7
+      , timeRangeDirection = Future
       , maybeAssignmentModalActivated = Nothing
       , assignmentModalData = NotAsked
       , editAssignmentTitleTfText = ""
@@ -335,7 +348,7 @@ update msg model =
             ( { model | createAssignmentData = data }
             , Cmd.batch
                 [ getActiveCourses { onResponse = GotCourseData }
-                , getAssignments 7 { onResponse = GotAssignmentData }
+                , getAssignments 7 GotAssignmentData
                 ]
             )
 
@@ -398,6 +411,9 @@ update msg model =
 
         GotAssignmentData data ->
             ( { model | assignmentData = data }, Cmd.none )
+
+        ChangeTimeRange days ->
+            ( { model | assignmentData = Api.Loading }, getAssignments days GotAssignmentData )
 
         ViewAssignmentModal id ->
             ( { model | maybeAssignmentModalActivated = Just id }, getAssignmentByID id GotAssignmentModalData )
@@ -1214,7 +1230,7 @@ viewWeekAssignmentVisualization model =
     case model.assignmentData of
         Success assignments ->
             html
-                (Components.LineChart.mainn assignments model.today)
+                <| Components.LineChart.mainn assignments model.today model.timeRange model.timeRangeDirection
 
         Failure error ->
             el [] (text (Api.errorToString error))

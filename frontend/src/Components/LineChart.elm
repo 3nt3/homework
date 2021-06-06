@@ -1,4 +1,4 @@
-module Components.LineChart exposing (mainn)
+module Components.LineChart exposing (TimeRangeDirection(..), mainn)
 
 import Axis
 import Color
@@ -10,10 +10,15 @@ import Shape
 import Svg
 import Time exposing (millisToPosix)
 import TypedSvg exposing (circle, g, style, svg)
-import TypedSvg.Attributes exposing (class, fill, stroke, transform, viewBox)
+import TypedSvg.Attributes exposing (class, direction, fill, stroke, transform, viewBox)
 import TypedSvg.Attributes.InPx exposing (cx, cy, r, strokeWidth, x1, x2, y1, y2)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), Transform(..))
+
+
+type TimeRangeDirection
+    = Future
+    | Past
 
 
 fliederColor : Float -> Color.Color
@@ -133,8 +138,8 @@ backgroundLines model min max ticksY =
     List.map (\y -> backgroundLine (Scale.convert (xScale model) min) (Scale.convert (xScale model) max) (Scale.convert yScale y)) ticksY
 
 
-view : List ( Time.Posix, Int ) -> Date.Date -> Svg msg
-view model today =
+view : List ( Time.Posix, Int ) -> Date.Date -> Int -> TimeRangeDirection -> Svg msg
+view model today maxDays direction =
     svg [ viewBox 0 0 w h ]
         [ style [] [ text """.domain {display:none}
         .tick line {display: none}
@@ -150,7 +155,7 @@ view model today =
         , g [ transform [ Translate padding padding ], class [ "series" ] ]
             [ let
                 dayTuples =
-                    generateDayTuples [] 0 (Time.posixToMillis (dateToPosixTime today))
+                    generateDayTuples [] 0 (Time.posixToMillis (dateToPosixTime today)) maxDays direction
               in
               g []
                 (case List.head dayTuples of
@@ -186,11 +191,11 @@ generateTicks current last =
 ( Time.Posix, Int ) where the first item is the assignments dueDate as UNIX
 time and the the second item is the number of assignments
 -}
-processData : List Models.Assignment -> Date.Date -> List ( Time.Posix, Int )
-processData assignments today =
+processData : List Models.Assignment -> Date.Date -> Int -> TimeRangeDirection -> List ( Time.Posix, Int )
+processData assignments today maxDays direction =
     let
         dayTuples =
-            generateDayTuples [] 0 (Time.posixToMillis (dateToPosixTime today))
+            generateDayTuples [] 0 (Time.posixToMillis (dateToPosixTime today)) maxDays direction
     in
     List.map
         (\x ->
@@ -210,17 +215,28 @@ oneDayInMillis =
 {-| generates tuples for each day in the last seven days
 (Time.Posix, 0)
 -}
-generateDayTuples : List ( Time.Posix, Int ) -> Int -> Int -> List ( Time.Posix, Int )
-generateDayTuples current last todayMillis =
+generateDayTuples : List ( Time.Posix, Int ) -> Int -> Int -> Int -> TimeRangeDirection -> List ( Time.Posix, Int )
+generateDayTuples current last todayMillis maxDays direction =
     -- if the maximum of seven days has not been reached, continue
-    if List.length current < 7 then
+    let
+        offset =
+            case direction of
+                Past ->
+                    -1
+
+                Future ->
+                    1
+    in
+    if List.length current < maxDays then
         generateDayTuples
             (List.append
                 current
-                [ ( millisToPosix (todayMillis + ((last - 1) * oneDayInMillis)), 0 ) ]
+                [ ( millisToPosix (todayMillis + ((last - offset) * oneDayInMillis)), 0 ) ]
             )
-            (last + 1)
+            (last + offset)
             todayMillis
+            maxDays
+            direction
 
     else
         current
@@ -241,9 +257,9 @@ dateToPosixTime date =
     Time.millisToPosix ((Date.toRataDie date - epochStartOffset) * (1000 * 60 * 60 * 24) - (1000 * 60 * 60 * 24))
 
 
-mainn : List Models.Assignment -> Date.Date -> Svg msg
-mainn assignments today =
-    view (processData assignments today) today
+mainn : List Models.Assignment -> Date.Date -> Int -> TimeRangeDirection -> Svg msg
+mainn assignments today maxDays timeRangeDirection =
+    view (processData assignments today maxDays timeRangeDirection) today maxDays timeRangeDirection
 
 
 

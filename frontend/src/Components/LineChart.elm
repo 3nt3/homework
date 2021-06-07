@@ -68,12 +68,18 @@ yScale =
 xAxis : List ( Time.Posix, Int ) -> Svg msg
 xAxis model =
     let
+        days =
+            List.length model
+
         tickCount =
-            if List.length model < 10 then
-                List.length model
+            if days < 10 then
+                days
+
+            else if days < 100 then
+                days // 7
 
             else
-                List.length model // 7
+                days // 31
     in
     Axis.bottom [ Axis.tickCount tickCount ] (xScale model)
 
@@ -181,7 +187,14 @@ view model today maxDays direction =
             , Path.element (area model) [ strokeWidth 2, fill <| Paint <| fliederColor 0.3 ]
             , Path.element (line model) [ stroke <| Paint <| fliederColor 1.0, strokeWidth 2, fill PaintNone ]
             , g []
-                (markers model)
+                (markers
+                    (if List.length model < 69 then
+                        model
+
+                     else
+                        []
+                    )
+                )
             ]
         ]
 

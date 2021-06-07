@@ -1231,6 +1231,18 @@ toGermanDateString date =
 
 viewWeekAssignmentVisualization : Model -> Element Msg
 viewWeekAssignmentVisualization model =
+    let
+        buttonStyle =
+            [ paddingXY 14 6
+            , Font.center
+            , centerY
+            , mouseOver [ Background.color <| darken inputColor -0.05 ]
+            , pointer
+            , Border.solid
+            , Border.color <| lighterGreyColor
+            , Background.color inputColor
+            ]
+    in
     column [ width fill, height fill ]
         [ row
             [ Font.size 25
@@ -1242,38 +1254,76 @@ viewWeekAssignmentVisualization model =
             [ row
                 []
                 [ Input.button
-                    [ paddingXY 13 6
-                    , Font.center
-                    , centerY
-                    , Background.color inputColor
-                    , Border.roundEach
+                    (Border.roundEach
                         { topLeft = 10
                         , bottomLeft = 10
                         , topRight = 0
                         , bottomRight = 0
                         }
-                    , mouseOver [ Background.color <| darken inputColor -0.05 ]
-                    , pointer
-                    ]
-                    { label = el [] <| text "7 days", onPress = Just (ChangeTimeRange 7) }
+                        :: buttonStyle
+                    )
+                    { label =
+                        el
+                            (if model.timeRange == 7 then
+                                [ Font.bold, Font.underline ]
+
+                             else
+                                []
+                            )
+                        <|
+                            text "7 days"
+                    , onPress = Just (ChangeTimeRange 7)
+                    }
                 , Input.button
-                    [ paddingXY 13 6
-                    , Background.color inputColor
-                    , Border.roundEach
-                        { topLeft = 0
-                        , bottomLeft = 0
-                        , topRight = 10
-                        , bottomRight = 10
-                        }
-                    , Border.solid
-                    , Border.color <| lighterGreyColor
-                    , Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
-                    , Font.center
-                    , centerY
-                    , mouseOver [ Background.color <| darken inputColor -0.05 ]
-                    , pointer
-                    ]
-                    { label = el [] <| text "31 days", onPress = Just (ChangeTimeRange 31) }
+                    (Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
+                        :: buttonStyle
+                    )
+                    { label =
+                        el
+                            (if model.timeRange == 31 then
+                                [ Font.bold, Font.underline ]
+
+                             else
+                                []
+                            )
+                        <|
+                            text "31 days"
+                    , onPress = Just (ChangeTimeRange 31)
+                    }
+                , Input.button
+                    (Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
+                        :: buttonStyle
+                    )
+                    { label =
+                        el
+                            (if model.timeRange == 90 then
+                                [ Font.bold, Font.underline ]
+
+                             else
+                                []
+                            )
+                        <|
+                            text "3 months"
+                    , onPress = Just (ChangeTimeRange 90)
+                    }
+                , Input.button
+                    ([ Border.widthEach { left = 2, right = 0, top = 0, bottom = 0 }
+                     , Border.roundEach { topLeft = 0, bottomLeft = 0, topRight = 10, bottomRight = 10 }
+                     ]
+                        ++ buttonStyle
+                    )
+                    { label =
+                        el
+                            (if model.timeRange == 187 then
+                                [ Font.bold, Font.underline ]
+
+                             else
+                                []
+                            )
+                        <|
+                            text "6 months"
+                    , onPress = Just (ChangeTimeRange 187)
+                    }
                 ]
             , row []
                 [ row
@@ -1292,7 +1342,18 @@ viewWeekAssignmentVisualization model =
                         , mouseOver [ Background.color <| darken inputColor -0.05 ]
                         , pointer
                         ]
-                        { label = el [] <| text "past", onPress = Just (ChangeTimeRangeDirection Past) }
+                        { label =
+                            el
+                                (if model.timeRangeDirection == Past then
+                                    [ Font.bold, Font.underline ]
+
+                                 else
+                                    []
+                                )
+                            <|
+                                text "past"
+                        , onPress = Just (ChangeTimeRangeDirection Past)
+                        }
                     , Input.button
                         [ paddingXY 13 6
                         , Background.color inputColor
@@ -1310,7 +1371,18 @@ viewWeekAssignmentVisualization model =
                         , mouseOver [ Background.color <| darken inputColor -0.05 ]
                         , pointer
                         ]
-                        { label = el [] <| text "future", onPress = Just (ChangeTimeRangeDirection Future) }
+                        { label =
+                            el
+                                (if model.timeRangeDirection == Future then
+                                    [ Font.bold, Font.underline ]
+
+                                 else
+                                    []
+                                )
+                            <|
+                                text "future"
+                        , onPress = Just (ChangeTimeRangeDirection Future)
+                        }
                     ]
                 ]
             ]

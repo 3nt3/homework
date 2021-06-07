@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Color exposing (Color)
 import Element
 import Path
-import Scale.Color
+import Scale.Color exposing (tableau10)
 import Shape exposing (defaultPieConfig)
 import Styling.Colors exposing (..)
 import TypedSvg exposing (g, style, svg, text_)
@@ -28,61 +28,14 @@ radius =
     min w h / 2
 
 
-colors : Array Color
-colors =
-    Array.fromList
-        [ greyBlueColor
-        , greyBlueColor2
-        , fliederColor
-        , flieder2Color
-        , yellowColor
-        , yellowColor2
-        , greenColor
-        , greenColor2
-        , redColor
-        , redColor2
-        , darkBlueColor
-        , darkBlueColor2
-        , greyBlueColor2
-        , fliederColor
-        , flieder2Color
-        , yellowColor
-        , yellowColor2
-        , greenColor
-        , greenColor2
-        , redColor
-        , redColor2
-        , darkBlueColor
-        , darkBlueColor2
-        , greyBlueColor2
-        , fliederColor
-        , flieder2Color
-        , yellowColor
-        , yellowColor2
-        , greenColor
-        , greenColor2
-        , redColor
-        , redColor2
-        , darkBlueColor
-        , darkBlueColor2
-        , greyBlueColor2
-        , fliederColor
-        , flieder2Color
-        , yellowColor
-        , yellowColor2
-        , greenColor
-        , greenColor2
-        , redColor
-        , redColor2
-        , darkBlueColor
-        , darkBlueColor2
-        ]
-        |> Array.map (\c -> Element.toRgb c |> Color.fromRgba)
+colors : Int -> List Color
+colors totalElements =
+    List.repeat (totalElements // 10 + 10) tableau10 |> List.concat
 
 
 pieSlice : Int -> Int -> Shape.Arc -> Svg msg
 pieSlice total index datum =
-    Path.element (Shape.arc datum) [ fill <| Paint <| Scale.Color.viridisInterpolator (toFloat index / toFloat total), stroke <| Paint Color.white ]
+    Path.element (Shape.arc datum) [ fill <| Paint <| Maybe.withDefault Color.white <| Array.get index <| Array.fromList (colors total), stroke <| Paint Color.white ]
 
 
 pieLabel : Shape.Arc -> ( String, Float ) -> Svg msg

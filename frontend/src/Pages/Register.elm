@@ -1,6 +1,6 @@
 module Pages.Register exposing (Model, Msg, Params, page)
 
-import Api exposing(HttpError(..))
+import Api exposing (HttpError(..))
 import Api.Homework.User
 import Api.Homework.UsernameTaken
 import Element exposing (..)
@@ -447,8 +447,6 @@ viewUsernameTaken model =
         )
 
 
-
-
 viewRegistrationButton : Model -> Element Msg
 viewRegistrationButton model =
     let
@@ -465,7 +463,6 @@ viewRegistrationButton model =
 
             Api.Failure err ->
                 text (Api.errorToString err)
-            
 
             --el [ centerX, centerY, Font.color errorColor ]
             --   (html (Icons.close size Inherit))

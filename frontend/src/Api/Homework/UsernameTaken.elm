@@ -1,9 +1,9 @@
 module Api.Homework.UsernameTaken exposing (..)
 
 import Api
+import Api.Api exposing (apiAddress)
 import Http
 import Json.Decode as Json
-import Api.Api exposing (apiAddress)
 
 
 usernameTaken : String -> { onResponse : Api.Data Bool -> msg } -> Cmd msg

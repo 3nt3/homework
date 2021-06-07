@@ -4,6 +4,7 @@ import Array exposing (Array)
 import Color exposing (Color)
 import Element
 import Path
+import Scale.Color
 import Shape exposing (defaultPieConfig)
 import Styling.Colors exposing (..)
 import TypedSvg exposing (g, style, svg, text_)
@@ -79,9 +80,9 @@ colors =
         |> Array.map (\c -> Element.toRgb c |> Color.fromRgba)
 
 
-pieSlice : Int -> Shape.Arc -> Svg msg
-pieSlice index datum =
-    Path.element (Shape.arc datum) [ fill <| Paint <| Maybe.withDefault Color.white <| Array.get index colors, stroke <| Paint Color.white ]
+pieSlice : Int -> Int -> Shape.Arc -> Svg msg
+pieSlice total index datum =
+    Path.element (Shape.arc datum) [ fill <| Paint <| Scale.Color.viridisInterpolator (toFloat index / toFloat total), stroke <| Paint Color.white ]
 
 
 pieLabel : Shape.Arc -> ( String, Float ) -> Svg msg
@@ -115,7 +116,7 @@ view model =
         text {fill: #ffffff; font-size: 8pt}
         """ ]
         , g [ transform [ Translate (w / 2) (h / 2) ] ]
-            [ g [] <| List.indexedMap pieSlice pieData
+            [ g [] <| List.indexedMap (pieSlice (List.length model)) pieData
             , g [] <| List.map2 pieLabel pieData <| List.map (\x -> ( Tuple.first x, Tuple.second x |> toFloat )) model
             ]
         ]

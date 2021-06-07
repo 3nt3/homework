@@ -67,7 +67,15 @@ yScale =
 
 xAxis : List ( Time.Posix, Int ) -> Svg msg
 xAxis model =
-    Axis.bottom [ Axis.tickCount (List.length model) ] (xScale model)
+    let
+        tickCount =
+            if List.length model < 10 then
+                List.length model
+
+            else
+                List.length model // 7
+    in
+    Axis.bottom [ Axis.tickCount tickCount ] (xScale model)
 
 
 yAxis : Svg msg

@@ -165,6 +165,9 @@ func updateCache(baseURL string, token string, userID ksuid.KSUID, moodleUserID 
 	var mCourses []moodleCourse
 	var cacheObjs []structs.CachedCourse
 	err = json.NewDecoder(resp.Body).Decode(&mCourses)
+	if err != nil {
+		return err
+	}
 
 	now := time.Now()
 
@@ -188,7 +191,7 @@ func updateCache(baseURL string, token string, userID ksuid.KSUID, moodleUserID 
 			},
 			MoodleURL: baseURL,
 			UserID:    userID,
-			CachedAt: structs.UnixTime(now),
+			CachedAt:  structs.UnixTime(now),
 		}
 
 		cacheObjs = append(cacheObjs, newCachedCourse)

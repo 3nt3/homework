@@ -349,7 +349,7 @@ update msg model =
             ( { model | createAssignmentData = data }
             , Cmd.batch
                 [ getActiveCourses { onResponse = GotCourseData }
-                , getAssignments 7 GotAssignmentData
+                , getAssignments model.timeRange GotAssignmentData
                 ]
             )
 

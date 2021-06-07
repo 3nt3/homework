@@ -270,7 +270,7 @@ func OnlineUsers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if _, ok := r.URL.Query()["count"]; ok == true {
+	if _, ok := r.URL.Query()["count"]; ok {
 		_ = returnApiResponse(w, apiResponse{Content: len(filteredUsers)}, 200)
 	} else {
 		_ = returnApiResponse(w, apiResponse{Content: filteredUsers}, 200)

@@ -400,7 +400,7 @@ func GetContributors(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	returnApiResponse(w, apiResponse{
+	_ = returnApiResponse(w, apiResponse{
 		Content: contributorThings,
 	}, 200)
 }
@@ -461,7 +461,7 @@ func GetContributorsAdmin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	returnApiResponse(w, apiResponse{
+	_ = returnApiResponse(w, apiResponse{
 		Content: contributorThings,
 	}, 200)
 }

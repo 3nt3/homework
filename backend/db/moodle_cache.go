@@ -16,7 +16,9 @@ func GetUserCachedCourses(user structs.User) ([]structs.CachedCourse, error) {
 	query := "SELECT * FROM moodle_cache WHERE moodle_url = $1 AND user_id = $2"
 	rows, err := database.Query(query, user.MoodleURL, user.ID)
 	//goland:noinspection GoNilness
-	defer rows.Close()
+
+	// this is not really better but it gets rid of the warning lol
+	defer func() { _ = rows.Close() }()
 
 	if err != nil {
 		return courses, nil

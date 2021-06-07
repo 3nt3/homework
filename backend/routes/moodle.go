@@ -125,7 +125,6 @@ func MoodleAuthenticate(w http.ResponseWriter, r *http.Request) {
 			Content: nil,
 			Errors:  []string{"error accessing moodle"},
 		}, 500)
-		logging.WarningLogger.Printf("error: %v, %s", err)
 		return
 	}
 

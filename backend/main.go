@@ -90,7 +90,8 @@ func main() {
 }
 
 func InterruptHandler() {
-	c := make(chan os.Signal)
+	// I don't know if 2 is a good buffer size, I just want to get rid of the warning
+	c := make(chan os.Signal, 2)
 
 	signal.Notify(c, syscall.SIGINT)
 	signal.Notify(c, syscall.SIGTERM)

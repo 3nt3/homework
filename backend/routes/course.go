@@ -92,7 +92,6 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchCourses(w http.ResponseWriter, r *http.Request) {
-
 	user, authenticated, err := getUserBySession(r, false)
 	if !authenticated {
 		if err != nil {
@@ -131,7 +130,6 @@ func SearchCourses(w http.ResponseWriter, r *http.Request) {
 		Content: cleanCourses,
 		Errors:  []string{},
 	}, 200)
-	return
 }
 
 // TODO

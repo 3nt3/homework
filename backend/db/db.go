@@ -71,7 +71,7 @@ func initializeTables() error {
 		return err
 	}
 
-	_, err = database.Exec("CREATE TABLE IF NOT EXISTS assignments (id text PRIMARY KEY UNIQUE, content text, course_id int, due_date timestamp, creator_id text, created_at timestamp, from_moodle bool)")
+	_, err = database.Exec("CREATE TABLE IF NOT EXISTS assignments (id text PRIMARY KEY UNIQUE, content text, course_id int, due_date timestamp, creator_id text, created_at timestamp, from_moodle bool, done_by text[])")
 	if err != nil {
 		return err
 	}

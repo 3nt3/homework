@@ -465,3 +465,89 @@ func GetContributorsAdmin(w http.ResponseWriter, r *http.Request) {
 		Content: contributorThings,
 	}, 200)
 }
+
+func AssignmentDone(w http.ResponseWriter, r *http.Request, done bool) {
+	user, authenticated, err := getUserBySession(r, true)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"authentication required"},
+		}, 401)
+		return
+	}
+
+	id, ok := mux.Vars(r)["id"]
+	if !ok {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"provide an assignment id plz"},
+		}, 400)
+		return
+	}
+
+	// TODO: check if user can even access the assignment (is part of course)
+	if _, err = db.GetAssignmentByID(id); err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"specified assignment does not exist :("},
+			}, 404)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if err = db.AssignmentDone(id, user.ID.String(), done); err != nil {
+		logging.ErrorLogger.Printf("error updating assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	assignment, err := db.GetAssignmentByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"specified assignment does not exist :("},
+			}, 404)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	_ = returnApiResponse(w, apiResponse{
+		Content: assignment.GetClean(),
+		Errors:  []string{},
+	}, 200)
+}

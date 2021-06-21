@@ -67,25 +67,25 @@ type Session struct {
 }
 
 type Assignment struct {
-	UID        ksuid.KSUID   `json:"id"`
-	User       User          `json:"user"`
-	Created    UnixTime      `json:"created"`
-	Title      string        `json:"title"`
-	DueDate    UnixTime      `json:"due_date"`
-	Course     int           `json:"course"`
-	FromMoodle bool          `json:"from_moodle"`
-	DoneBy     []ksuid.KSUID `json:"done_by"`
+	UID        ksuid.KSUID `json:"id"`
+	User       User        `json:"user"`
+	Created    UnixTime    `json:"created"`
+	Title      string      `json:"title"`
+	DueDate    UnixTime    `json:"due_date"`
+	Course     int         `json:"course"`
+	FromMoodle bool        `json:"from_moodle"`
+	DoneBy     []string    `json:"done_by"`
 }
 
 type CleanAssignment struct {
-	UID        ksuid.KSUID   `json:"id"`
-	User       CleanUser     `json:"user"`
-	Created    UnixTime      `json:"created"`
-	Title      string        `json:"title"`
-	DueDate    UnixTime      `json:"due_date"`
-	Course     int           `json:"course"`
-	FromMoodle bool          `json:"from_moodle"`
-	DoneBy     []ksuid.KSUID `json:"done_by"`
+	UID        ksuid.KSUID `json:"id"`
+	User       CleanUser   `json:"user"`
+	Created    UnixTime    `json:"created"`
+	Title      string      `json:"title"`
+	DueDate    UnixTime    `json:"due_date"`
+	Course     int         `json:"course"`
+	FromMoodle bool        `json:"from_moodle"`
+	DoneBy     []string    `json:"done_by"`
 }
 
 type Course struct {

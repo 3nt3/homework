@@ -2,6 +2,7 @@ package routes
 
 import (
 	"database/sql"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -85,10 +86,68 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_ = returnApiResponse(w, apiResponse{
-		Content: filteredFilteredCourses,
-		Errors:  []string{},
-	}, 200)
+	if _, ok := r.URL.Query()["expandUsers"]; ok {
+
+		// get users for assignments
+		// literally the ugliest code ever
+		var knownUsers map[string]structs.CleanUser = make(map[string]structs.CleanUser)
+		var courseMaps []map[string]interface{}
+
+		for _, c := range filteredFilteredCourses {
+			var expandedAssignments []map[string]interface{}
+			for _, a := range c.Assignments {
+				var users []structs.CleanUser
+				for _, userID := range a.DoneBy {
+					user, ok := knownUsers[userID]
+					if !ok {
+						dbUser, err := db.GetUserById(userID, false)
+						if err != nil {
+							logging.WarningLogger.Printf("error getting user '%s' from db: %v\n", userID, err)
+							_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, http.StatusInternalServerError)
+						}
+
+						knownUsers[userID] = dbUser.GetClean()
+
+						users = append(users, dbUser.GetClean())
+					} else {
+						users = append(users, user)
+					}
+
+				}
+				aMap, err := structToMap(a)
+				if err != nil {
+					logging.InfoLogger.Printf("error converting assignment to map: %v\n", err)
+					_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, http.StatusInternalServerError)
+					return
+				}
+
+				aMap["done_by_users"] = users
+
+				expandedAssignments = append(expandedAssignments, aMap)
+			}
+
+			cMap, err := structToMap(c)
+			if err != nil {
+				logging.InfoLogger.Printf("error converting course to map: %v\n", err)
+				_ = returnApiResponse(w, apiResponse{Content: nil, Errors: []string{"internal server error"}}, http.StatusInternalServerError)
+				return
+			}
+
+			cMap["assignments"] = expandedAssignments
+
+			courseMaps = append(courseMaps, cMap)
+		}
+
+		_ = returnApiResponse(w, apiResponse{
+			Content: courseMaps,
+			Errors:  []string{},
+		}, 200)
+	} else {
+		_ = returnApiResponse(w, apiResponse{
+			Content: filteredFilteredCourses,
+			Errors:  []string{},
+		}, 200)
+	}
 }
 
 func SearchCourses(w http.ResponseWriter, r *http.Request) {
@@ -179,4 +238,17 @@ func GetCourseStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = returnApiResponse(w, apiResponse{Content: courseAssignments}, 200)
+}
+
+func structToMap(data interface{}) (map[string]interface{}, error) {
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	mapData := make(map[string]interface{})
+	err = json.Unmarshal(dataBytes, &mapData)
+	if err != nil {
+		return nil, err
+	}
+	return mapData, nil
 }

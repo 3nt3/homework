@@ -503,8 +503,8 @@ func AssignmentDone(w http.ResponseWriter, r *http.Request, done bool) {
 		return
 	}
 
-	// TODO: check if user can even access the assignment (is part of course)
-	if _, err = db.GetAssignmentByID(id); err != nil {
+	a, err := db.GetAssignmentByID(id)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			_ = returnApiResponse(w, apiResponse{
 				Content: nil,
@@ -518,6 +518,55 @@ func AssignmentDone(w http.ResponseWriter, r *http.Request, done bool) {
 			Content: nil,
 			Errors:  []string{"internal server error"},
 		}, 500)
+		return
+	}
+
+	courses, err := db.GetMoodleUserCourses(user)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"you do not have access to the specified assignment"},
+			}, 403)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting user courses: %v\n", err)
+
+		if err.Error() == "no token or moodle url was provided" {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"you do not have access to the specified assignment", "you have not connected your moodle account yet"},
+			}, 403)
+			return
+		}
+
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	// check if assignment is in one of the user's courses
+	var inUserCourse bool
+	for _, c := range courses {
+		if c.FromMoodle {
+			if int(c.ID.(float64)) == a.Course {
+				inUserCourse = true
+				break
+			}
+		}
+		// FIXME: assignments not from moodle aren't checked?
+		// not sure if this is relevant since there *are* no non-moodle courses currently
+		// would probably be relevant after summer break when moodle stops being utilized
+	}
+
+	if !inUserCourse {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"you do not have access to the specified assignment"},
+		}, 403)
 		return
 	}
 

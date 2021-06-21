@@ -1,5 +1,9 @@
 FROM golang:1.16.2
 
+RUN go get -u -v github.com/go-delve/delve/cmd/dlv
+EXPOSE 2345
+
+
 # All these steps will be cached
 RUN mkdir /hello
 WORKDIR /hello
@@ -13,6 +17,6 @@ COPY . .
 
 RUN go build .
 
-CMD ["/hello/homework"]
-
 EXPOSE 8005
+CMD ["dlv", "debug", "--headless", "--listen=:2345", "--log"]
+

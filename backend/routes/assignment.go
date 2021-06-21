@@ -55,6 +55,8 @@ func CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	assignment.DoneBy = []string{}
+
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignment.GetClean(),
 		Errors:  []string{},

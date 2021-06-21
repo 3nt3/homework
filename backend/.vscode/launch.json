@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Remote Docker",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "/hello/",
+            "port": 2345,
+            "host": "localhost",
+            "apiVersion": 1
+        }
+    ]
+}

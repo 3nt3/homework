@@ -79,7 +79,7 @@ type alias Model =
 
 
 type Msg
-    = GotCourseData (Api.Data (List Course))
+    = GotCourseData (Api.Data (List Course)) -- this is literally the main functionality
       -- create assignment form
     | SearchCourses String
     | GotSearchCoursesData (Api.Data (List MinimalCourse))
@@ -88,14 +88,13 @@ type Msg
     | CAFChangeDate String
     | CreateAssignment
     | GotCreateAssignmentData (Api.Data Assignment)
+    | Add1Day
+      -- general things
     | ReceiveTime Time.Posix
     | AdjustTimeZone Time.Zone
-    | Add1Day
+      -- modal things
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
-    | GotAssignmentData (Api.Data (List Assignment))
-    | ChangeTimeRange Int
-    | ChangeTimeRangeDirection TimeRangeDirection
     | ViewAssignmentModal String
     | CloseModal
     | GotAssignmentModalData (Api.Data Assignment)
@@ -104,6 +103,11 @@ type Msg
     | FocusAssignmentTitle String
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
+      -- activity graph
+    | GotAssignmentData (Api.Data (List Assignment))
+    | ChangeTimeRange Int
+    | ChangeTimeRangeDirection TimeRangeDirection
+      -- contributor chart
     | GotContributorData (Api.Data (List ( String, Int )))
     | GotCourseStatsData (Api.Data (List ( String, Int )))
 

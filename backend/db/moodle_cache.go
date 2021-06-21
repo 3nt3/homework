@@ -84,7 +84,7 @@ func CreateNewCacheObject(course structs.CachedCourse) error {
 
 // SearchUserCourses returns all user courses matching a given search term
 func SearchUserCourses(query string, user structs.User) ([]structs.CachedCourse, error) {
-	rows, err := database.Query("SELECT * FROM moodle_cache WHERE to_tsvector('german', course_json) @@ to_tsquery('german', $1) OR lower(course_json) LIKE $2 AND user_id = $3", query, fmt.Sprintf("%%%s%%", query), user.ID.String())
+	rows, err := database.Query("SELECT * FROM moodle_cache WHERE to_tsvector('german', course_json) @@ to_tsquery('german', $1) AND user_id = $2 OR lower(course_json) LIKE $3 AND user_id = $4", query, user.ID.String(), fmt.Sprintf("%%%s%%", query), user.ID.String())
 	if err != nil {
 		return nil, err
 	}

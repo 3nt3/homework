@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, removeAssignment)
+import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, markAssignmentDone, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, getCourseStats, searchCourses)
 import Array
 import Components.LineChart exposing (TimeRangeDirection(..))
@@ -69,6 +69,7 @@ type alias Model =
     , assignmentModalData : Api.Data Assignment
     , editAssignmentTitleTfText : String
     , assignmentTitleFocused : Bool
+    , markAssignmentDoneData : Api.Data Assignment
 
     -- contributor chart
     , contributorData : Api.Data (List ( String, Int ))
@@ -103,6 +104,8 @@ type Msg
     | FocusAssignmentTitle String
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
+    | MarkAssignmentDone String Bool
+    | GotMarkAssignmentDoneData (Api.Data Assignment)
       -- activity graph
     | GotAssignmentData (Api.Data (List Assignment))
     | ChangeTimeRange Int
@@ -160,6 +163,7 @@ init shared url =
       , assignmentModalData = NotAsked
       , editAssignmentTitleTfText = ""
       , assignmentTitleFocused = False
+      , markAssignmentDoneData = NotAsked
       , contributorData = Loading
       , courseStatsData = Loading
       }
@@ -482,6 +486,12 @@ update msg model =
               }
             , Cmd.none
             )
+
+        MarkAssignmentDone id done ->
+            ( model, markAssignmentDone id done GotMarkAssignmentDoneData )
+
+        GotMarkAssignmentDoneData data ->
+            ( { model | markAssignmentDoneData = data }, Cmd.none )
 
         GotContributorData data ->
             ( { model | contributorData = data }, Cmd.none )

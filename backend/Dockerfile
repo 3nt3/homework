@@ -18,5 +18,9 @@ COPY . .
 RUN go build .
 
 EXPOSE 8005
+# in production
+#CMD ["/hello/homework"]
+
+# when debugging
 CMD ["dlv", "debug", "--headless", "--listen=:2345", "--log"]
 

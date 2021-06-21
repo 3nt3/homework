@@ -162,7 +162,12 @@ func GetCourseStats(w http.ResponseWriter, r *http.Request) {
 	// FIXME: use ids rather than names to avoid confusion
 	var courseAssignments map[string]int = make(map[string]int)
 	for _, c := range courses {
-		assignments, err := db.GetAssignmentsByCourse(int(c.ID.(float64)))
+		// sometimes float64, sometimes int???
+		id, ok := c.ID.(int)
+		if !ok {
+			id = int(c.ID.(float64))
+		}
+		assignments, err := db.GetAssignmentsByCourse(id)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				logging.WarningLogger.Printf("error getting assignments: %v\n", err)

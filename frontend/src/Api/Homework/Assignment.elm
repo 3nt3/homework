@@ -4,9 +4,8 @@ import Api
 import Api.Api exposing (apiAddress)
 import Api.Homework.Course exposing (assignmentDecoder)
 import Date
-import Dict exposing (Dict)
 import Http
-import Json.Decode as Json exposing (dict)
+import Json.Decode as Json
 import Json.Encode as Encode
 import Models exposing (Assignment)
 

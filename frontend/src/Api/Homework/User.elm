@@ -53,17 +53,20 @@ credentialsEncoder credentials =
                 ]
 
 
-getUserById : Int -> { onResponse : Api.Data User -> msg } -> Cmd msg
-getUserById id options =
-    Http.riskyRequest
-        { body = Http.emptyBody
-        , url = apiAddress ++ "/user/" ++ String.fromInt id
-        , method = "GET"
-        , expect = Api.expectJson options.onResponse userDecoder
-        , headers = []
-        , timeout = Nothing
-        , tracker = Nothing
-        }
+
+{-
+   getUserById : Int -> { onResponse : Api.Data User -> msg } -> Cmd msg
+   getUserById id options =
+       Http.riskyRequest
+           { body = Http.emptyBody
+           , url = apiAddress ++ "/user/" ++ String.fromInt id
+           , method = "GET"
+           , expect = Api.expectJson options.onResponse userDecoder
+           , headers = []
+           , timeout = Nothing
+           , tracker = Nothing
+           }
+-}
 
 
 getUserFromSession : { onResponse : Api.Data User -> msg } -> Cmd msg

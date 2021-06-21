@@ -4,7 +4,7 @@ import Api
 import Api.Api exposing (apiAddress)
 import Api.Homework.User exposing (userDecoder)
 import Date
-import Http exposing (jsonBody)
+import Http
 import Json.Decode as Json
 import Json.Encode as Encode
 import Models exposing (Assignment, Course, User)
@@ -29,13 +29,14 @@ dateDecoder =
 
 assignmentDecoder : Json.Decoder Assignment
 assignmentDecoder =
-    Json.map6 Assignment
+    Json.map7 Assignment
         (Json.field "id" Json.string)
         (Json.field "course" Json.int)
         (Json.field "user" userDecoder)
         (Json.field "title" Json.string)
         (Json.field "due_date" dateDecoder)
         (Json.field "from_moodle" Json.bool)
+        (Json.field "done_by" <| Json.list Json.string)
 
 
 courseDecoder : Json.Decoder Course

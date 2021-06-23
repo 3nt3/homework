@@ -56,6 +56,7 @@ func CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	assignment.DoneBy = []string{}
+	assignment.DoneByUsers = make([]structs.User, 0)
 
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignment.GetClean(),

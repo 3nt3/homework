@@ -105,7 +105,7 @@ type Msg
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
     | MarkAssignmentDone String Bool
-    | GotMarkAssignmentDoneData (Api.Data Assignment)
+    | GotMarkAssignmentDoneData String (Api.Data Assignment)
       -- activity graph
     | GotAssignmentData (Api.Data (List Assignment))
     | ChangeTimeRange Int
@@ -488,10 +488,10 @@ update msg model =
             )
 
         MarkAssignmentDone id done ->
-            ( model, markAssignmentDone id done GotMarkAssignmentDoneData )
+            ( model, markAssignmentDone id done (GotMarkAssignmentDoneData id) )
 
-        GotMarkAssignmentDoneData data ->
-            ( { model | markAssignmentDoneData = data }, Cmd.none )
+        GotMarkAssignmentDoneData id data ->
+            ( { model | markAssignmentDoneData = data, assignmentModalData = Loading }, getAssignmentByID id GotAssignmentModalData )
 
         GotContributorData data ->
             ( { model | contributorData = data }, Cmd.none )
@@ -1417,6 +1417,25 @@ viewWeekAssignmentVisualization model =
 -}
 viewAssignmentModal : Model -> Element Msg
 viewAssignmentModal model =
+    let
+        viewUserIcon user color =
+            el
+                [ Background.color color
+                , Font.color <| rgb 1 1 1
+                , width <| px 50
+                , height <| px 50
+                , Font.center
+                , Border.rounded 25
+                , Font.size 24
+                ]
+                (el [ centerX, centerY ] (text <| String.slice 0 1 user.username))
+
+        colors userN =
+            [ rgb255 78 121 167, rgb255 242 142 44, rgb255 225 87 89, rgb255 118 183 178, rgb255 89 161 79, rgb255 237 201 73, rgb255 175 122 161, rgb255 255 157 167, rgb255 156 117 95, rgb255 186 176 171 ] |> List.repeat (userN // 10 + 10) |> List.concat
+
+        didIDoThis userID users =
+            List.member userID users
+    in
     case model.maybeAssignmentModalActivated of
         Just _ ->
             case model.courseData of
@@ -1482,13 +1501,25 @@ viewAssignmentModal model =
                                                     (text "[x]")
                                                 ]
                                             , el [] (text ("Course: " ++ Maybe.withDefault "undefined" (getCourseNameById courses assignment.courseId)))
+                                            , row [ spacing 10 ] <| List.map2 viewUserIcon assignment.doneByUsers (colors <| List.length assignment.doneByUsers)
                                             , row [ width fill ]
-                                                [ if user.id == assignment.user.id then
-                                                    viewButton "[delete]" redColor (RemoveAssignment assignment.id)
+                                                ((if user.id == assignment.user.id then
+                                                    [ viewButton "[delete]" redColor (RemoveAssignment assignment.id) ]
 
                                                   else
-                                                    none
-                                                ]
+                                                    []
+                                                 )
+                                                    ++ [ viewButton
+                                                            (if didIDoThis user.id assignment.doneBy then
+                                                                "[I didn't do this]"
+
+                                                             else
+                                                                "[I did this]"
+                                                            )
+                                                            greenColor
+                                                            (MarkAssignmentDone assignment.id (didIDoThis user.id assignment.doneBy |> not))
+                                                       ]
+                                                )
                                             ]
 
                                         Loading ->

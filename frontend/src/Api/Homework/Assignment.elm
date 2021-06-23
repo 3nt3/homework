@@ -148,8 +148,9 @@ markAssignmentDone id done onResponse =
     Http.riskyRequest
         { url =
             apiAddress
-                ++ "/assignments/"
+                ++ "/assignment/"
                 ++ id
+                ++ "/"
                 ++ (if done then
                         "done"
 

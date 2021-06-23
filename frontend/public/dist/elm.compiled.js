@@ -12004,9 +12004,10 @@ var $author$project$Pages$Dashboard$GotChangeAssignmentTitle = function (a) {
 var $author$project$Pages$Dashboard$GotCreateAssignmentData = function (a) {
 	return {$: 'GotCreateAssignmentData', a: a};
 };
-var $author$project$Pages$Dashboard$GotMarkAssignmentDoneData = function (a) {
-	return {$: 'GotMarkAssignmentDoneData', a: a};
-};
+var $author$project$Pages$Dashboard$GotMarkAssignmentDoneData = F2(
+	function (a, b) {
+		return {$: 'GotMarkAssignmentDoneData', a: a, b: b};
+	});
 var $author$project$Pages$Dashboard$GotRemoveAssignmentData = function (a) {
 	return {$: 'GotRemoveAssignmentData', a: a};
 };
@@ -12220,7 +12221,7 @@ var $author$project$Api$Homework$Assignment$markAssignmentDone = F3(
 				method: 'POST',
 				timeout: $elm$core$Maybe$Nothing,
 				tracker: $elm$core$Maybe$Nothing,
-				url: $author$project$Api$Api$apiAddress + ('/assignments/' + (id + (done ? 'done' : 'undone')))
+				url: $author$project$Api$Api$apiAddress + ('/assignment/' + (id + ('/' + (done ? 'done' : 'undone'))))
 			});
 	});
 var $elm$core$List$any = F2(
@@ -13924,14 +13925,19 @@ var $author$project$Pages$Dashboard$update = F2(
 				var done = msg.b;
 				return _Utils_Tuple2(
 					model,
-					A3($author$project$Api$Homework$Assignment$markAssignmentDone, id, done, $author$project$Pages$Dashboard$GotMarkAssignmentDoneData));
+					A3(
+						$author$project$Api$Homework$Assignment$markAssignmentDone,
+						id,
+						done,
+						$author$project$Pages$Dashboard$GotMarkAssignmentDoneData(id)));
 			case 'GotMarkAssignmentDoneData':
-				var data = msg.a;
+				var id = msg.a;
+				var data = msg.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{markAssignmentDoneData: data}),
-					$elm$core$Platform$Cmd$none);
+						{assignmentModalData: $author$project$Api$Loading, markAssignmentDoneData: data}),
+					A2($author$project$Api$Homework$Assignment$getAssignmentByID, id, $author$project$Pages$Dashboard$GotAssignmentModalData));
 			case 'GotContributorData':
 				var data = msg.a;
 				return _Utils_Tuple2(
@@ -19517,6 +19523,10 @@ var $author$project$Pages$Dashboard$CloseModal = {$: 'CloseModal'};
 var $author$project$Pages$Dashboard$FocusAssignmentTitle = function (a) {
 	return {$: 'FocusAssignmentTitle', a: a};
 };
+var $author$project$Pages$Dashboard$MarkAssignmentDone = F2(
+	function (a, b) {
+		return {$: 'MarkAssignmentDone', a: a, b: b};
+	});
 var $author$project$Pages$Dashboard$RemoveAssignment = function (a) {
 	return {$: 'RemoveAssignment', a: a};
 };
@@ -19534,6 +19544,11 @@ var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 };
 var $mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
 var $mdgriffith$elm_ui$Element$centerX = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$CenterX);
+var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
+	return {$: 'AlignY', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
+var $mdgriffith$elm_ui$Element$centerY = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$CenterY);
 var $author$project$Api$errorToString = function (error) {
 	switch (error.$) {
 		case 'BadStatus':
@@ -19586,6 +19601,7 @@ var $author$project$Pages$Dashboard$getCourseNameById = F2(
 					},
 					courses)));
 	});
+var $author$project$Styling$Colors$greenColor = A3($mdgriffith$elm_ui$Element$rgb255, 76, 209, 55);
 var $mdgriffith$elm_ui$Element$htmlAttribute = $mdgriffith$elm_ui$Internal$Model$Attr;
 var $mdgriffith$elm_ui$Element$Input$HiddenLabel = function (a) {
 	return {$: 'HiddenLabel', a: a};
@@ -19640,7 +19656,32 @@ var $mdgriffith$elm_ui$Element$paragraph = F2(
 	});
 var $mdgriffith$elm_ui$Internal$Flag$cursor = $mdgriffith$elm_ui$Internal$Flag$flag(21);
 var $mdgriffith$elm_ui$Element$pointer = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$cursor, $mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
+var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
 var $author$project$Styling$Colors$redColor = A3($mdgriffith$elm_ui$Element$rgb255, 232, 65, 24);
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
 var $mdgriffith$elm_ui$Element$rgba = $mdgriffith$elm_ui$Internal$Model$Rgba;
 var $mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
 	return {$: 'FontSize', a: a};
@@ -20552,6 +20593,53 @@ var $author$project$Pages$Dashboard$viewButton = F3(
 			$mdgriffith$elm_ui$Element$text(text_));
 	});
 var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
+	var viewUserIcon = F2(
+		function (user, color) {
+			return A2(
+				$mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Background$color(color),
+						$mdgriffith$elm_ui$Element$Font$color(
+						A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1)),
+						$mdgriffith$elm_ui$Element$width(
+						$mdgriffith$elm_ui$Element$px(50)),
+						$mdgriffith$elm_ui$Element$height(
+						$mdgriffith$elm_ui$Element$px(50)),
+						$mdgriffith$elm_ui$Element$Font$center,
+						$mdgriffith$elm_ui$Element$Border$rounded(25),
+						$mdgriffith$elm_ui$Element$Font$size(24)
+					]),
+				A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[$mdgriffith$elm_ui$Element$centerX, $mdgriffith$elm_ui$Element$centerY]),
+					$mdgriffith$elm_ui$Element$text(
+						A3($elm$core$String$slice, 0, 1, user.username))));
+		});
+	var didIDoThis = F2(
+		function (userID, users) {
+			return A2($elm$core$List$member, userID, users);
+		});
+	var colors = function (userN) {
+		return $elm$core$List$concat(
+			A2(
+				$elm$core$List$repeat,
+				((userN / 10) | 0) + 10,
+				_List_fromArray(
+					[
+						A3($mdgriffith$elm_ui$Element$rgb255, 78, 121, 167),
+						A3($mdgriffith$elm_ui$Element$rgb255, 242, 142, 44),
+						A3($mdgriffith$elm_ui$Element$rgb255, 225, 87, 89),
+						A3($mdgriffith$elm_ui$Element$rgb255, 118, 183, 178),
+						A3($mdgriffith$elm_ui$Element$rgb255, 89, 161, 79),
+						A3($mdgriffith$elm_ui$Element$rgb255, 237, 201, 73),
+						A3($mdgriffith$elm_ui$Element$rgb255, 175, 122, 161),
+						A3($mdgriffith$elm_ui$Element$rgb255, 255, 157, 167),
+						A3($mdgriffith$elm_ui$Element$rgb255, 156, 117, 95),
+						A3($mdgriffith$elm_ui$Element$rgb255, 186, 176, 171)
+					])));
+	};
 	var _v0 = model.maybeAssignmentModalActivated;
 	if (_v0.$ === 'Just') {
 		var _v1 = model.courseData;
@@ -20678,16 +20766,40 @@ var $author$project$Pages$Dashboard$viewAssignmentModal = function (model) {
 											$mdgriffith$elm_ui$Element$row,
 											_List_fromArray(
 												[
-													$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+													$mdgriffith$elm_ui$Element$spacing(10)
 												]),
+											A3(
+												$elm$core$List$map2,
+												viewUserIcon,
+												assignment.doneByUsers,
+												colors(
+													$elm$core$List$length(assignment.doneByUsers)))),
+											A2(
+											$mdgriffith$elm_ui$Element$row,
 											_List_fromArray(
 												[
-													_Utils_eq(user.id, assignment.user.id) ? A3(
-													$author$project$Pages$Dashboard$viewButton,
-													'[delete]',
-													$author$project$Styling$Colors$redColor,
-													$author$project$Pages$Dashboard$RemoveAssignment(assignment.id)) : $mdgriffith$elm_ui$Element$none
-												]))
+													$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+												]),
+											_Utils_ap(
+												_Utils_eq(user.id, assignment.user.id) ? _List_fromArray(
+													[
+														A3(
+														$author$project$Pages$Dashboard$viewButton,
+														'[delete]',
+														$author$project$Styling$Colors$redColor,
+														$author$project$Pages$Dashboard$RemoveAssignment(assignment.id))
+													]) : _List_Nil,
+												_List_fromArray(
+													[
+														A3(
+														$author$project$Pages$Dashboard$viewButton,
+														A2(didIDoThis, user.id, assignment.doneBy) ? '[I didn\'t do this]' : '[I did this]',
+														$author$project$Styling$Colors$greenColor,
+														A2(
+															$author$project$Pages$Dashboard$MarkAssignmentDone,
+															assignment.id,
+															!A2(didIDoThis, user.id, assignment.doneBy)))
+													])))
 										]);
 								case 'Loading':
 									return _List_fromArray(
@@ -22069,27 +22181,6 @@ var $gampleman$elm_visualization$Shape$Pie$arc = function (arcData) {
 	return path;
 };
 var $gampleman$elm_visualization$Shape$arc = $gampleman$elm_visualization$Shape$Pie$arc;
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
 var $avh4$elm_color$Color$RgbaSpace = F4(
 	function (a, b, c, d) {
 		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
@@ -22912,11 +23003,6 @@ var $author$project$Pages$Dashboard$viewContributorChart = function (model) {
 				}
 			}()));
 };
-var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
-	return {$: 'AlignY', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
-var $mdgriffith$elm_ui$Element$centerY = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$CenterY);
 var $mdgriffith$elm_ui$Element$Font$italic = $mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.italic);
 var $author$project$Pages$Dashboard$viewCourseChart = function (model) {
 	return A2(
@@ -23097,10 +23183,6 @@ var $mdgriffith$elm_ui$Internal$Flag$borderStyle = $mdgriffith$elm_ui$Internal$F
 var $mdgriffith$elm_ui$Element$Border$dotted = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.borderDotted);
 var $author$project$Pages$Dashboard$inputColor = A2($author$project$Utils$Darken$darken, $author$project$Styling$Colors$lighterGreyColor, -0.05);
 var $author$project$Pages$Dashboard$inputTextColor = A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1);
-var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
-	return {$: 'Px', a: a};
-};
-var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
 var $author$project$Pages$Dashboard$inputStyle = _List_fromArray(
 	[
 		$mdgriffith$elm_ui$Element$Background$color($author$project$Pages$Dashboard$inputColor),
@@ -23316,7 +23398,6 @@ var $author$project$Pages$Dashboard$viewCreateAssignmentFormErrors = function (e
 				A2($elm$core$List$map, $author$project$Pages$Dashboard$viewCreateAssignmentFormError, errors))
 			]));
 };
-var $author$project$Styling$Colors$greenColor = A3($mdgriffith$elm_ui$Element$rgb255, 76, 209, 55);
 var $author$project$Pages$Dashboard$viewCreateAssignmentFormStatus = function (data) {
 	switch (data.$) {
 		case 'Success':
@@ -30611,4 +30692,4 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 				},
 				A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$int));
 		},
-		A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$int)))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Pages.NotFound.Msg":{"args":[],"type":"Basics.Never"},"Pages.Top.Msg":{"args":[],"type":"Basics.Never"},"Models.User":{"args":[],"type":"{ id : String.String, username : String.String, email : String.String, privilege : Models.Privilege, moodleUrl : String.String }"},"Models.Assignment":{"args":[],"type":"{ id : String.String, courseId : Basics.Int, user : Models.User, title : String.String, dueDate : Date.Date, fromMoodle : Basics.Bool, doneBy : List.List String.String, doneByUsers : List.List Models.User }"},"Models.Course":{"args":[],"type":"{ id : Basics.Int, name : String.String, assignments : List.List Models.Assignment, fromMoodle : Basics.Bool, user : String.String }"},"Api.Homework.Course.MinimalCourse":{"args":[],"type":"{ id : Basics.Int, name : String.String, fromMoodle : Basics.Bool }"},"Time.Era":{"args":[],"type":"{ start : Basics.Int, offset : Basics.Int }"},"Date.RataDie":{"args":[],"type":"Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"LinkClicked":["Browser.UrlRequest"],"UrlChanged":["Url.Url"],"Shared":["Shared.Msg"],"Pages":["Spa.Generated.Pages.Msg"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Shared.Msg":{"args":[],"tags":{"GotUser":["Api.Data Models.User"],"Logout":[],"Resize":["Basics.Int","Basics.Int"],"GotLogoutData":["Result.Result Http.Error ()"],"OverrideRedirect":[]}},"Spa.Generated.Pages.Msg":{"args":[],"tags":{"Top__Msg":["Pages.Top.Msg"],"Dashboard__Msg":["Pages.Dashboard.Msg"],"Login__Msg":["Pages.Login.Msg"],"NotFound__Msg":["Pages.NotFound.Msg"],"Register__Msg":["Pages.Register.Msg"],"Dashboard__Admin__Msg":["Pages.Dashboard.Admin.Msg"],"Dashboard__Moodle__Msg":["Pages.Dashboard.Moodle.Msg"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Api.Data":{"args":["value"],"tags":{"NotAsked":[],"Loading":[],"Failure":["Api.HttpError"],"Success":["value"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Pages.Dashboard.Msg":{"args":[],"tags":{"GotCourseData":["Api.Data (List.List Models.Course)"],"SearchCourses":["String.String"],"GotSearchCoursesData":["Api.Data (List.List Api.Homework.Course.MinimalCourse)"],"CAFSelectCourse":["Api.Homework.Course.MinimalCourse"],"CAFChangeTitle":["String.String"],"CAFChangeDate":["String.String"],"CreateAssignment":[],"GotCreateAssignmentData":["Api.Data Models.Assignment"],"Add1Day":[],"ReceiveTime":["Time.Posix"],"AdjustTimeZone":["Time.Zone"],"RemoveAssignment":["String.String"],"GotRemoveAssignmentData":["Api.Data Models.Assignment"],"ViewAssignmentModal":["String.String"],"CloseModal":[],"GotAssignmentModalData":["Api.Data Models.Assignment"],"ChangeAssignmentTitle":["String.String"],"ChangeAssignmentTitleTfText":["String.String"],"FocusAssignmentTitle":["String.String"],"UnfocusAssignmentTitle":[],"GotChangeAssignmentTitle":["Api.Data Models.Assignment"],"MarkAssignmentDone":["String.String","Basics.Bool"],"GotMarkAssignmentDoneData":["Api.Data Models.Assignment"],"GotAssignmentData":["Api.Data (List.List Models.Assignment)"],"ChangeTimeRange":["Basics.Int"],"ChangeTimeRangeDirection":["Components.LineChart.TimeRangeDirection"],"GotContributorData":["Api.Data (List.List ( String.String, Basics.Int ))"],"GotCourseStatsData":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Admin.Msg":{"args":[],"tags":{"GotContributorInfo":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Moodle.Msg":{"args":[],"tags":{"ChangeMoodleUrlInput":["String.String"],"GotSiteData":["Api.Data String.String"],"ChangeMoodleUsernameInput":["String.String"],"ChangeMoodlePasswordInput":["String.String"],"Authenticate":[],"GotAuthenticationData":["Api.Data Models.User"]}},"Pages.Login.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"GotLoginData":["Api.Data Models.User"],"Login":[]}},"Pages.Register.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"ValidatePasswordInput":["String.String"],"EmailInput":["String.String"],"GotUsernameTaken":["Api.Data Basics.Bool"],"GotRegistrationData":["Api.Data Models.User"],"Register":[]}},"Basics.Never":{"args":[],"tags":{"JustOneMore":["Basics.Never"]}},"Models.Privilege":{"args":[],"tags":{"Normal":[],"Admin":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Date.Date":{"args":[],"tags":{"RD":["Date.RataDie"]}},"Api.HttpError":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int","List.List String.String"],"BadBody":["String.String"]}},"List.List":{"args":["a"],"tags":{}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"Components.LineChart.TimeRangeDirection":{"args":[],"tags":{"Future":[],"Past":[]}},"Time.Zone":{"args":[],"tags":{"Zone":["Basics.Int","List.List Time.Era"]}}}}})}});}(this));
+		A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$int)))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Pages.NotFound.Msg":{"args":[],"type":"Basics.Never"},"Pages.Top.Msg":{"args":[],"type":"Basics.Never"},"Models.User":{"args":[],"type":"{ id : String.String, username : String.String, email : String.String, privilege : Models.Privilege, moodleUrl : String.String }"},"Models.Assignment":{"args":[],"type":"{ id : String.String, courseId : Basics.Int, user : Models.User, title : String.String, dueDate : Date.Date, fromMoodle : Basics.Bool, doneBy : List.List String.String, doneByUsers : List.List Models.User }"},"Models.Course":{"args":[],"type":"{ id : Basics.Int, name : String.String, assignments : List.List Models.Assignment, fromMoodle : Basics.Bool, user : String.String }"},"Api.Homework.Course.MinimalCourse":{"args":[],"type":"{ id : Basics.Int, name : String.String, fromMoodle : Basics.Bool }"},"Time.Era":{"args":[],"type":"{ start : Basics.Int, offset : Basics.Int }"},"Date.RataDie":{"args":[],"type":"Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"LinkClicked":["Browser.UrlRequest"],"UrlChanged":["Url.Url"],"Shared":["Shared.Msg"],"Pages":["Spa.Generated.Pages.Msg"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Shared.Msg":{"args":[],"tags":{"GotUser":["Api.Data Models.User"],"Logout":[],"Resize":["Basics.Int","Basics.Int"],"GotLogoutData":["Result.Result Http.Error ()"],"OverrideRedirect":[]}},"Spa.Generated.Pages.Msg":{"args":[],"tags":{"Top__Msg":["Pages.Top.Msg"],"Dashboard__Msg":["Pages.Dashboard.Msg"],"Login__Msg":["Pages.Login.Msg"],"NotFound__Msg":["Pages.NotFound.Msg"],"Register__Msg":["Pages.Register.Msg"],"Dashboard__Admin__Msg":["Pages.Dashboard.Admin.Msg"],"Dashboard__Moodle__Msg":["Pages.Dashboard.Moodle.Msg"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Api.Data":{"args":["value"],"tags":{"NotAsked":[],"Loading":[],"Failure":["Api.HttpError"],"Success":["value"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Pages.Dashboard.Msg":{"args":[],"tags":{"GotCourseData":["Api.Data (List.List Models.Course)"],"SearchCourses":["String.String"],"GotSearchCoursesData":["Api.Data (List.List Api.Homework.Course.MinimalCourse)"],"CAFSelectCourse":["Api.Homework.Course.MinimalCourse"],"CAFChangeTitle":["String.String"],"CAFChangeDate":["String.String"],"CreateAssignment":[],"GotCreateAssignmentData":["Api.Data Models.Assignment"],"Add1Day":[],"ReceiveTime":["Time.Posix"],"AdjustTimeZone":["Time.Zone"],"RemoveAssignment":["String.String"],"GotRemoveAssignmentData":["Api.Data Models.Assignment"],"ViewAssignmentModal":["String.String"],"CloseModal":[],"GotAssignmentModalData":["Api.Data Models.Assignment"],"ChangeAssignmentTitle":["String.String"],"ChangeAssignmentTitleTfText":["String.String"],"FocusAssignmentTitle":["String.String"],"UnfocusAssignmentTitle":[],"GotChangeAssignmentTitle":["Api.Data Models.Assignment"],"MarkAssignmentDone":["String.String","Basics.Bool"],"GotMarkAssignmentDoneData":["String.String","Api.Data Models.Assignment"],"GotAssignmentData":["Api.Data (List.List Models.Assignment)"],"ChangeTimeRange":["Basics.Int"],"ChangeTimeRangeDirection":["Components.LineChart.TimeRangeDirection"],"GotContributorData":["Api.Data (List.List ( String.String, Basics.Int ))"],"GotCourseStatsData":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Admin.Msg":{"args":[],"tags":{"GotContributorInfo":["Api.Data (List.List ( String.String, Basics.Int ))"]}},"Pages.Dashboard.Moodle.Msg":{"args":[],"tags":{"ChangeMoodleUrlInput":["String.String"],"GotSiteData":["Api.Data String.String"],"ChangeMoodleUsernameInput":["String.String"],"ChangeMoodlePasswordInput":["String.String"],"Authenticate":[],"GotAuthenticationData":["Api.Data Models.User"]}},"Pages.Login.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"GotLoginData":["Api.Data Models.User"],"Login":[]}},"Pages.Register.Msg":{"args":[],"tags":{"UsernameInput":["String.String"],"PasswordInput":["String.String"],"ValidatePasswordInput":["String.String"],"EmailInput":["String.String"],"GotUsernameTaken":["Api.Data Basics.Bool"],"GotRegistrationData":["Api.Data Models.User"],"Register":[]}},"Basics.Never":{"args":[],"tags":{"JustOneMore":["Basics.Never"]}},"Models.Privilege":{"args":[],"tags":{"Normal":[],"Admin":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Date.Date":{"args":[],"tags":{"RD":["Date.RataDie"]}},"Api.HttpError":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int","List.List String.String"],"BadBody":["String.String"]}},"List.List":{"args":["a"],"tags":{}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"Components.LineChart.TimeRangeDirection":{"args":[],"tags":{"Future":[],"Past":[]}},"Time.Zone":{"args":[],"tags":{"Zone":["Basics.Int","List.List Time.Era"]}}}}})}});}(this));

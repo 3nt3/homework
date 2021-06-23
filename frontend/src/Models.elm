@@ -29,6 +29,7 @@ type alias Assignment =
     , dueDate : Date.Date
     , fromMoodle : Bool
     , doneBy : List String
+    , doneByUsers : List User
     }
 
 

@@ -49,14 +49,15 @@ func (u User) GetClean() CleanUser {
 
 func (a Assignment) GetClean() CleanAssignment {
 	return CleanAssignment{
-		UID:        a.UID,
-		User:       a.User.GetClean(),
-		Created:    a.Created,
-		Title:      a.Title,
-		DueDate:    a.DueDate,
-		Course:     a.Course,
-		FromMoodle: a.FromMoodle,
-		DoneBy:     a.DoneBy,
+		UID:         a.UID,
+		User:        a.User.GetClean(),
+		Created:     a.Created,
+		Title:       a.Title,
+		DueDate:     a.DueDate,
+		Course:      a.Course,
+		FromMoodle:  a.FromMoodle,
+		DoneBy:      a.DoneBy,
+		DoneByUsers: a.DoneByUsers,
 	}
 }
 
@@ -67,25 +68,27 @@ type Session struct {
 }
 
 type Assignment struct {
-	UID        ksuid.KSUID `json:"id"`
-	User       User        `json:"user"`
-	Created    UnixTime    `json:"created"`
-	Title      string      `json:"title"`
-	DueDate    UnixTime    `json:"due_date"`
-	Course     int         `json:"course"`
-	FromMoodle bool        `json:"from_moodle"`
-	DoneBy     []string    `json:"done_by"`
+	UID         ksuid.KSUID `json:"id"`
+	User        User        `json:"user"`
+	Created     UnixTime    `json:"created"`
+	Title       string      `json:"title"`
+	DueDate     UnixTime    `json:"due_date"`
+	Course      int         `json:"course"`
+	FromMoodle  bool        `json:"from_moodle"`
+	DoneBy      []string    `json:"done_by"`
+	DoneByUsers []User      `json:"done_by_users"`
 }
 
 type CleanAssignment struct {
-	UID        ksuid.KSUID `json:"id"`
-	User       CleanUser   `json:"user"`
-	Created    UnixTime    `json:"created"`
-	Title      string      `json:"title"`
-	DueDate    UnixTime    `json:"due_date"`
-	Course     int         `json:"course"`
-	FromMoodle bool        `json:"from_moodle"`
-	DoneBy     []string    `json:"done_by"`
+	UID         ksuid.KSUID `json:"id"`
+	User        CleanUser   `json:"user"`
+	Created     UnixTime    `json:"created"`
+	Title       string      `json:"title"`
+	DueDate     UnixTime    `json:"due_date"`
+	Course      int         `json:"course"`
+	FromMoodle  bool        `json:"from_moodle"`
+	DoneBy      []string    `json:"done_by"`
+	DoneByUsers []User      `json:"done_by_users"`
 }
 
 type Course struct {

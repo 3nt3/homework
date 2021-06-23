@@ -37,8 +37,14 @@ func GetAssignmentByID(id string) (structs.Assignment, error) {
 	}
 
 	creator, err := GetUserById(creatorID, false)
+	if err != nil {
+		return a, err
+	}
+
 	a.User = creator
 	a.DueDate = structs.UnixTime(dueDateT)
+
+	a.DoneByUsers, err = getUsersFromIDs(a.DoneBy)
 
 	return a, err
 }
@@ -71,6 +77,11 @@ func GetAssignmentsByCourse(courseID int) ([]structs.Assignment, error) {
 
 		creator, err := GetUserById(creatorID, false)
 		a.User = creator
+		if err != nil {
+			return nil, err
+		}
+
+		a.DoneByUsers, err = getUsersFromIDs(a.DoneBy)
 		if err != nil {
 			return nil, err
 		}
@@ -116,6 +127,11 @@ func GetAssignments(user structs.User, maxDays int) ([]structs.Assignment, error
 			return nil, err
 		}
 
+		a.DoneByUsers, err = getUsersFromIDs(a.DoneBy)
+		if err != nil {
+			return nil, err
+		}
+
 		assignments = append(assignments, a)
 	}
 	defer rows.Close()
@@ -150,6 +166,11 @@ func GetAllAssignments() ([]structs.Assignment, error) {
 		creator, err := GetUserById(creatorID, false)
 		a.User = creator
 		a.DueDate = structs.UnixTime(dueDateT)
+		if err != nil {
+			return nil, err
+		}
+
+		a.DoneByUsers, err = getUsersFromIDs(a.DoneBy)
 		if err != nil {
 			return nil, err
 		}

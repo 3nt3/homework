@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"git.teich.3nt3.de/3nt3/homework/structs"
+	"github.com/lib/pq"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,7 +30,7 @@ func NewUser(username string, email string, password string) (structs.User, erro
 		Username:     username,
 		Email:        email,
 		PasswordHash: hash,
-		Created: structs.UnixTime(now),
+		Created:      structs.UnixTime(now),
 		Privilege:    0,
 	}, nil
 }
@@ -188,4 +189,33 @@ func EmailTaken(email string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func getUsersFromIDs(ids []string) ([]structs.User, error) {
+	rows, err := database.Query("SELECT * FROM users WHERE id =ANY ($1::text[])", pq.Array(ids))
+	defer func() { _ = rows.Close() }()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var users []structs.User = make([]structs.User, 0)
+	for rows.Next() {
+		var user structs.User
+
+		var coursesJson string
+
+		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Created, &user.Privilege, &coursesJson, &user.MoodleURL, &user.MoodleToken, &user.MoodleUserID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		// NOTE: implement courses being populated
+		// this is not really relevant to the current usecase but still
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }

@@ -94,9 +94,9 @@ func GetActiveCourses(w http.ResponseWriter, r *http.Request) {
 		var courseMaps []map[string]interface{}
 
 		for _, c := range filteredFilteredCourses {
-			var expandedAssignments []map[string]interface{}
+			var expandedAssignments []map[string]interface{} = make([]map[string]interface{}, 0)
 			for _, a := range c.Assignments {
-				var users []structs.CleanUser
+				var users []structs.CleanUser = make([]structs.CleanUser, 0)
 				for _, userID := range a.DoneBy {
 					user, ok := knownUsers[userID]
 					if !ok {

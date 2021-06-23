@@ -1,12 +1,11 @@
-module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, getContributorsAdmin, removeAssignment)
+module Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, getContributorsAdmin, markAssignmentDone, removeAssignment)
 
 import Api
 import Api.Api exposing (apiAddress)
 import Api.Homework.Course exposing (assignmentDecoder)
 import Date
-import Dict exposing (Dict)
 import Http
-import Json.Decode as Json exposing (dict)
+import Json.Decode as Json
 import Json.Encode as Encode
 import Models exposing (Assignment)
 
@@ -137,3 +136,31 @@ getContributorsAdmin onResponse =
 contributorsDecoder : Json.Decoder (List ( String, Int ))
 contributorsDecoder =
     Json.keyValuePairs Json.int
+
+
+{-|
+
+      sends a http POST to /assignment/{id}/(done|undone)
+
+-}
+markAssignmentDone : String -> Bool -> (Api.Data Assignment -> msg) -> Cmd msg
+markAssignmentDone id done onResponse =
+    Http.riskyRequest
+        { url =
+            apiAddress
+                ++ "/assignment/"
+                ++ id
+                ++ "/"
+                ++ (if done then
+                        "done"
+
+                    else
+                        "undone"
+                   )
+        , body = Http.emptyBody
+        , headers = []
+        , method = "POST"
+        , expect = Api.expectJson onResponse assignmentDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }

@@ -4,7 +4,7 @@ import Api
 import Api.Api exposing (apiAddress)
 import Api.Homework.User exposing (userDecoder)
 import Date
-import Http exposing (jsonBody)
+import Http
 import Json.Decode as Json
 import Json.Encode as Encode
 import Models exposing (Assignment, Course, User)
@@ -29,13 +29,19 @@ dateDecoder =
 
 assignmentDecoder : Json.Decoder Assignment
 assignmentDecoder =
-    Json.map6 Assignment
+    Json.map8 Assignment
         (Json.field "id" Json.string)
         (Json.field "course" Json.int)
         (Json.field "user" userDecoder)
         (Json.field "title" Json.string)
         (Json.field "due_date" dateDecoder)
         (Json.field "from_moodle" Json.bool)
+        (Json.field "done_by" <| Json.list Json.string)
+        (Json.field "done_by_users" <| Json.list userDecoder)
+
+
+
+-- this is only true for the ?expandUsers option but for now it's ok I think
 
 
 courseDecoder : Json.Decoder Course
@@ -70,7 +76,7 @@ getActiveCourses : { onResponse : Api.Data (List Course) -> msg } -> Cmd msg
 getActiveCourses options =
     Http.riskyRequest
         { body = Http.emptyBody
-        , url = apiAddress ++ "/courses/active"
+        , url = apiAddress ++ "/courses/active?expandUsers"
         , method = "GET"
         , expect = Api.expectJson options.onResponse (Json.list courseDecoder)
         , headers = []

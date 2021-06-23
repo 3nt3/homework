@@ -66,6 +66,8 @@ func main() {
 	r.HandleFunc("/assignment", routes.CreateAssignment).Methods("POST")
 	r.HandleFunc("/assignment", routes.DeleteAssignment).Methods("DELETE")
 	r.HandleFunc("/assignment/{id}", routes.UpdateAssignment).Methods("PUT")
+	r.HandleFunc("/assignment/{id}/done", func(w http.ResponseWriter, r *http.Request) { routes.AssignmentDone(w, r, true) }).Methods("POST")
+	r.HandleFunc("/assignment/{id}/undone", func(w http.ResponseWriter, r *http.Request) { routes.AssignmentDone(w, r, false) }).Methods("POST")
 	r.HandleFunc("/assignments", routes.GetAssignments).Methods("GET")
 	r.HandleFunc("/assignments/contributors", routes.GetContributors).Methods("GET")
 	r.HandleFunc("/assignments/contributors/all", routes.GetContributorsAdmin).Methods("GET")

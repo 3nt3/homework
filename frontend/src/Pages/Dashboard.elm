@@ -1,7 +1,7 @@
 module Pages.Dashboard exposing (Model, Msg, Params, page)
 
 import Api exposing (Data(..), HttpError(..))
-import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, removeAssignment)
+import Api.Homework.Assignment exposing (changeAssignmentTitle, createAssignment, getAssignmentByID, getAssignments, getContributors, markAssignmentDone, removeAssignment)
 import Api.Homework.Course exposing (MinimalCourse, getActiveCourses, getCourseStats, searchCourses)
 import Array
 import Components.LineChart exposing (TimeRangeDirection(..))
@@ -69,6 +69,7 @@ type alias Model =
     , assignmentModalData : Api.Data Assignment
     , editAssignmentTitleTfText : String
     , assignmentTitleFocused : Bool
+    , markAssignmentDoneData : Api.Data Assignment
 
     -- contributor chart
     , contributorData : Api.Data (List ( String, Int ))
@@ -79,7 +80,7 @@ type alias Model =
 
 
 type Msg
-    = GotCourseData (Api.Data (List Course))
+    = GotCourseData (Api.Data (List Course)) -- this is literally the main functionality
       -- create assignment form
     | SearchCourses String
     | GotSearchCoursesData (Api.Data (List MinimalCourse))
@@ -88,14 +89,13 @@ type Msg
     | CAFChangeDate String
     | CreateAssignment
     | GotCreateAssignmentData (Api.Data Assignment)
+    | Add1Day
+      -- general things
     | ReceiveTime Time.Posix
     | AdjustTimeZone Time.Zone
-    | Add1Day
+      -- modal things
     | RemoveAssignment String
     | GotRemoveAssignmentData (Api.Data Assignment)
-    | GotAssignmentData (Api.Data (List Assignment))
-    | ChangeTimeRange Int
-    | ChangeTimeRangeDirection TimeRangeDirection
     | ViewAssignmentModal String
     | CloseModal
     | GotAssignmentModalData (Api.Data Assignment)
@@ -104,6 +104,13 @@ type Msg
     | FocusAssignmentTitle String
     | UnfocusAssignmentTitle
     | GotChangeAssignmentTitle (Api.Data Assignment)
+    | MarkAssignmentDone String Bool
+    | GotMarkAssignmentDoneData String (Api.Data Assignment)
+      -- activity graph
+    | GotAssignmentData (Api.Data (List Assignment))
+    | ChangeTimeRange Int
+    | ChangeTimeRangeDirection TimeRangeDirection
+      -- contributor chart
     | GotContributorData (Api.Data (List ( String, Int )))
     | GotCourseStatsData (Api.Data (List ( String, Int )))
 
@@ -156,6 +163,7 @@ init shared url =
       , assignmentModalData = NotAsked
       , editAssignmentTitleTfText = ""
       , assignmentTitleFocused = False
+      , markAssignmentDoneData = NotAsked
       , contributorData = Loading
       , courseStatsData = Loading
       }
@@ -478,6 +486,12 @@ update msg model =
               }
             , Cmd.none
             )
+
+        MarkAssignmentDone id done ->
+            ( model, markAssignmentDone id done (GotMarkAssignmentDoneData id) )
+
+        GotMarkAssignmentDoneData id data ->
+            ( { model | markAssignmentDoneData = data, assignmentModalData = Loading }, getAssignmentByID id GotAssignmentModalData )
 
         GotContributorData data ->
             ( { model | contributorData = data }, Cmd.none )
@@ -1403,6 +1417,25 @@ viewWeekAssignmentVisualization model =
 -}
 viewAssignmentModal : Model -> Element Msg
 viewAssignmentModal model =
+    let
+        viewUserIcon user color =
+            el
+                [ Background.color color
+                , Font.color <| rgb 1 1 1
+                , width <| px 50
+                , height <| px 50
+                , Font.center
+                , Border.rounded 25
+                , Font.size 24
+                ]
+                (el [ centerX, centerY ] (text <| String.slice 0 1 user.username))
+
+        colors userN =
+            [ rgb255 78 121 167, rgb255 242 142 44, rgb255 225 87 89, rgb255 118 183 178, rgb255 89 161 79, rgb255 237 201 73, rgb255 175 122 161, rgb255 255 157 167, rgb255 156 117 95, rgb255 186 176 171 ] |> List.repeat (userN // 10 + 10) |> List.concat
+
+        didIDoThis userID users =
+            List.member userID users
+    in
     case model.maybeAssignmentModalActivated of
         Just _ ->
             case model.courseData of
@@ -1468,13 +1501,25 @@ viewAssignmentModal model =
                                                     (text "[x]")
                                                 ]
                                             , el [] (text ("Course: " ++ Maybe.withDefault "undefined" (getCourseNameById courses assignment.courseId)))
+                                            , row [ spacing 10 ] <| List.map2 viewUserIcon assignment.doneByUsers (colors <| List.length assignment.doneByUsers)
                                             , row [ width fill ]
-                                                [ if user.id == assignment.user.id then
-                                                    viewButton "[delete]" redColor (RemoveAssignment assignment.id)
+                                                ((if user.id == assignment.user.id then
+                                                    [ viewButton "[delete]" redColor (RemoveAssignment assignment.id) ]
 
                                                   else
-                                                    none
-                                                ]
+                                                    []
+                                                 )
+                                                    ++ [ viewButton
+                                                            (if didIDoThis user.id assignment.doneBy then
+                                                                "[I didn't do this]"
+
+                                                             else
+                                                                "[I did this]"
+                                                            )
+                                                            greenColor
+                                                            (MarkAssignmentDone assignment.id (didIDoThis user.id assignment.doneBy |> not))
+                                                       ]
+                                                )
                                             ]
 
                                         Loading ->

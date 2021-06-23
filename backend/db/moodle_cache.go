@@ -89,7 +89,6 @@ func SearchUserCourses(query string, user structs.User) ([]structs.CachedCourse,
 		return nil, err
 	}
 
-	// create variables
 	var courses []structs.CachedCourse
 
 	for rows.Next() {

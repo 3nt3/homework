@@ -49,13 +49,15 @@ func (u User) GetClean() CleanUser {
 
 func (a Assignment) GetClean() CleanAssignment {
 	return CleanAssignment{
-		UID:        a.UID,
-		User:       a.User.GetClean(),
-		Created:    a.Created,
-		Title:      a.Title,
-		DueDate:    a.DueDate,
-		Course:     a.Course,
-		FromMoodle: a.FromMoodle,
+		UID:         a.UID,
+		User:        a.User.GetClean(),
+		Created:     a.Created,
+		Title:       a.Title,
+		DueDate:     a.DueDate,
+		Course:      a.Course,
+		FromMoodle:  a.FromMoodle,
+		DoneBy:      a.DoneBy,
+		DoneByUsers: a.DoneByUsers,
 	}
 }
 
@@ -66,23 +68,27 @@ type Session struct {
 }
 
 type Assignment struct {
-	UID        ksuid.KSUID `json:"id"`
-	User       User        `json:"user"`
-	Created    UnixTime    `json:"created"`
-	Title      string      `json:"title"`
-	DueDate    UnixTime    `json:"due_date"`
-	Course     int         `json:"course"`
-	FromMoodle bool        `json:"from_moodle"`
+	UID         ksuid.KSUID `json:"id"`
+	User        User        `json:"user"`
+	Created     UnixTime    `json:"created"`
+	Title       string      `json:"title"`
+	DueDate     UnixTime    `json:"due_date"`
+	Course      int         `json:"course"`
+	FromMoodle  bool        `json:"from_moodle"`
+	DoneBy      []string    `json:"done_by"`
+	DoneByUsers []User      `json:"done_by_users"`
 }
 
 type CleanAssignment struct {
-	UID        ksuid.KSUID `json:"id"`
-	User       CleanUser   `json:"user"`
-	Created    UnixTime    `json:"created"`
-	Title      string      `json:"title"`
-	DueDate    UnixTime    `json:"due_date"`
-	Course     int         `json:"course"`
-	FromMoodle bool        `json:"from_moodle"`
+	UID         ksuid.KSUID `json:"id"`
+	User        CleanUser   `json:"user"`
+	Created     UnixTime    `json:"created"`
+	Title       string      `json:"title"`
+	DueDate     UnixTime    `json:"due_date"`
+	Course      int         `json:"course"`
+	FromMoodle  bool        `json:"from_moodle"`
+	DoneBy      []string    `json:"done_by"`
+	DoneByUsers []User      `json:"done_by_users"`
 }
 
 type Course struct {
@@ -132,7 +138,7 @@ type UnixTime time.Time
 // MarshalJSON is used to convert the timestamp to JSON
 func (t UnixTime) MarshalJSON() ([]byte, error) {
 	// uhm ... yeah
-	return []byte(strconv.FormatInt(time.Time(t).UnixNano() / int64(time.Millisecond), 10)), nil
+	return []byte(strconv.FormatInt(time.Time(t).UnixNano()/int64(time.Millisecond), 10)), nil
 }
 
 // UnmarshalJSON is used to convert the timestamp from JSON
@@ -147,7 +153,6 @@ func (t *UnixTime) UnmarshalJSON(s []byte) (err error) {
 	*(*UnixTime)(t) = UnixTime(time.Unix(q/1000, (q%1000)*int64(time.Nanosecond)))
 	return nil
 }
-
 
 func (t UnixTime) Unix() int64 {
 	return time.Time(t).Unix()

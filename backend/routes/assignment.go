@@ -55,6 +55,8 @@ func CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	assignment.DoneBy = []string{}
+
 	_ = returnApiResponse(w, apiResponse{
 		Content: assignment.GetClean(),
 		Errors:  []string{},
@@ -463,5 +465,140 @@ func GetContributorsAdmin(w http.ResponseWriter, r *http.Request) {
 
 	_ = returnApiResponse(w, apiResponse{
 		Content: contributorThings,
+	}, 200)
+}
+
+func AssignmentDone(w http.ResponseWriter, r *http.Request, done bool) {
+	user, authenticated, err := getUserBySession(r, true)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"not authenticated"},
+			}, 401)
+			return
+		}
+		logging.ErrorLogger.Printf("error getting user by session: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	if !authenticated {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"authentication required"},
+		}, 401)
+		return
+	}
+
+	id, ok := mux.Vars(r)["id"]
+	if !ok {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"provide an assignment id plz"},
+		}, 400)
+		return
+	}
+
+	a, err := db.GetAssignmentByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"specified assignment does not exist :("},
+			}, 404)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	courses, err := db.GetMoodleUserCourses(user)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"you do not have access to the specified assignment"},
+			}, 403)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting user courses: %v\n", err)
+
+		if err.Error() == "no token or moodle url was provided" {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"you do not have access to the specified assignment", "you have not connected your moodle account yet"},
+			}, 403)
+			return
+		}
+
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	// check if assignment is in one of the user's courses
+	var inUserCourse bool
+	for _, c := range courses {
+		if c.FromMoodle {
+			if int(c.ID.(float64)) == a.Course {
+				inUserCourse = true
+				break
+			}
+		}
+		// FIXME: assignments not from moodle aren't checked?
+		// not sure if this is relevant since there *are* no non-moodle courses currently
+		// would probably be relevant after summer break when moodle stops being utilized
+	}
+
+	if !inUserCourse {
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"you do not have access to the specified assignment"},
+		}, 403)
+		return
+	}
+
+	if err = db.AssignmentDone(id, user.ID.String(), done); err != nil {
+		logging.ErrorLogger.Printf("error updating assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	assignment, err := db.GetAssignmentByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_ = returnApiResponse(w, apiResponse{
+				Content: nil,
+				Errors:  []string{"specified assignment does not exist :("},
+			}, 404)
+			return
+		}
+
+		logging.ErrorLogger.Printf("error getting assignment: %v\n", err)
+		_ = returnApiResponse(w, apiResponse{
+			Content: nil,
+			Errors:  []string{"internal server error"},
+		}, 500)
+		return
+	}
+
+	_ = returnApiResponse(w, apiResponse{
+		Content: assignment.GetClean(),
+		Errors:  []string{},
 	}, 200)
 }

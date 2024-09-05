@@ -1,5 +1,4 @@
 {
-
     "type": "application",
     "source-directories": [
         "src"
@@ -8,9 +7,6 @@
     "dependencies": {
         "direct": {
             "avh4/elm-color": "1.0.0",
-            "elm-community/list-extra": "8.2.4",
-            "elm-community/maybe-extra": "5.2.0",
-            "elm-community/typed-svg": "6.0.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
             "elm/html": "1.0.0",
@@ -19,11 +15,15 @@
             "elm/svg": "1.0.1",
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
+            "elm-community/list-extra": "8.2.4",
+            "elm-community/maybe-extra": "5.2.0",
+            "elm-community/typed-svg": "6.0.0",
             "folkertdev/one-true-path-experiment": "6.0.0",
             "gampleman/elm-visualization": "2.3.0",
             "icidasset/elm-material-icons": "4.0.0",
             "justinmimbs/date": "3.2.1",
             "mdgriffith/elm-ui": "1.1.7",
+            "ryan-haskell/date-format": "1.0.0",
             "ryannhg/date-format": "2.3.0"
         },
         "indirect": {
@@ -56,4 +56,3 @@
         }
     }
 }
-
